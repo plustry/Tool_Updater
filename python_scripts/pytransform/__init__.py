@@ -1,13 +1,38 @@
+# These module alos are used by protection code, so that protection
+# code needn't import anything
+import os
+import platform
+import sys
+import struct
+
 # Because ctypes is new from Python 2.5, so pytransform doesn't work
 # before Python 2.5
 #
 from ctypes import cdll, c_char, c_char_p, c_int, c_void_p, \
-                   pythonapi, py_object, PYFUNCTYPE
+    pythonapi, py_object, PYFUNCTYPE, CFUNCTYPE
+from fnmatch import fnmatch
 
-import os
-import sys
-import platform
-import struct
+#
+# Support Platforms
+#
+plat_path = 'platforms'
+
+plat_table = (
+    ('windows', ('windows', 'cygwin-*')),
+    ('darwin', ('darwin', 'ios')),
+    ('linux', ('linux*',)),
+    ('freebsd', ('freebsd*', 'openbsd*')),
+    ('poky', ('poky',)),
+)
+
+arch_table = (
+    ('x86', ('i?86', )),
+    ('x86_64', ('x64', 'x86_64', 'amd64', 'intel')),
+    ('arm', ('armv5',)),
+    ('armv7', ('armv7l',)),
+    ('aarch32', ('aarch32',)),
+    ('aarch64', ('aarch64', 'arm64'))
+)
 
 #
 # Hardware type
@@ -18,7 +43,6 @@ HT_HARDDISK, HT_IFMAC, HT_IPV4, HT_IPV6, HT_DOMAIN = range(5)
 # Global
 #
 _pytransform = None
-_get_error_msg = None
 
 
 class PytransformError(Exception):
@@ -27,15 +51,15 @@ class PytransformError(Exception):
 
 def dllmethod(func):
     def wrap(*args, **kwargs):
-        # args = [(s.encode() if isinstance(s, str) else s) for s in args]
-        result = func(*args, **kwargs)
-        if isinstance(result, int) and result != 0:
-            errmsg = _get_error_msg()
-            if not isinstance(errmsg, str):
-                errmsg = errmsg.decode()
-            raise PytransformError(errmsg)
-        return result
+        return func(*args, **kwargs)
     return wrap
+
+
+@dllmethod
+def version_info():
+    prototype = PYFUNCTYPE(py_object)
+    dlfunc = prototype(('version_info', _pytransform))
+    return dlfunc()
 
 
 @dllmethod
@@ -45,7 +69,11 @@ def init_pytransform():
     # bitness = 64 if sys.maxsize > 2**32 else 32
     prototype = PYFUNCTYPE(c_int, c_int, c_int, c_void_p)
     init_module = prototype(('init_module', _pytransform))
-    return init_module(major, minor, pythonapi._handle)
+    ret = init_module(major, minor, pythonapi._handle)
+    if (ret & 0xF000) == 0x1000:
+        raise PytransformError('Initialize python wrapper failed (%d)'
+                               % (ret & 0xFFF))
+    return ret
 
 
 @dllmethod
@@ -56,7 +84,8 @@ def init_runtime():
 
 
 @dllmethod
-def encrypt_code_object(pubkey, co, flags):
+def encrypt_code_object(pubkey, co, flags, suffix=''):
+    _pytransform.set_option(6, suffix.encode())
     prototype = PYFUNCTYPE(py_object, py_object, py_object, c_int)
     dlfunc = prototype(('encrypt_code_object', _pytransform))
     return dlfunc(pubkey, co, flags)
@@ -72,12 +101,21 @@ def generate_license_file(filename, priname, rcode, start=-1, count=1):
 
 
 @dllmethod
+def generate_license_key(prikey, keysize, rcode):
+    prototype = PYFUNCTYPE(py_object, c_char_p, c_int, c_char_p)
+    dlfunc = prototype(('generate_license_key', _pytransform))
+    return dlfunc(prikey, keysize, rcode) if sys.version_info[0] == 2 \
+        else dlfunc(prikey, keysize, rcode.encode())
+
+
+@dllmethod
 def get_registration_code():
     prototype = PYFUNCTYPE(py_object)
     dlfunc = prototype(('get_registration_code', _pytransform))
     return dlfunc()
 
 
+@dllmethod
 def get_expired_days():
     prototype = PYFUNCTYPE(py_object)
     dlfunc = prototype(('get_expired_days', _pytransform))
@@ -88,7 +126,7 @@ def get_hd_info(hdtype, size=256):
     t_buf = c_char * size
     buf = t_buf()
     if (_pytransform.get_hd_info(hdtype, buf, size) == -1):
-        raise PytransformError(_get_error_msg())
+        raise PytransformError('Get hardware information failed')
     return buf.value.decode()
 
 
@@ -98,27 +136,24 @@ def show_hd_info():
 
 def get_license_info():
     info = {
-        'expired': 'Never',
-        'restrict_mode': 'Enabled',
-        'HARDDISK': 'Any',
-        'IFMAC': 'Any',
-        'IFIPV4': 'Any',
-        'DOMAIN': 'Any',
-        'DATA': '',
-        'CODE': '',
+        'EXPIRED': None,
+        'HARDDISK': None,
+        'IFMAC': None,
+        'IFIPV4': None,
+        'DOMAIN': None,
+        'DATA': None,
+        'CODE': None,
     }
     rcode = get_registration_code().decode()
-    if rcode is None:
-        raise PytransformError(_get_error_msg())
     index = 0
     if rcode.startswith('*TIME:'):
         from time import ctime
         index = rcode.find('\n')
-        info['expired'] = ctime(float(rcode[6:index]))
+        info['EXPIRED'] = ctime(float(rcode[6:index]))
         index += 1
 
     if rcode[index:].startswith('*FLAGS:'):
-        info['restrict_mode'] = 'Disabled'
+        info['FLAGS'] = 1
         index += len('*FLAGS:') + 1
 
     prev = None
@@ -142,42 +177,82 @@ def get_license_code():
     return get_license_info()['CODE']
 
 
-def format_platname(platname=None):
-    if platname is None:
-        plat = platform.system().lower()
-        bitness = struct.calcsize('P'.encode()) * 8
-        platname = '%s%s' % (plat, bitness)
+def _match_features(patterns, s):
+    for pat in patterns:
+        if fnmatch(s, pat):
+            return True
+
+
+def _gnu_get_libc_version():
+    try:
+        prototype = CFUNCTYPE(c_char_p)
+        ver = prototype(('gnu_get_libc_version', cdll.LoadLibrary('')))()
+        return ver.decode().split('.')
+    except Exception:
+        pass
+
+
+def format_platform(platid=None):
+    if platid:
+        return os.path.normpath(platid)
+
+    plat = platform.system().lower()
     mach = platform.machine().lower()
-    return platname if mach in (
-        'intel', 'x86', 'i386', 'i486', 'i586', 'i686',
-        'x64', 'x86_64', 'amd64'
-        ) else os.path.join(platname, mach)
+
+    for alias, platlist in plat_table:
+        if _match_features(platlist, plat):
+            plat = alias
+            break
+
+    if plat == 'linux':
+        cname, cver = platform.libc_ver()
+        if cname == 'musl':
+            plat = 'alpine'
+        elif cname == 'libc':
+            plat = 'android'
+        elif cname == 'glibc':
+            v = _gnu_get_libc_version()
+            if v and len(v) >= 2 and (int(v[0]) * 100 + int(v[1])) < 214:
+                plat = 'centos6'
+
+    for alias, archlist in arch_table:
+        if _match_features(archlist, mach):
+            mach = alias
+            break
+
+    if plat == 'windows' and mach == 'x86_64':
+        bitness = struct.calcsize('P'.encode()) * 8
+        if bitness == 32:
+            mach = 'x86'
+
+    return os.path.join(plat, mach)
 
 
 # Load _pytransform library
-def _load_library(path=None, is_runtime=0, platname=None):
+def _load_library(path=None, is_runtime=0, platid=None, suffix=''):
     path = os.path.dirname(__file__) if path is None \
         else os.path.normpath(path)
 
     plat = platform.system().lower()
+    name = '_pytransform' + suffix
     if plat == 'linux':
-        filename = os.path.abspath(os.path.join(path, '_pytransform.so'))
+        filename = os.path.abspath(os.path.join(path, name + '.so'))
     elif plat == 'darwin':
-        filename = os.path.join(path, '_pytransform.dylib')
+        filename = os.path.join(path, name + '.dylib')
     elif plat == 'windows':
-        filename = os.path.join(path, '_pytransform.dll')
+        filename = os.path.join(path, name + '.dll')
     elif plat == 'freebsd':
-        filename = os.path.join(path, '_pytransform.so')
+        filename = os.path.join(path, name + '.so')
     else:
         raise PytransformError('Platform %s not supported' % plat)
 
-    if not os.path.exists(filename):
-        if is_runtime:
-            raise PytransformError('Could not find "%s"' % filename)
-        libpath = os.path.join(path, 'platforms', format_platname(platname))
+    if platid is not None or not os.path.exists(filename) or not is_runtime:
+        libpath = platid if platid is not None and os.path.isabs(platid) else \
+            os.path.join(path, plat_path, format_platform(platid))
         filename = os.path.join(libpath, os.path.basename(filename))
-        if not os.path.exists(filename):
-            raise PytransformError('Could not find "%s"' % filename)
+
+    if not os.path.exists(filename):
+        raise PytransformError('Could not find "%s"' % filename)
 
     try:
         m = cdll.LoadLibrary(filename)
@@ -201,30 +276,35 @@ def _load_library(path=None, is_runtime=0, platname=None):
     # Disable advanced mode if required
     # m.set_option(5, c_char_p(1))
 
+    # Set suffix for private package
+    if suffix:
+        m.set_option(6, suffix.encode())
+
     return m
 
 
-def pyarmor_init(path=None, is_runtime=0, platname=None):
+def pyarmor_init(path=None, is_runtime=0, platid=None, suffix=''):
     global _pytransform
-    global _get_error_msg
-    _pytransform = _load_library(path, is_runtime, platname)
-    _get_error_msg = _pytransform.get_error_msg
-    _get_error_msg.restype = c_char_p
+    _pytransform = _load_library(path, is_runtime, platid, suffix)
     return init_pytransform()
 
 
-def pyarmor_runtime(path=None):
+def pyarmor_runtime(path=None, suffix=''):
     try:
-        if pyarmor_init(path, is_runtime=1) == 0:
-            init_runtime()
-    except PytransformError as e:
-        print(e)
-        sys.exit(1)
+        pyarmor_init(path, is_runtime=1, suffix=suffix)
+        init_runtime()
+    except Exception as e:
+        raise PytransformError(e)
 
+# ----------------------------------------------------------
+# End of pytransform
+# ----------------------------------------------------------
 
 #
 # Not available from v5.6
 #
+
+
 def generate_capsule(licfile):
     prikey, pubkey, prolic = _generate_project_capsule()
     capkey, newkey = _generate_pytransform_key(licfile, pubkey)
