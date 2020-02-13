@@ -12,8 +12,8 @@ var mkdirp = require("mkdirp")
 const exec = require('child_process').exec;
 const {PythonShell} = require('python-shell')
 const Encoding = require('encoding-japanese');
-script_dir = path.join("..", 'python_scripts')
-// script_dir = path.join("..", 'python_scripts_')
+// script_dir = path.join("..", 'python_scripts')
+script_dir = path.join("..", 'python_scripts_')
 const os_info = process.platform
 
 if (os_info == "win32") {

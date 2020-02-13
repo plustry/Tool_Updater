@@ -67,11 +67,11 @@ StartBtn.addEventListener('click', (event) => {
     "day_score": document.getElementById('day-score').value,
     "hour_score": document.getElementById('hour-score').value,
     "cookie": document.getElementById('access-code').value,
-    "dir_name": global.directory_name,
-    "csv": global.csv_name,
-    "url_memo": document.getElementsByName('url_memo').value
+    "dir_path": global.directory_name,
+    "csv_name": global.csv_name,
+    "url_memo": document.getElementById('url_memo').value
   }
-  ipcRenderer.send('start-exhibition',args_list)
+  ipcRenderer.send('start-exhibition',JSON.stringify(args_list))
 })
 
 // 選択したディレクトリを表示
