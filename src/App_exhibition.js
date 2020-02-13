@@ -1,5 +1,6 @@
 // rendererとipc通信を行う
 const {ipcRenderer} = require('electron')
+const path = require('path');
 
 // 動的に作成したボタンから呼び出してCSV読みこみ
 global.csv_name = ""
@@ -74,9 +75,9 @@ StartBtn.addEventListener('click', (event) => {
 })
 
 // 選択したディレクトリを表示
-ipcRenderer.on('selected-directory', (event, path) => {
-  global.directory_name = path.join(path, "/")
-  document.getElementById('selected-folder').innerHTML = `You selected: ${path}`
+ipcRenderer.on('selected-directory', (event, pathe) => {
+  global.directory_name = path.join(pathe, "/")
+  document.getElementById('selected-folder').innerHTML = `You selected: ${pathe}`
 })
 
 // 選択したディレクトリに保存されたアクセスコードを表示
