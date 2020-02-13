@@ -154,7 +154,7 @@ StartBtn.addEventListener('click', (event) => {
        console.log(error) 
       }
     }
-    ipcRenderer.send('cause-error', '商品リストの取得を開始しました', 'アプリを閉じると取得を終了します。\n取得可能商品数はこちらです：' + args_list['limit'] + '\n取得ショップ：' + args_list['crawler_or_spidercls'])
+    ipcRenderer.send('show-info', 'スクレイピング開始', '商品リストの取得を開始しました', 'アプリを閉じると取得を終了します。\n取得可能商品数はこちらです：' + args_list['limit'] + '\n取得ショップ：' + args_list['crawler_or_spidercls'])
     ipcRenderer.send('start-scrapy', JSON.stringify(args_list))
   }
 })
