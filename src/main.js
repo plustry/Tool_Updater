@@ -12,8 +12,8 @@ var mkdirp = require("mkdirp")
 const exec = require('child_process').exec;
 const {PythonShell} = require('python-shell')
 const Encoding = require('encoding-japanese');
-// script_dir = path.join("..", 'python_scripts')
-script_dir = path.join("..", 'python_scripts_')
+script_dir = path.join("..", 'python_scripts')
+// script_dir = path.join("..", 'python_scripts_')
 const os_info = process.platform
 
 if (os_info == "win32") {
@@ -457,12 +457,6 @@ event.sender.send('load-scraping-conf', dic_list)
 ipcMain.on('open-file-scraper', (event) => { 
 dialog.showOpenDialog({
   properties: ['openDirectory'],
-  // filters: [
-  //   {
-  //     name: 'Open Directory',
-  //     // extensions: ['csv', 'txt', 'md']
-  //   }
-  // ]
 }).then (folder => {
   if (folder.filePaths[0]) {
     // 選択したディレクトリを表示
@@ -595,12 +589,6 @@ try {
 ipcMain.on('open-file-manager', (event) => { 
 dialog.showOpenDialog({
   properties: ['openDirectory'],
-  // filters: [
-  //   {
-  //     name: 'Open Directory',
-  //     // extensions: ['csv', 'txt', 'md']
-  //   }
-  // ]
 }).then (folder => {
   if (folder.filePaths[0]) {
     // 選択したディレクトリを表示
@@ -611,18 +599,9 @@ dialog.showOpenDialog({
 
 // BUY Manager実行
 ipcMain.on('start-manager', (event, args_list) => {
-
-buyma_dir = args_list["buyma_dir"]
-page_setting = args_list["page_setting"]
-onoff = args_list["onoff"]
-days = args_list["days"]
-buyma_account = args_list["buyma_account"]
-access_prm = args_list["access_prm"]
-want_prm = args_list["want_prm"]
-cart_prm = args_list["cart_prm"]
-price_prm = args_list["price_prm"]
-maxprice_prm = args_list["maxprice_prm"]
-date_prm = args_list["date_prm"]
+  args_list = JSON.parse(args_list)
+  console.log(args_list)
+  args_list["electron_dir"] = __dirname
 
 let options = {
   mode: 'text',
@@ -630,7 +609,7 @@ let options = {
   pythonOptions: ['-u'], // get print results in real-time
   scriptPath: path.join(__dirname, script_dir),
   // python側へGUIで拾った値を渡す
-  args: [buyma_dir, page_setting, onoff, days, __dirname, buyma_account, access_prm, want_prm, cart_prm, price_prm, maxprice_prm, date_prm],
+  args: JSON.stringify(args_list),
   encoding: "binary"
 };
 // Macのときはエンコーディングする必要がない

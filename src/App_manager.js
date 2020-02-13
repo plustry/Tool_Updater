@@ -54,7 +54,7 @@ StartBtn.addEventListener('click', (event) => {
   document.getElementById('logs').innerHTML += "<p>[log]: ページ選択：" + args_list["page_setting"] + "</p>"
   document.getElementById('logs').innerHTML += "<p>[log]: 設定モード：" + args_list["onoff"] + "</p>"
   document.getElementById('logs').innerHTML += "<p>[log]: 出品期間延長日数：" + args_list["days"] + "</p>"
-  ipcRenderer.send('start-manager', args_list)
+  ipcRenderer.send('start-manager', JSON.stringify(args_list))
 })
 
 // ログ画面
