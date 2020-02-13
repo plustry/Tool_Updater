@@ -467,6 +467,10 @@ dialog.showOpenDialog({
 
 // SQLログイン
 ipcMain.on('sql-login', (event, email, password) => {
+  args_list["email"] = email
+  args_list["password"] = password
+  args_list["electron_dir"] = __dirname
+
 console.log(email, password)
 let options = {
   mode: 'text',
@@ -474,7 +478,7 @@ let options = {
   pythonOptions: ['-u'], // get print results in real-time
   scriptPath: path.join(__dirname, script_dir),
   // python側へGUIで拾った値を渡す
-  args: [email, password, __dirname],
+  args: JSON.stringify(args_list),
   encoding: "binary"
 };
 // Macのときはエンコーディングする必要がない
@@ -670,32 +674,12 @@ if (user_name == "") {
         //tmp_brandディレクトリ作成
       makeDir(path.join(new_user_dir, 'tmp_brand')).then(dir_path => {
       makeDir(path.join(dir_path, "Saint Laurent")).then(dir_path2 => {
-
-        // 再帰的にファイルを作成
-      function fcmkfile(path) {
-        return new Promise(resolve => {
-          fs.mkdir(getDirName(path), { recursive: true }, err => {
-            if(err) console.log(err);
-        }).then(
-          fs.writeFile(path, "").then(
-          resolve()
-        )
-        )
-        })
-      }
-
-      async function mkfile() {
-          for (let element in file_list) {
-              await fcmkfile(path.join(dir_path2, element));
-          }
-          return 'ループ終わった。'
-      }
-      mkfile()
+      mkfile(dir_path2)
           
       text_data = "「商品コメント」\n\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。"
       var brand_path = path.join(dir_path2, 'Saint Laurent.txt')
       if(!fs.existsSync(brand_path)){
-        fs.writefile(brand_path,"",function(err){
+        fs.writeFile(brand_path, "", function(err){
           if(err) throw err;
       });
       }
@@ -721,7 +705,7 @@ if (user_name == "") {
             for (let i = 0; i < txt_list.length; i++) {
               var temp_path = path.join(dir_path3, txt_list[i])
               if(!fs.existsSync(temp_path)){
-                writeFile(temp_path , "" , (err) => {
+                fs.writeFile(temp_path , "" , (err) => {
                 if(err) throw err;
               })
               }
@@ -765,11 +749,11 @@ dialog.showOpenDialog({
       console.log(dir_path)
       var txt_list = ["ColorFooter.txt", "ColorHeader.txt", "CommentFooter.txt", "CommentHeader.txt"]
       for (let i = 0; i < txt_list.length; i++) {
-        writeFile( path.join(dir_path, txt_list[i]), "", (err) => {
+        fs.writeFile(path.join(dir_path, txt_list[i]), "", (err) => {
           if(err) throw err;
         })
       }
-    });
+    })
     }
     
     // 選択したディレクトリを表示
@@ -858,12 +842,24 @@ pyshell.end(function (err,code,signal) {
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 共通モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
-// 再帰的にファイルを作る
-function writeFile (path, contents, cb) {
-  mkdirp(getDirName(path), async function (err) {
-    if (err) return cb(err)
-    fs.writeFile(path, contents, cb)
+  // 再帰的にファイルを作成
+function fcmkfile(file_path) {
+  return new Promise(resolve => {
+    fs.mkdir(getDirName(file_path), {recursive: true}, err => {
+      if(err) console.log(err)
+      fs.writeFile(file_path, "", err => {
+      if(err) console.log(err)
+      resolve()
+      })
   })
+})
+}
+
+async function mkfile(dir_path2) {
+    for (var i = 0; i < file_list.length; i++) {
+        await fcmkfile(path.join(dir_path2, file_list[i]));
+    }
+    return 'ループ終わった。'
 }
 
 // エラー表示用
