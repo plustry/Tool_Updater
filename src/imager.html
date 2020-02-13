@@ -1,0 +1,110 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>自動画像加工ツール</title>
+  <link rel="stylesheet" type="text/css" href="table.css">
+</head>
+
+<body>
+  <header id="header">
+    <div align="center">
+      <ul id="gNavi">  
+        <li><a id="exhibition">自動出品ツール</a></li>  
+        <li><a id="buymanager">BuyManager</a></li>  
+        <li><a id="scraper">商品リスト自動作成ツール</a></li>  
+        <li><a id="imager">自動画像加工ツール</a></li>  
+      </ul>  
+    <h3>自動画像加工ツール</h3>
+      <!-- Using node <script>document.write(process.versions.node)</script>,
+      Chrome <script>document.write(process.versions.chrome)</script>,
+      and Electron <script>document.write(process.versions.electron)</script>. -->
+    </div>
+    
+    <div>
+      <button id="select-dir">保存フォルダを開く</button>
+      <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
+      <div>
+        <a id="dir-button"></a>
+        <a id="dir-status"></a>
+      </div>
+      <br>
+      <table border="0">
+        <tr>
+          <ul id="prms">
+            <li>
+              <a>生成画像サイズ：<input type="text" id="image_size" size=5 value=""><button onclick=gethelp(0)>？</button></a>
+            </li>  
+            <li>
+              <a>商品画像サイズ：<input type="text" id="item_size" size=5 value=""><button onclick=gethelp(1)>？</button></a>
+            </li>  
+            <li>
+                <a>商品縦：<input type="text" id="item_move_y" size=5 value=""><button onclick=gethelp(2)>？</button></a>
+              </li>
+              <li>
+                <a>商品横：<input type="text" id="item_move_x" size=5 value=""><button onclick=gethelp(3)>？</button></a>
+              </li>  
+            </ul> 
+            <ul id="prms">
+            <li>
+              <a>背景縦：<input type="text" id="back_move_y" size=5 value=""><button onclick=gethelp(4)>？</button></a>
+            </li>
+            <li>
+              <a>背景横：<input type="text" id="back_move_x" size=5 value=""><button onclick=gethelp(5)>？</button></a>
+            </li> 
+            <li>
+                <a>ロゴ縦：<input type="text" id="logo_move_y" size=5 value=""><button onclick=gethelp(6)>？</button></a>
+              </li>
+              <li>
+                <a>ロゴ横：<input type="text" id="logo_move_x" size=5 value=""><button onclick=gethelp(7)>？</button></a>
+              </li>  
+            </ul> 
+            <ul id="prms">
+            <li>
+              <a>背景画像番号：<input type="text" id="bg_num" size=5 value=""><button onclick=gethelp(8)>？</button></a>
+            </li>
+            <li>
+              <a>エフェクト：<input type="text" id="img_effect" size=20 value=""><button onclick=gethelp(9)>？</button></a>
+            </li>
+            <li>
+              <a>フレーム：<input type="text" id="img_frame" size=20 value=""><button onclick=gethelp(10)>？</button></a>
+            </li>
+            <li>
+              <a>ロゴ：<input type="text" id="img_logo" size=20 value=""><button onclick=gethelp(11)>？</button></a>
+            </li>
+          </ul> 
+        </tr>
+        <tr>
+        <ul id="prms2">
+          <li>
+            <a>透明度：<input type="text" id="image_diff" size=5 value=""><button onclick=gethelp(16)>？</button></a>
+          </li> 
+            <li align="left"><b> メールアドレス：</b><input type="text" id="email" size="30" value=""></li>
+            <li align="center"><b> パスワード：</b><input type="password" id="password" size="30" value=""></li>
+          </ul>
+        <ul id="prms">
+            <li>
+                <b> カテゴリ：</b>
+                <select id="img_category"></select>
+                <input type="button" value="適用" onclick="choiceCat()"/><button onclick=gethelp(12)>？</button>
+            </li>
+            <li>
+                <b> 新規カテゴリ：</b>
+                <input type="text" id="img_new_category" size=10 value=""><button onclick=gethelp(13)>？</button>
+            </li>
+            <li><input type="submit" id="imager-main" value="全て編集"><button onclick=gethelp(14)>？</button></li>
+          <li><input type="submit" id="imager-test" value="テスト編集"><button onclick=gethelp(15)>？</button></li>
+        </ul>
+        </tr>
+      </table>
+    </div>
+  </header>
+
+  <div class="images" id="images"></div>
+
+  <footer id="footer">
+    <div id="logs"></div>
+  </footer>
+
+  <script src="App_imager.js"></script>
+</body>
+</html>

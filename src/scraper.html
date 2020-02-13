@@ -1,0 +1,219 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>商品リスト自動作成ツール</title>
+  <link rel="stylesheet" type="text/css" href="table.css">
+</head>
+
+<body>
+  <header id="settings">
+    <div align="center">
+      <ul id="gNavi">  
+          <li><a id="exhibition">自動出品ツール</a></li>  
+          <li><a id="buymanager">BuyManager</a></li>  
+          <li><a id="scraper">商品リスト自動作成ツール</a></li>  
+          <li><a id="imager">自動画像加工ツール</a></li>  
+      </ul>  
+    <h3>商品リスト自動作成ツール</h3>
+      <!-- Using node <script>document.write(process.versions.node)</script>,
+      Chrome <script>document.write(process.versions.chrome)</script>,
+      and Electron <script>document.write(process.versions.electron)</script>. -->
+    </div>
+    
+    <div>
+      <button id="select-dir">保存フォルダを開く</button>
+      <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
+      <table border="0">
+        <tr>
+          <td align="right"><b> メールアドレス：</b></td>
+          <td><input type="text" id="email" size="50" maxlength="1000" value=""></td>
+        </tr>
+        <tr>
+          <td align="right"><b> パスワード：</b></td>
+          <td><input type="password" id="password" size="50" maxlength="1000" value=""></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>
+            <input type="submit" id="sql-login" value="認証開始">
+            <a id="sql-login-status"><font color="red">認証されていません</font></a>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <a id="shop-list"></a>
+    <div>
+      <table border="0">
+        <tr>
+          <td align="left"><b> 取得ページ数(0で無制限)：</b><input type="text" id="max_page" size="10" maxlength="30" value=0></td>
+          <td align="left"><b> 開始URL：</b><input type="text" id="start_urls" size="30" maxlength="1000" value=''></td>
+        </tr>
+        <tr>
+          <td>
+            <input type="submit" id="start-scrapy" value="スクレイピング開始">
+            <a id="start-status"><font color="red">ショップが選択されていません</font></a>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </header>
+
+  <div class="shop-setting" style="white-space:nowrap;">
+    <table border="0">
+      <tr>
+        <td align="right"><b>CSV パラメータ(例: womens)：</b></td>
+        <td><input type="text" id="csv_prm" size="50" maxlength="1000" value=""></td>
+      </tr>
+      <tr>
+        <td align="right"><b>性別 (例: レディース)：</b></td>
+        <td>
+          <select id="sex">
+                <option value=""></option>
+                <option value="レディース">レディース</option>
+              <option value="メンズ">メンズ</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"><b>通貨 (例: $)：</b></td>
+        <td>
+            <select id="currency">
+                <option value=""></option>
+                <option value="$">$</option>
+                <option value="€">€</option>
+                <option value="£">£</option>
+                <option value="¥">¥</option>
+                <option value="AUD">AUD</option>
+                <option value="SAR">SAR</option>
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"><b>商品名の装飾 (例: 関税込み◆)：</b></td>
+        <td><input type="text" id="edit_name" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+          <td align="right"><b>最低価格 (例: 30000)：</b></td>
+          <td><input type="text" id="max_price" size="50" maxlength="1000"></td>
+        </tr>
+      <tr>
+        <td align="right"><b>VatOff率 (例: 22)：</b></td>
+        <td><input type="text" id="vatoff_late" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>VIP割引率 (例: 10)：</b></td>
+        <td><input type="text" id="vip_late" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>送料 (例: 7000)：</b></td>
+        <td><input type="text" id="delivery_price" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>利益率 (例: 15)：</b></td>
+        <td><input type="text" id="profit_late" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>関税 (例: 関税元払い)：</b></td>
+        <td>
+            <select id="duty_pattern">
+                <option value=""></option>
+                <option value="関税元払い">関税元払い</option>
+                <option value="購入者申請時、全額負担">購入者申請時、全額負担</option>
+                <option value="お客様負担">お客様負担</option>
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"><b>サイズバリエーション (例: バリエーションあり)：</b></td>
+        <td>
+            <select id="size_variation">
+                <option value=""></option>
+                <option value="バリエーションなし">バリエーションなし</option>
+                <option value="バリエーションあり">バリエーションあり</option>
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"><b>買い付け地 (例: 海外:ヨーロッパ:イタリア:選択なし)：</b></td>
+        <td><input type="text" id="buyplace" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>発送地 (例: 国内:福岡県::)：</b></td>
+        <td><input type="text" id="sendplace" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>ショップ名 (例: GUCCI正規店)：</b></td>
+        <td><input type="text" id="buyma_shop" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>タグ (例: 英語版向け,ギフトラッピングOK)：</b></td>
+        <td><input type="text" id="tag" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>テーマ (例: 先取り！日本未入荷)：</b></td>
+        <td><input type="text" id="thema" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>シーズン (例: 2019-20AW)：</b></td>
+        <td>
+            <select id="season">
+                <option value=""></option>
+                <option value="2020 SS">2020 SS</option>
+                <option value="2020 Cruise">2020 Cruise</option>
+                <option value="2019-20AW">2019-20AW</option>
+                <option value="2019 SS">2019 SS</option>
+                <option value="2019 Cruise">2019 Cruise</option>
+                <option value="2018-19AW">2018-19AW</option>
+                <option value="2018 SS">2018 SS</option>
+                <option value="2018 Cruise">2018 Cruise</option>
+                <option value="2017-18AW">2017-18AW</option>
+                <option value="2017 SS">2017 SS</option>
+                <option value="2017 Cruise">2017 Cruise</option>
+                <option value="2016-17AW">2016-17AW</option>
+                <option value="2016 SS">2016 SS</option>
+                <option value="2016 Cruise">2016 Cruise</option>
+                <option value="2015-16AW">2015-16AW</option>
+                <option value="2015 SS">2015 SS</option>
+                <option value="2015 Cruise">2015 Cruise</option>
+                <option value="2014-15AW">2014-15AW</option>
+            </select>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"><b>配送方法名 (例: 	日本郵便 - ゆうパック)：</b></td>
+        <td><input type="text" id="delivery" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>購入期限 (例: 14)：</b></td>
+        <td><input type="text" id="deadline" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>在庫数 (例: 1)：</b></td>
+        <td><input type="text" id="stock" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>メモ (例: メモ)：</b></td>
+        <td><input type="text" id="memo" size="50" maxlength="1000"></td>
+      </tr>
+      <tr>
+        <td align="right"><b>取得する要素 (例: 型番)：</b></td>
+        <td>
+            <select id="get_one">
+                <option value=""></option>
+                <option value="型番">型番</option>
+                <option value="商品名">商品名</option>
+                <option value="ブランド">ブランド</option>
+            </select>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+
+  <footer id="footer">
+    <div id="logs"></div>
+  </footer>
+
+  <script src="App_scraper.js"></script>
+</body>
+</html>
