@@ -308,7 +308,7 @@ const url_req = new Promise((resolve, reject)=>{
 
         for (let i = 0; i < update_list.length; i++) {
           var update_path = path.join(__dirname, "..", update_list[i])
-          console.log(update_path, fs.statSync(update_path).isDirectory())
+          // console.log(update_path, fs.statSync(update_path).isDirectory())
           if (fs.statSync(update_path).isDirectory()) {
             try {
               deleteFolderRecursive(update_path)
