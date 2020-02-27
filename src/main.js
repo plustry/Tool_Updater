@@ -309,16 +309,16 @@ const url_req = new Promise((resolve, reject)=>{
         for (let i = 0; i < update_list.length; i++) {
           var update_path = path.join(__dirname, "..", update_list[i])
           // console.log(update_path, fs.statSync(update_path).isDirectory())
-          if (fs.statSync(update_path).isDirectory()) {
-            try {
-              deleteFolderRecursive(update_path)
-            } catch (error) {}
-          } else {
-            try {
-              fs.unlinkSync(update_path)
-            } catch (error) {}
-          }
-          fs.renameSync(path.join(path.join(__dirname, "..", 'Tool_Updater-master'), update_list[i]), update_path)
+          try {
+            if (fs.statSync(update_path).isDirectory()) {
+                deleteFolderRecursive(update_path)
+            } else {
+                fs.unlinkSync(update_path)
+            }
+          } catch (error) {console.log(error)}
+          try{
+            fs.renameSync(path.join(path.join(__dirname, "..", 'Tool_Updater-master'), update_list[i]), update_path)
+          } catch (error) {console.log(error)}
         }
         progressBar.detail = "新しいファイルを適用しています..."
         // ZIPファイルを削除
