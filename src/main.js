@@ -310,9 +310,13 @@ const url_req = new Promise((resolve, reject)=>{
           var update_path = path.join(__dirname, "..", update_list[i])
           console.log(update_path, fs.statSync(update_path).isDirectory())
           if (fs.statSync(update_path).isDirectory()) {
-            deleteFolderRecursive(update_path)
+            try {
+              deleteFolderRecursive(update_path)
+            } catch (error) {}
           } else {
-            fs.unlinkSync(update_path)
+            try {
+              fs.unlinkSync(update_path)
+            } catch (error) {}
           }
           fs.renameSync(path.join(path.join(__dirname, "..", 'Tool_Updater-master'), update_list[i]), update_path)
         }
