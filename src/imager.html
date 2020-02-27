@@ -1,0 +1,175 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>自動画像加工ツール</title>
+  <link rel="stylesheet" type="text/css" href="table.css">
+</head>
+
+<body>
+  <header id="header">
+    <div align="center">
+      <ul id="gNavi">  
+        <li><a id="exhibition">自動出品ツール</a></li>  
+        <li><a id="buymanager">BuyManager</a></li>  
+        <li><a id="scraper">商品リスト自動作成ツール</a></li>  
+        <li><a id="imager">自動画像加工ツール</a></li>  
+      </ul>  
+    <h3>自動画像加工ツール</h3>
+      <!-- Using node <script>document.write(process.versions.node)</script>,
+      Chrome <script>document.write(process.versions.chrome)</script>,
+      and Electron <script>document.write(process.versions.electron)</script>. -->
+    </div>
+    
+    <div>
+      <button id="select-dir">保存フォルダを開く</button>
+      <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
+      <div>
+        <a id="dir-button"></a>
+        <a id="dir-status"></a>
+      </div>
+      <br>
+      <table border="0">
+        <tr>
+          <!-- １列目 -->
+          <ul id="prms">
+            <li>
+              <a>生成画像サイズ：
+                <input type="text" id="image_size" size=5 value="">
+                <button onclick=gethelp('image_size')>？</button>
+              </a>
+            </li>  
+            <li>
+              <a>商品画像サイズ：
+                <input type="text" id="item_size" size=5 value="">
+                <button onclick=gethelp('item_size')>？</button>
+              </a>
+            </li>  
+            <li>
+                <a>商品縦：
+                  <input type="text" id="item_move_y" size=5 value="">
+                  <button onclick=gethelp('item_move_y')>？</button>
+                </a>
+            </li>
+            <li>
+              <a>商品横：
+                <input type="text" id="item_move_x" size=5 value="">
+                <button onclick=gethelp('item_move_x')>？</button>
+              </a>
+            </li>  
+          </ul> 
+          <!-- ２列目 -->
+          <ul id="prms">
+            <li>
+              <a>背景縦：
+                <input type="text" id="back_move_y" size=5 value="">
+                <button onclick=gethelp('back_move_y')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>背景横：
+                <input type="text" id="back_move_x" size=5 value="">
+                <button onclick=gethelp('back_move_x')>？</button>
+              </a>
+            </li> 
+            <li>
+              <a>ロゴ縦：
+                <input type="text" id="logo_move_y" size=5 value="">
+                <button onclick=gethelp('logo_move_y')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>ロゴ横：
+                <input type="text" id="logo_move_x" size=5 value="">
+                <button onclick=gethelp('logo_move_x')>？</button>
+              </a>
+            </li>  
+          </ul> 
+          <!-- ３列目 -->
+          <ul id="prms">
+            <li>
+              <a>背景：
+                <input type="text" id="bg_image" size=20 value="">
+                <button onclick=gethelp('bg_image')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>エフェクト：
+                <input type="text" id="img_effect" size=20 value="">
+                <button onclick=gethelp('img_effect')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>フレーム：
+                <input type="text" id="img_frame" size=20 value="">
+                <button onclick=gethelp('img_frame')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>ロゴ：
+                <input type="text" id="img_logo" size=20 value="">
+                <button onclick=gethelp('img_logo')>？</button>
+              </a>
+            </li>
+          </ul> 
+          <!-- ４列目 -->
+          <ul id="prms">
+            <li>
+              <a>背景画像番号：
+                <input type="text" id="bg_num" size=5 value="">
+                <button onclick=gethelp('bg_num')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>透明度：
+                <input type="text" id="image_diff" size=5 value="">
+                <button onclick=gethelp('image_diff')>？</button>
+              </a>
+            </li>
+          </ul>
+          <!-- ５列目 -->
+          <ul id="prms">
+            <li>
+              <a>カテゴリ：
+                <select id="img_category" value=""></select>
+                <input type="button" value="適用" onclick="choiceCat()">
+                <button onclick=gethelp('img_category')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>新規カテゴリ：
+                <input type="text" id="img_new_category" size=20 value="">
+                <button onclick=gethelp('img_new_category')>？</button>
+              </a>
+            </li>
+            <li>
+              <a>メールアドレス：<input type="text" id="email" size=20 value=""></a>
+            </li>
+            <li>
+              <a>パスワード：<input type="password" id="password" size=20 value=""></a>
+            </li>
+          </ul> 
+          <!-- ６列目 -->
+          <ul id="prms">
+            <li>
+              <input type="submit" id="imager-main" value="全て編集">
+              <button onclick=gethelp('imager-main')>？</button>
+            </li>
+          <li>
+            <input type="submit" id="imager-test" value="テスト編集">
+            <button onclick=gethelp('imager-test')>？</button>
+          </li>
+        </ul>
+        </tr>
+      </table>
+    </div>
+  </header>
+
+  <div class="images" id="images"></div>
+
+  <footer id="footer">
+    <div id="logs"></div>
+  </footer>
+
+  <script src="App_imager.js"></script>
+</body>
+</html>
