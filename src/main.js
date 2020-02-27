@@ -38,7 +38,7 @@ mainWindow = new BrowserWindow({
   webPreferences: {
     nodeIntegration: true,
   },
-  width: 1100, height: 750,
+  width: 1350, height: 750,
   // frame: false,
 });
 
