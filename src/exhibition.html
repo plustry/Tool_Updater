@@ -35,28 +35,29 @@
     <div>
       <table border="0">
         <tr>
-          <td>
-            <b> 日：</b>
-            <input type="text" id="day-score" size="10" value="" maxlength="20">
-            <b> 時間：</b>
-            <button onclick=gethelp('days')>？</button>
-            <input type="text" id="hour-score" size="10" value="" maxlength="20">
-            <b> 買付先メモ：</b>
-            <button onclick=gethelp('memo')>？</button>
-            <input type="radio" id="url_memo" name="url_radio" value="on" checked="checked">ON
-            <input type="radio" id="url_memo" name="url_radio" value="off">OFF<br><br>
-          </td>
-          <td>
-            <b> アクセスコード：</b>
-            <button onclick=gethelp('access_code')>？</button>
-            <input type="text" id="access-code" size="30" maxlength="100000">
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input type="submit" id="start-exhibition" value="出品開始">
-          </td>
+          <ul id="prms">
+            <li>
+              <b> 日：</b>
+              <input type="text" id="day-score" size="10" value="" maxlength="20">
+              <b> 時間：</b>
+              <input type="text" id="hour-score" size="10" value="" maxlength="20">
+              <button onclick=gethelp('days')>？</button>
+            </li>
+            <li>
+              <b> 買付先メモ：</b>
+              <input type="radio" id="url_memo" name="url_radio" value="on" checked="checked">ON
+              <input type="radio" id="url_memo" name="url_radio" value="off">OFF
+              <button onclick=gethelp('memo')>？</button>
+            </li>
+            <li>
+              <b> アクセスコード：</b>
+              <input type="text" id="access-code" size="30" maxlength="100000">
+              <button onclick=gethelp('access_code')>？</button>
+            </li>
+            <li>
+              <input type="submit" id="start-exhibition" value="出品開始">
+            </li>
+          </ul>
         </tr>
       </table>
     </div>
