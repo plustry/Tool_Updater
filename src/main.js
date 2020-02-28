@@ -589,10 +589,10 @@ pyshell.on('message', function (message) {
 });
 
 // DEBUG情報などを取得したい場合
-// pyshell.on('stderr', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   event.sender.send('log-create', message);
-// });
+pyshell.on('stderr', function (message) {
+  // received a message sent from the Python script (a simple "print" statement)
+  event.sender.send('log-create', message);
+});
 
 pyshell.end(function (err,code,signal) {
   if (err) throw err;
