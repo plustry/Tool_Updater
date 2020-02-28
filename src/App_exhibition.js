@@ -104,4 +104,28 @@ function AutoAdjust() {
   padding.style.paddingBottom = document.getElementsByTagName('footer')[0].offsetHeight
 }
 
+// ヘルプ項目
+var txt1 = {
+  "new_dir":"アカウントフォルダ新規作成",
+  "choice_dir":"アカウントフォルダを開く",
+  "reset":"リセット",
+  "days":"重複検査",
+  "memo":"買い付け先メモ",
+  "access_code":"アクセスコード"
+}
+
+var txt2 = {
+  "new_dir":"新しいアカウントディレクトリを作成する場合、アカウント名を入力して、ボタンを押してください。デスクトップにBUYMAディレクトリが作成され、その中のaccountディレクトリ内に新しく作成されます。",
+  "choice_dir":"出品するアカウントのディレクトリを選択します。事前にdataディレクトリからcsvと画像データを移動しておいてください。",
+  "reset":"開いたディレクトリや表示したCSVをリセットできます。",
+  "days":"過去の出品との重複を検知します。指定した日付以降に出品されていた場合スキップされます。",
+  "memo":"BUYMAの出品時に買い付け先メモを記入するかどうか選択できます。",
+  "access_code":"Chromeから取得したアクセスコードを入力してください。詳しい取得方法は動画を参照してください。"
+}
+// ヘルプボタン
+function gethelp(key) {
+  console.log(key)
+  ipcRenderer.send('show-info', "ヘルプ", txt1[key], txt2[key])
+}
+
 AutoAdjust()

@@ -22,9 +22,12 @@
 
     <br>
     <input type="text" id="user-dir" placeholder="アカウント名を入力" size="30" maxlength="100">
-    <button id="make-account-dir">アカウントフォルダ新規作成</button><br>
+    <button id="make-account-dir">アカウントフォルダ新規作成</button>
+    <button onclick=gethelp('new_dir')>？</button><br>
     <button id="select-dir">アカウントフォルダを開く</button>
+    <button onclick=gethelp('choice_dir')>？</button>
     <button onclick=reset_all()>リセット</button>
+    <button onclick=gethelp('reset')>？</button>
     <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
     <br>
     <div id="csv-list"></div>
@@ -36,13 +39,16 @@
             <b> 日：</b>
             <input type="text" id="day-score" size="10" value="" maxlength="20">
             <b> 時間：</b>
+            <button onclick=gethelp('days')>？</button>
             <input type="text" id="hour-score" size="10" value="" maxlength="20">
             <b> 買付先メモ：</b>
+            <button onclick=gethelp('memo')>？</button>
             <input type="radio" id="url_memo" name="url_radio" value="on" checked="checked">ON
             <input type="radio" id="url_memo" name="url_radio" value="off">OFF<br><br>
           </td>
           <td>
             <b> アクセスコード：</b>
+            <button onclick=gethelp('access_code')>？</button>
             <input type="text" id="access-code" size="30" maxlength="100000">
           </td>
         </tr>

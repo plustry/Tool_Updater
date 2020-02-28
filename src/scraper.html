@@ -22,6 +22,7 @@
     
     <div>
       <button id="select-dir">保存フォルダを開く</button>
+      <button onclick=gethelp('open_dir')>？</button>
       <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
       <table border="0">
         <tr>
@@ -45,8 +46,14 @@
     <div>
       <table border="0">
         <tr>
-          <td align="left"><b> 取得ページ数(0で無制限)：</b><input type="text" id="max_page" size="10" maxlength="30" value=0></td>
-          <td align="left"><b> 開始URL：</b><input type="text" id="start_urls" size="30" maxlength="1000" value=''></td>
+          <td align="left"><b> 取得ページ数(0で無制限)：</b>
+            <input type="text" id="max_page" size="10" maxlength="30" value=0>
+            <button onclick=gethelp('max_page')>？</button>
+          </td>
+          <td align="left"><b> 開始URL：</b>
+            <input type="text" id="start_urls" size="30" maxlength="1000" value=''>
+            <button onclick=gethelp('start_urls')>？</button>
+          </td>
         </tr>
         <tr>
           <td>
@@ -62,7 +69,10 @@
     <table border="0">
       <tr>
         <td align="right"><b>CSV パラメータ(例: womens)：</b></td>
-        <td><input type="text" id="csv_prm" size="50" maxlength="1000" value=""></td>
+        <td>
+          <input type="text" id="csv_prm" size="50" maxlength="1000" value="">
+          <button onclick=gethelp('csv_prm')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>性別 (例: レディース)：</b></td>
@@ -72,6 +82,7 @@
                 <option value="レディース">レディース</option>
               <option value="メンズ">メンズ</option>
           </select>
+          <button onclick=gethelp('sex')>？</button>
         </td>
       </tr>
       <tr>
@@ -81,11 +92,21 @@
                 <option value="OFF" selected>OFF</option>
                 <option value="ON">ON</option>
           </select>
+          <button onclick=gethelp('nobrand')>？</button>
         </td>
       </tr>
       <tr>
         <td align="right"><b>禁止ブランド解除 (例: moncler)：</b></td>
-        <td><input type="text" id="no_ban_brand" size="50" maxlength="1000"></td>
+        <td>
+          <select id="no_ban_brand">
+            <option value=""></option>
+            <option value="moncler">moncler</option>
+            <option value="converse">converse</option>
+            <option value="supreme">supreme</option>
+            <option value="ugg">ugg</option>
+          </select>
+          <button onclick=gethelp('no_ban_brand')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>通貨 (例: $)：</b></td>
@@ -103,27 +124,45 @@
       </tr>
       <tr>
         <td align="right"><b>商品名の装飾 (例: 関税込み◆)：</b></td>
-        <td><input type="text" id="edit_name" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="edit_name" size="50" maxlength="1000">
+          <button onclick=gethelp('edit_name')>？</button>
+        </td>
       </tr>
       <tr>
           <td align="right"><b>最低価格 (例: 30000)：</b></td>
-          <td><input type="text" id="max_price" size="50" maxlength="1000"></td>
+          <td>
+            <input type="text" id="max_price" size="50" maxlength="1000">
+            <button onclick=gethelp('max_price')>？</button>
+          </td>
         </tr>
       <tr>
         <td align="right"><b>VatOff率 (例: 22)：</b></td>
-        <td><input type="text" id="vatoff_late" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="vatoff_late" size="50" maxlength="1000">
+          <button onclick=gethelp('vatoff_late')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>VIP割引率 (例: 10)：</b></td>
-        <td><input type="text" id="vip_late" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="vip_late" size="50" maxlength="1000">
+          <button onclick=gethelp('vip_late')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>送料 (例: 7000)：</b></td>
-        <td><input type="text" id="delivery_price" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="delivery_price" size="50" maxlength="1000">
+          <button onclick=gethelp('delivery_price')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>利益率 (例: 15)：</b></td>
-        <td><input type="text" id="profit_late" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="profit_late" size="50" maxlength="1000">
+          <button onclick=gethelp('profit_late')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>関税 (例: 関税元払い)：</b></td>
@@ -134,7 +173,8 @@
                 <option value="購入者申請時、全額負担">購入者申請時、全額負担</option>
                 <option value="お客様負担">お客様負担</option>
             </select>
-        </td>
+            <button onclick=gethelp('duty_pattern')>？</button>
+          </td>
       </tr>
       <tr>
         <td align="right"><b>サイズバリエーション (例: バリエーションあり)：</b></td>
@@ -144,27 +184,43 @@
                 <option value="バリエーションなし">バリエーションなし</option>
                 <option value="バリエーションあり">バリエーションあり</option>
             </select>
-        </td>
+            <button onclick=gethelp('size_variation')>？</button>
+          </td>
       </tr>
       <tr>
         <td align="right"><b>買い付け地 (例: 海外:ヨーロッパ:イタリア:選択なし)：</b></td>
-        <td><input type="text" id="buyplace" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="buyplace" size="50" maxlength="1000">
+          <button onclick=gethelp('buyplace')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>発送地 (例: 国内:福岡県::)：</b></td>
-        <td><input type="text" id="sendplace" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="sendplace" size="50" maxlength="1000">
+          <button onclick=gethelp('sendplace')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>ショップ名 (例: GUCCI正規店)：</b></td>
-        <td><input type="text" id="buyma_shop" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="buyma_shop" size="50" maxlength="1000">
+          <button onclick=gethelp('buyma_shop')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>タグ (例: 英語版向け,ギフトラッピングOK)：</b></td>
-        <td><input type="text" id="tag" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="tag" size="50" maxlength="1000">
+          <button onclick=gethelp('tag')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>テーマ (例: 先取り！日本未入荷)：</b></td>
-        <td><input type="text" id="thema" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="thema" size="50" maxlength="1000">
+          <button onclick=gethelp('thema')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>シーズン (例: 2019-20AW)：</b></td>
@@ -190,27 +246,43 @@
                 <option value="2015 Cruise">2015 Cruise</option>
                 <option value="2014-15AW">2014-15AW</option>
             </select>
-        </td>
+            <button onclick=gethelp('season')>？</button>
+          </td>
       </tr>
       <tr>
         <td align="right"><b>配送方法名 (例: 	日本郵便 - ゆうパック)：</b></td>
-        <td><input type="text" id="delivery" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="delivery" size="50" maxlength="1000">
+          <button onclick=gethelp('delivery')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>購入期限 (例: 14)：</b></td>
-        <td><input type="text" id="deadline" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="deadline" size="50" maxlength="1000">
+          <button onclick=gethelp('deadline')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>在庫数 (例: 1)：</b></td>
-        <td><input type="text" id="stock" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="stock" size="50" maxlength="1000">
+          <button onclick=gethelp('stock')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>メモ (例: メモ)：</b></td>
-        <td><input type="text" id="memo" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="memo" size="50" maxlength="1000">
+          <button onclick=gethelp('memo')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>処理を変更 (例: 型番)：</b></td>
-        <td><input type="text" id="switch" size="50" maxlength="1000"></td>
+        <td>
+          <input type="text" id="switch" size="50" maxlength="1000">
+          <button onclick=gethelp('switch')>？</button>
+        </td>
       </tr>
     </table>
   </div>

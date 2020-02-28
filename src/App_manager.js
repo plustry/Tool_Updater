@@ -69,5 +69,39 @@ function AutoAdjust() {
   padding.style.paddingTop = document.getElementsByTagName('header')[0].offsetHeight
 }
 
+// ヘルプ項目
+var txt1 = {
+  "open_dir":"BUYMAディレクトリ",
+  "page_choice":"ページ選択",
+  "set_mode":"モード設定",
+  "buyma_account":"BUYMA アカウント名",
+  "days":"出品期限延長日数",
+  "access":"アクセス数",
+  "want":"お気に入り登録数",
+  "cart":"カートに入れてる数",
+  "price":"価格を割る数",
+  "maxprice":"MAX価格スコア",
+  "date":"経過日数を割る数"
+}
+
+var txt2 = {
+  "open_dir":"BUYMAアカウントディレクトリを選択してください。(BUYMA/account)",
+  "page_choice":"Managerを適用するページを選択してください。",
+  "set_mode":"商品情報をどのように変更するかを選択してください。",
+  "buyma_account":"適用したいアカウント名のディレクトリを指定できます。空の場合はすべてのアカウントに対して実行します。",
+  "days":"出品の期限を延長する場合、日数を記入してください。",
+  "access":"Managerのパラメーターに、設定した数×アクセス数を加えます。",
+  "want":"Managerのパラメーターに、設定した数×お気に入り登録数を加えます。",
+  "cart":"Managerのパラメーターに、設定した数×カートに入れてる数を加えます。",
+  "price":"Managerのパラメーターに、価格÷設定した数を加えます。",
+  "maxprice":"価格÷価格を割る数が大きくなる場合に、上限の閾値を設けます",
+  "date":"Managerのパラメーターに、経過日数÷設定した数を引きます。"
+}
+// ヘルプボタン
+function gethelp(key) {
+  console.log(key)
+  ipcRenderer.send('show-info', "ヘルプ", txt1[key], txt2[key])
+}
+
 AutoAdjust()
 
