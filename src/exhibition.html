@@ -20,46 +20,49 @@
       and Electron <script>document.write(process.versions.electron)</script>. -->
     </div>
 
-    <br>
-    <input type="text" id="user-dir" placeholder="アカウント名を入力" size="30" maxlength="100">
-    <button id="make-account-dir">アカウントフォルダ新規作成</button>
-    <button onclick=gethelp('new_dir')>？</button><br>
-    <button id="select-dir">アカウントフォルダを開く</button>
-    <button onclick=gethelp('choice_dir')>？</button>
-    <button onclick=reset_all()>リセット</button>
-    <button onclick=gethelp('reset')>？</button>
-    <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
-    <br>
-    <div id="csv-list"></div>
-
     <div>
       <table border="0">
         <tr>
-          <ul id="prms">
-            <li>
-              <b> 日：</b>
-              <input type="text" id="day-score" size="10" value="" maxlength="20">
-              <b> 時間：</b>
-              <input type="text" id="hour-score" size="10" value="" maxlength="20">
-              <button onclick=gethelp('days')>？</button>
-            </li>
-            <li>
-              <b> 買付先メモ：</b>
-              <input type="radio" id="url_memo" name="url_radio" value="on" checked="checked">ON
-              <input type="radio" id="url_memo" name="url_radio" value="off">OFF
-              <button onclick=gethelp('memo')>？</button>
-            </li>
-            <li>
-              <b> アクセスコード：</b>
-              <input type="text" id="access-code" size="30" maxlength="100000">
-              <button onclick=gethelp('access_code')>？</button>
-            </li>
-            <li>
-              <input type="submit" id="start-exhibition" value="出品開始">
-            </li>
-          </ul>
+          <input type="text" id="user-dir" placeholder="アカウント名を入力" size="30" maxlength="100">
+          <button id="make-account-dir">アカウントフォルダ新規作成</button>
+          <button onclick=gethelp('new_dir')>？</button>
+          <button id="select-dir">アカウントフォルダを開く</button>
+          <button onclick=gethelp('choice_dir')>？</button>
+          <button onclick=reset_all()>リセット</button>
+          <button onclick=gethelp('reset')>？</button>
+          <a id="selected-folder">
+            <font color="red">フォルダが選択されていません</font>
+          </a>
+          <div id="csv-list"></div>
         </tr>
       </table>
+    </div>
+
+    <div>
+      <table border="0">
+        <tr> 
+          <b> 日：</b>
+          <input type="text" id="day-score" size="10" value="" maxlength="20">
+          <b> 時間：</b>
+          <input type="text" id="hour-score" size="10" value="" maxlength="20">
+          <button onclick=gethelp('days')>？</button>
+          
+          <b> 買付先メモ：</b>
+          <input type="radio" id="url_memo" name="url_radio" value="on" checked="checked">ON
+          <input type="radio" id="url_memo" name="url_radio" value="off">OFF
+          <button onclick=gethelp('memo')>？</button>
+        </tr>
+      </table>
+    </div>
+
+    <div align="left">
+      <b> アクセスコード：</b>
+      <input type="text" id="access-code" size="30" maxlength="100000">
+      <button onclick=gethelp('access_code')>？</button>
+    </div>
+
+    <div align="center">
+      <input type="submit" id="start-exhibition" value="出品開始">
     </div>
   </header>
 

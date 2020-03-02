@@ -177,48 +177,6 @@ MainStartBtn.addEventListener('click', (event) => {
     ipcRenderer.send('start-imager', JSON.stringify(args_list))
   }
 })
- 
-
-// // テスト編集開始
-// const TestStartBtn = document.getElementById('imager-test')
-// TestStartBtn.addEventListener('click', (event) => {
-//   // 画像ディスプレイをクリア
-//   document.getElementById('images').innerHTML = ""
-//   if (!checker1) {
-//     ipcRenderer.send('cause-error', "未設定項目", "フォルダを選択してください")
-//   } else if (document.getElementById('email').value == "") {
-//     ipcRenderer.send('cause-error', "未設定項目", "メールアドレスを入力してください")
-//   } else if (document.getElementById('password').value == ""){
-//     ipcRenderer.send('cause-error', "未設定項目", "パスワードを入力してください")
-//   } else {
-//     global.args_list = {
-//       "image_conf": image_conf,
-//       "mode": "Test",
-//       "master_dir": directory_name,
-//       "choiced_dir": choiced_dir,
-//       "scriptPath": __dirname,
-//       "img_category": document.getElementById('img_category').value,
-//       "img_new_category": document.getElementById('img_new_category').value,
-//       "email": document.getElementById('email').value,
-//       "password": document.getElementById('password').value,
-//       "image_size": document.getElementById('image_size').value,
-//       "item_size": document.getElementById('item_size').value,
-//       "item_move_x": document.getElementById('item_move_x').value,
-//       "item_move_y": document.getElementById('item_move_y').value,
-//       "back_move_x": document.getElementById('back_move_x').value,
-//       "back_move_y": document.getElementById('back_move_y').value,
-//       "logo_move_x": document.getElementById('logo_move_x').value,
-//       "logo_move_y": document.getElementById('logo_move_y').value,
-//       "bg_num": document.getElementById('bg_num').value,
-//       "bg_image": document.getElementById('bg_image').value,
-//       "img_effect": document.getElementById('img_effect').value,
-//       "img_frame": document.getElementById('img_frame').value,
-//       "img_logo": document.getElementById('img_logo').value,
-//       "image_diff": document.getElementById('image_diff').value
-//     }
-//     ipcRenderer.send('start-imager', JSON.stringify(args_list))
-//   }
-// })
 
 // ヘルプ項目
 var txt1 = {
