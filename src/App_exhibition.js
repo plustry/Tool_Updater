@@ -5,7 +5,7 @@ const path = require('path');
 // 動的に作成したボタンから呼び出してCSV読みこみ
 global.csv_name = ""
 function load_csv(csv_file_name) {
-  ipcRenderer.send('load-csv', global.directory_name + csv_file_name)
+  ipcRenderer.send('load-csv', path.join(global.directory_name, csv_file_name))
   global.csv_name = csv_file_name
 }
 
@@ -75,9 +75,9 @@ StartBtn.addEventListener('click', (event) => {
 })
 
 // 選択したディレクトリを表示
-ipcRenderer.on('selected-directory', (event, pathe) => {
-  global.directory_name = path.join(pathe, "/")
-  document.getElementById('selected-folder').innerHTML = `You selected: ${pathe}`
+ipcRenderer.on('selected-directory', (event, path) => {
+  global.directory_name = path
+  document.getElementById('selected-folder').innerHTML = `You selected: ${path}`
 })
 
 // 選択したディレクトリに保存されたアクセスコードを表示

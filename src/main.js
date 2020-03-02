@@ -302,7 +302,7 @@ const url_req = new Promise((resolve, reject)=>{
         })
       }).then(response => {
         // ディレクトリを移動
-        progressBar.detail = "古いファイルを削除しています..."
+        progressBar.detail = "古いファイルを削除しています...\n5分以上経過しても終了しない場合はPCを再起動してもう一度お確かめください。"
         var update_list = fs.readdirSync(path.join(__dirname, "..", 'Tool_Updater-master'))
         console.log(update_list)
 
