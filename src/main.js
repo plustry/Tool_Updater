@@ -321,6 +321,9 @@ const url_req = new Promise((resolve, reject)=>{
           } catch (error) {console.log(error)}
         }
         progressBar.detail = "新しいファイルを適用しています..."
+        if (os_info == "darwin") {
+          fs.chmodSync(path.join(__dirname, "chromedriver"), "0o777")
+        }
         // ZIPファイルを削除
         fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))
         // 展開ディレクトリを削除
