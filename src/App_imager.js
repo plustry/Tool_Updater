@@ -3,7 +3,7 @@ const {ipcRenderer} = require('electron')
 
 // 設定項目をすべて満たしているかどうか
 global.checker1 = false
-global.keys_list = ["img_category","image_size","item_size","item_move_x","item_move_y","back_move_x","back_move_y","logo_move_x","logo_move_y","bg_num","bg_image","img_effect","img_frame","img_logo","image_diff"]
+global.keys_list = ["img_category","logo_size","item_size","item_move_x","item_move_y","back_move_x","back_move_y","logo_move_x","logo_move_y","bg_num","bg_image","img_effect","img_frame","img_logo","image_diff"]
 global.args_list = ""
 // デフォルトフォルダを読み込む
 ipcRenderer.send('init-imager')
@@ -159,7 +159,7 @@ MainStartBtn.addEventListener('click', (event) => {
       "img_new_category": document.getElementById('img_new_category').value,
       "email": document.getElementById('email').value,
       "password": document.getElementById('password').value,
-      "image_size": document.getElementById('image_size').value,
+      "logo_size": document.getElementById('logo_size').value,
       "item_size": document.getElementById('item_size').value,
       "item_move_x": document.getElementById('item_move_x').value,
       "item_move_y": document.getElementById('item_move_y').value,
@@ -181,7 +181,7 @@ MainStartBtn.addEventListener('click', (event) => {
 // ヘルプ項目
 var txt1 = {
   "open_dir":"画像ディレクトリ",
-  "image_size":"生成画像サイズ",
+  "logo_size":"ロゴ画像サイズ",
   "item_size":"商品画像サイズ",
   "item_move_y":"商品縦",
   "item_move_x":"商品横",
@@ -203,7 +203,7 @@ var txt1 = {
 
 var txt2 = {
   "open_dir":"画像ディレクトリを指定してください。00002などの個別のディレクトリではなく、自動取得の際に指定したディレクトリを選択すると、csvごとのデータ選択ができるようになります。",
-  "image_size":"最終的に生成される画像サイズです。\nピクセル値で指定してください。\nBUYMA推奨は750x750です。",
+  "logo_size":"ロゴの画像サイズです。\n%（パーセント）で指定してください。\n750x750に対する大きさです。",
   "item_size":"最前面に表示する商品画像のサイズです。\n生成画像サイズ以下の値にしてください。",
   "item_move_y":"商品画像のたて移動値です。デフォルト(0)のとき中心に表示されます。\n中心からの移動値を、右ならマイナス、左ならプラスのピクセル値で入力してください。",
   "item_move_x":"商品画像のよこ移動値です。デフォルト(0)のとき中心に表示されます。\n中心からの移動値を、上ならマイナス、下ならプラスのピクセル値で入力してください。",
