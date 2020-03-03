@@ -13,8 +13,8 @@ const exec = require('child_process').exec;
 const {PythonShell} = require('python-shell')
 const Encoding = require('encoding-japanese');
 const ProgressBar = require('electron-progressbar');
-// script_dir = path.join("..", 'python_scripts')
-script_dir = path.join("..", 'python_scripts_')
+script_dir = path.join("..", 'python_scripts')
+// script_dir = path.join("..", 'python_scripts_')
 const os_info = process.platform
 
 process.env.PYTHONPATH = path.join(path.dirname(__dirname),"scraping")
@@ -322,7 +322,7 @@ const url_req = new Promise((resolve, reject)=>{
         }
         progressBar.detail = "新しいファイルを適用しています..."
         if (os_info == "darwin") {
-          fs.chmodSync(path.join(__dirname, "chromedriver"), "0o777")
+          fs.chmodSync(path.join(__dirname, "chromedriver"), 0o777)
         }
         // ZIPファイルを削除
         fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))
