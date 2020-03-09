@@ -342,14 +342,16 @@ ipcMain.on('init-imager', (event) => {
 // デフォルトフォルダを開く
 let dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 var dir_desktop = require("path").join(dir_home, "Desktop", "BUYMA", "data");
+var dir_imgconf = path.join(dir_desktop, "..", "conf", "image.conf")
 
 // パラメータが存在すれば読み込む
 try {
-dic_list = fs.readFileSync(path.join(dir_desktop, "..", "conf", "image.conf"), {encoding: 'utf-8'});
+dic_list = fs.readFileSync(dir_imgconf, {encoding: 'utf-8'});
 event.sender.send('load-image-conf', dic_list)
 } catch (error) {
   console.log(error);
   event.sender.send('load-image-conf', "")
+  event.sender.send('log-create', dir_imgconf + "：こちらにファイルを置くと設定情報が保存されます。")
 }
 
 try {
@@ -478,6 +480,7 @@ try {
 dic_list = fs.readFileSync(path.join(dir_desktop, "..", "conf", "scraping.conf"), {encoding: 'utf-8'});
 event.sender.send('load-scraping-conf', dic_list)
 }catch (error) {
+  event.sender.send('log-create', dic_list + "：こちらにファイルを置くと設定情報が保存されます。")
   console.log(error);
 }
 })
