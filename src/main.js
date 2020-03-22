@@ -194,6 +194,10 @@ const template = [
       click () { AutoUpdater() }
     },
     {
+      label: '強制アップデート',
+      click () { ForceUpdater() }
+    },
+    {
       label: '終了',
       click () { app.quit() }
     }
@@ -240,101 +244,108 @@ mainWindow.loadFile(path.join(__dirname, 'imager.html'))
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 自動アップデートモジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
-function AutoUpdater(event) {
-// 最新バージョンをGithubから確認
-process.on('unhandledRejection', console.dir);
-const url_req = new Promise((resolve, reject)=>{
-  request('https://plustry.github.io/Tool_Updater/versions', function(error, response, body) {
-  resolve(body)
-  })
-}).then(new_version => {
-  console.log(new_version)
-  // 保存されたファイルから現在のバージョンを確認
-  let current_version = fs.readFileSync(path.join(__dirname, "..", "versions.html"), "utf-8").toString()
-  console.log(current_version)
-  var detail_txt = ""
-  if (new_version == current_version) {
-    detail_txt = "アップデートはありませんでした Ver: " + new_version.toString()
-    var options_ = {
-      type: 'info',
-      title: "アップデート終了",
-      message: "アップデートは終了しました",
-      detail: detail_txt
+function StartUpdate(current_version, new_version) {
+  var progressBar = new ProgressBar({
+    closeOnComplete: false,
+    text: 'アップデートを実行' + current_version.toString() + "=>" + new_version.toString(),
+    detail: '新しいファイルをダウンロードしています...',
+    browserWindow: {
+      closable: true,
+      webPreferences: {
+          nodeIntegration: true
+      },
+      height: 250
     }
-    dialog.showMessageBox(mainWindow, options_)
-  } else {
-    var progressBar = new ProgressBar({
-      closeOnComplete: false,
-      text: 'アップデートを実行' + current_version.toString() + "=>" + new_version.toString(),
-      detail: '新しいファイルをダウンロードしています...',
-      browserWindow: {
-        closable: true,
-        webPreferences: {
-            nodeIntegration: true
-        },
-        height: 250
+  })
+  progressBar.on('completed', function() {
+    console.info(`completed...`);
+    progressBar.title = "Finished"
+    progressBar.detail = "アップデートは正常に終了しました " + current_version.toString() + "=>" + new_version.toString()
+  })
+  console.log(progressBar.detail)
+  // ZIPファイルをGithubからダウンロード
+  const zip_req = new Promise((resolve, reject)=>{
+    request(
+      {method: 'GET', url: "https://github.com/plustry/Tool_Updater/archive/master.zip", encoding: null},
+      function (error, response, body){
+        if(!error && response.statusCode === 200){
+            fs.writeFileSync(path.join(__dirname, "..", 'updater.zip'), body, 'binary');
+            resolve("pass")
+        }
       }
-    })
-    progressBar.on('completed', function() {
-      console.info(`completed...`);
-      progressBar.title = "Finished"
-      progressBar.detail = "アップデートは正常に終了しました " + current_version.toString() + "=>" + new_version.toString()
-    })
-    console.log(progressBar.detail)
-    // ZIPファイルをGithubからダウンロード
-    const zip_req = new Promise((resolve, reject)=>{
-      request(
-        {method: 'GET', url: "https://github.com/plustry/Tool_Updater/archive/master.zip", encoding: null},
-        function (error, response, body){
-          if(!error && response.statusCode === 200){
-              fs.writeFileSync(path.join(__dirname, "..", 'updater.zip'), body, 'binary');
-              resolve("pass")
-          }
-        }
-      )
-    }).then (response => {
-      const zip_req2 = new Promise((resolve, reject)=>{
-        // ZIPファイルを解凍
-        progressBar.detail = "新しいファイルを展開しています..."
-        var stream = fs.createReadStream(path.join(__dirname, "..", 'updater.zip')).pipe(unzip.Extract({path: path.join(__dirname, "..")}))
-        stream.on('close', function(){
-          resolve("pass")
-        })
-      }).then(response => {
-        // ディレクトリを移動
-        progressBar.detail = "古いファイルを削除しています...\n5分以上経過しても終了しない場合はPCを再起動してもう一度お確かめください。"
-        var update_list = fs.readdirSync(path.join(__dirname, "..", 'Tool_Updater-master'))
-        console.log(update_list)
+    )
+  }).then (response => {
+    const zip_req2 = new Promise((resolve, reject)=>{
+      // ZIPファイルを解凍
+      progressBar.detail = "新しいファイルを展開しています..."
+      var stream = fs.createReadStream(path.join(__dirname, "..", 'updater.zip')).pipe(unzip.Extract({path: path.join(__dirname, "..")}))
+      stream.on('close', function(){
+        resolve("pass")
+      })
+    }).then(response => {
+      // ディレクトリを移動
+      progressBar.detail = "古いファイルを削除しています...\n5分以上経過しても終了しない場合はPCを再起動してもう一度お確かめください。"
+      var update_list = fs.readdirSync(path.join(__dirname, "..", 'Tool_Updater-master'))
+      console.log(update_list)
 
-        for (let i = 0; i < update_list.length; i++) {
-          var update_path = path.join(__dirname, "..", update_list[i])
-          // console.log(update_path, fs.statSync(update_path).isDirectory())
-          try {
-            if (fs.statSync(update_path).isDirectory()) {
-                deleteFolderRecursive(update_path)
-            } else {
-                fs.unlinkSync(update_path)
-            }
-          } catch (error) {console.log(error)}
-          try{
-            fs.renameSync(path.join(path.join(__dirname, "..", 'Tool_Updater-master'), update_list[i]), update_path)
-          } catch (error) {console.log(error)}
-        }
-        progressBar.detail = "新しいファイルを適用しています..."
-        if (os_info == "darwin") {
-          fs.chmodSync(path.join(__dirname, "chromedriver"), 0o777)
-        }
-        // ZIPファイルを削除
-        fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))
-        // 展開ディレクトリを削除
-        deleteFolderRecursive(path.join(__dirname, "..", 'Tool_Updater-master'))
-        progressBar.setCompleted()
-        })
-      }) 
+      for (let i = 0; i < update_list.length; i++) {
+        var update_path = path.join(__dirname, "..", update_list[i])
+        // console.log(update_path, fs.statSync(update_path).isDirectory())
+        try {
+          if (fs.statSync(update_path).isDirectory()) {
+              deleteFolderRecursive(update_path)
+          } else {
+              fs.unlinkSync(update_path)
+          }
+        } catch (error) {console.log(error)}
+        try{
+          fs.renameSync(path.join(path.join(__dirname, "..", 'Tool_Updater-master'), update_list[i]), update_path)
+        } catch (error) {console.log(error)}
+      }
+      progressBar.detail = "新しいファイルを適用しています..."
+      if (os_info == "darwin") {
+        fs.chmodSync(path.join(__dirname, "chromedriver"), 0o777)
+      }
+      // ZIPファイルを削除
+      fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))
+      // 展開ディレクトリを削除
+      deleteFolderRecursive(path.join(__dirname, "..", 'Tool_Updater-master'))
+      progressBar.setCompleted()
+    })
+  }) 
+}
+
+function AutoUpdater(event) {
+  // 最新バージョンをGithubから確認
+  process.on('unhandledRejection', console.dir);
+  const url_req = new Promise((resolve, reject)=>{
+    request('https://plustry.github.io/Tool_Updater/versions', function(error, response, body) {
+    resolve(body)
+    })
+  }).then(new_version => {
+    console.log(new_version)
+    // 保存されたファイルから現在のバージョンを確認
+    let current_version = fs.readFileSync(path.join(__dirname, "..", "versions.html"), "utf-8").toString()
+    console.log(current_version)
+    var detail_txt = ""
+    if (new_version == current_version) {
+      detail_txt = "アップデートはありませんでした Ver: " + new_version.toString()
+      var options_ = {
+        type: 'info',
+        title: "アップデート終了",
+        message: "アップデートは終了しました",
+        detail: detail_txt
+      }
+      dialog.showMessageBox(mainWindow, options_)
+    } else {
+      StartUpdate(current_version, new_version)
     }
   })
 }
 
+function ForceUpdater(event) {
+  StartUpdate("Force Update", "Force Update")
+}
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 画像加工モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
