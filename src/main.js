@@ -539,7 +539,6 @@ let pyshell = new PythonShell('login.py', options)
 var button_list = ""
 pyshell.on('message', function (message) {
   message = toString(message)
-  // console.log(message)
   // received a message sent from the Python script (a simple "print" statement)
   if (message == "False") {
     event.sender.send('log-create', '認証に失敗しました');
@@ -549,10 +548,11 @@ pyshell.on('message', function (message) {
     event.sender.send('log-create', message);
   }else{
     // datetime&シングルクオテーションがあるとエラーになる
-    message = message.replace(/datetime.datetime\(/g, '"')
-    message = message.replace(/\)/g, '"')
+    // message = message.replace(/datetime.datetime\(/g, '"')
+    // message = message.replace(/\)/g, '"')
     message = message.replace(/'/g, '"')
     // login.pyでの標準出力を画面に表示
+    // console.log(message)
     // event.sender.send('log-create', message);
     event.sender.send('arg-json', message)
   }

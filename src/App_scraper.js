@@ -63,8 +63,8 @@ SqlLoginBtn.addEventListener('click', (event) => {
 
 // login情報を元に画面編集
 ipcRenderer.on('arg-json', (event, message) => {
+  // console.log(message)
   arg_json = JSON.parse(message)  
-  // console.log(arg_json)
   // load_shopやstart-scrapyで使用するためグローバル関数にする
   global.all_data = arg_json["all_data"]
   global.crawl_limit = arg_json["crawl_limit"]
