@@ -1,0 +1,4 @@
+[console_scripts]
+pyarmor = pyarmor.pyarmor:main_entry
+pyarmor-webui = pyarmor.webui.server:main
+
