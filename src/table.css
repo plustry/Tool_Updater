@@ -135,3 +135,14 @@ table th,table td{
 .prms2 {
   width: 50%;
 }
+
+.prm12{ 
+  list-style:none; 
+  width:12%; 
+  float:left; 
+}
+#prms3 li { 
+  list-style:none; 
+  width:20%;
+  float:left; 
+}

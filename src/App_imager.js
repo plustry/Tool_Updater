@@ -3,19 +3,19 @@ const {ipcRenderer} = require('electron')
 
 // 設定項目をすべて満たしているかどうか
 global.checker1 = false
-global.keys_list = ["img_category","logo_size","item_size","item_move_x","item_move_y","back_move_x","back_move_y","logo_move_x","logo_move_y","bg_num","bg_image","img_effect","img_frame","img_logo","image_diff"]
+global.keys_list = ["image_conf","edit_mode","master_dir","choiced_dir","scriptPath","img_category","img_new_category","email","password","logo_size","item_size","item_move_x","item_move_y","back_move_x","back_move_y","logo_move_x","logo_move_y","bg_num","bg_image","img_effect","img_frame","img_logo","image_diff","addimg_1_name","addimg_1_size","addimg_1_x","addimg_1_y","addimg_2_name","addimg_2_size","addimg_2_x","addimg_2_y","addimg_3_name","addimg_3_size","addimg_3_x","addimg_3_y","electron_dir"]
 global.args_list = ""
 // デフォルトフォルダを読み込む
 ipcRenderer.send('init-imager')
 
 // 設定データがあれば読み込み
 ipcRenderer.on('load-image-conf', (event, dic_list) => {
-  // console.log(dic_list)
   if(dic_list){
     global.image_conf = JSON.parse(dic_list)
     document.getElementById('email').value = image_conf["login"]["email"]
     document.getElementById('password').value = image_conf["login"]["password"]
   }else{
+    event.sender.send('log-create', "BUYMA/conf フォルダにimage.confファイルが無いまたは空です")
     global.image_conf = {}
   }
 })
@@ -172,7 +172,19 @@ MainStartBtn.addEventListener('click', (event) => {
       "img_effect": document.getElementById('img_effect').value,
       "img_frame": document.getElementById('img_frame').value,
       "img_logo": document.getElementById('img_logo').value,
-      "image_diff": document.getElementById('image_diff').value
+      "image_diff": document.getElementById('image_diff').value,
+      "addimg_1_name": document.getElementById('addimg_1_name').value, 
+      "addimg_1_size": document.getElementById('addimg_1_size').value,
+      "addimg_1_x": document.getElementById('addimg_1_x').value, 
+      "addimg_1_y": document.getElementById('addimg_1_y').value,
+      "addimg_2_name": document.getElementById('addimg_2_name').value, 
+      "addimg_2_size": document.getElementById('addimg_2_size').value,
+      "addimg_2_x": document.getElementById('addimg_2_x').value, 
+      "addimg_2_y": document.getElementById('addimg_2_y').value,
+      "addimg_3_name": document.getElementById('addimg_3_name').value, 
+      "addimg_3_size": document.getElementById('addimg_3_size').value,
+      "addimg_3_x": document.getElementById('addimg_3_x').value, 
+      "addimg_3_y": document.getElementById('addimg_3_y').value
     }
     ipcRenderer.send('start-imager', JSON.stringify(args_list))
   }
@@ -198,7 +210,8 @@ var txt1 = {
   "imager-main":"編集実行",
   "image_diff":"透明度",
   "bg_image":"背景",
-  "edit_mode":"モード"
+  "edit_mode":"モード",
+  "add_img_name":"追加商品画像"
 }
 
 var txt2 = {
@@ -220,7 +233,8 @@ var txt2 = {
   "imager-main":"選択したフォルダにある画像を、モードで選択した条件で編集します。",
   "image_diff":"透明化のパラメーターです。白背景ならば0.4~0.5, グレー背景なら0.1~0.2くらいがベストです。-1で透明化をスキップします。",
   "bg_image":"背景(最背面に適用)の画像名を入力してください。\nフォルダは、dataフォルダと同じ階層のimg_content>backgroundを参照します。\n設定しない場合は空欄で大丈夫です。",
-  "edit_mode":"■テスト編集の場合：選択したフォルダの画像を3つだけ編集して画像の出来具合を確かめることができます。\n\n■全て編集の場合：選択したフォルダにある画像を全て編集します。\n\n■メイン画像の透過の場合：image000.pngを透過した画像をimage000_edit.pngという名前で保存します。\nimage000_edit.pngがある場合、その画像が一番前面にくる画像として使われるので、背景透過を綺麗にしたい場合は、ご自分の使い慣れている画像編集ソフトで背景を綺麗に透過させてご使用ください。"
+  "edit_mode":"■テスト編集の場合：選択したフォルダの画像を3つだけ編集して画像の出来具合を確かめることができます。\n\n■全て編集の場合：選択したフォルダにある画像を全て編集します。\n\n■メイン画像の透過の場合：image000.pngを透過した画像をimage000_edit.pngという名前で保存します。\nimage000_edit.pngがある場合、その画像が一番前面にくる画像として使われるので、背景透過を綺麗にしたい場合は、ご自分の使い慣れている画像編集ソフトで背景を綺麗に透過させてご使用ください。",
+  "add_img_name":"さらに追加したい商品画像のファイル名を指定してください。"
 }
 // ヘルプボタン
 function gethelp(key) {
@@ -242,4 +256,3 @@ function AutoAdjust() {
 }
 
 AutoAdjust()
-
