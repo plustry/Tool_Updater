@@ -773,36 +773,36 @@ dialog.showOpenDialog({
   properties: ['openDirectory'],
 }).then (folder => {
   if (folder.filePaths[0]) {
-    var log_path = path.join(folder.filePaths[0], '..', 'logs')
-    var tmp_brand_path = path.join(folder.filePaths[0], '..', 'tmp_brand')
-    var sample_path = path.join(folder.filePaths[0], '..', 'sample')
+    // var log_path = path.join(folder.filePaths[0], '..', 'logs')
+    // var tmp_brand_path = path.join(folder.filePaths[0], '..', 'tmp_brand')
+    // var sample_path = path.join(folder.filePaths[0], '..', 'sample')
 
-    // logsディレクトリがなければ作成
-    if(!fs.existsSync(log_path)){
-      makeDir(log_path).then(path => {
-      console.log(path);
-    });
-    }
+    // // logsディレクトリがなければ作成
+    // if(!fs.existsSync(log_path)){
+    //   makeDir(log_path).then(path => {
+    //   console.log(path);
+    // });
+    // }
     
-    // tmp_brandディレクトリがなければ作成
-    if(!fs.existsSync(tmp_brand_path)){
-      makeDir(tmp_brand_path).then(path => {
-      console.log(path);
-    });
-    }
+    // // tmp_brandディレクトリがなければ作成
+    // if(!fs.existsSync(tmp_brand_path)){
+    //   makeDir(tmp_brand_path).then(path => {
+    //   console.log(path);
+    // });
+    // }
     
-    // sampleディレクトリがなければ作成
-    if(!fs.existsSync(sample_path)){
-      makeDir(sample_path).then(dir_path => {
-      console.log(dir_path)
-      var txt_list = ["ColorFooter.txt", "ColorHeader.txt", "CommentFooter.txt", "CommentHeader.txt"]
-      for (let i = 0; i < txt_list.length; i++) {
-        fs.writeFile(path.join(dir_path, txt_list[i]), "", (err) => {
-          if(err) throw err;
-        })
-      }
-    })
-    }
+    // // sampleディレクトリがなければ作成
+    // if(!fs.existsSync(sample_path)){
+    //   makeDir(sample_path).then(dir_path => {
+    //   console.log(dir_path)
+    //   var txt_list = ["ColorFooter.txt", "ColorHeader.txt", "CommentFooter.txt", "CommentHeader.txt"]
+    //   for (let i = 0; i < txt_list.length; i++) {
+    //     fs.writeFile(path.join(dir_path, txt_list[i]), "", (err) => {
+    //       if(err) throw err;
+    //     })
+    //   }
+    // })
+    // }
     
     // 選択したディレクトリを表示
     event.sender.send('selected-directory', folder.filePaths[0]);
