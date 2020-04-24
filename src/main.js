@@ -284,33 +284,31 @@ function StartUpdate(current_version, new_version) {
       })
     }).then(response => {
       // ディレクトリを移動
-      progressBar.detail = "古いファイルを削除しています...\n5分以上経過しても終了しない場合はPCを再起動してもう一度お確かめください。"
-      var update_list = fs.readdirSync(path.join(__dirname, "..", 'Tool_Updater-master'))
-      console.log(update_list)
+      try {
+        progressBar.detail = "古いファイルを削除しています...\n5分以上経過しても終了しない場合はPCを再起動してもう一度お確かめください。"
+        var update_list = fs.readdirSync(path.join(__dirname, "..", 'Tool_Updater-master'))
+        console.log(update_list)
 
-      for (let i = 0; i < update_list.length; i++) {
-        var update_path = path.join(__dirname, "..", update_list[i])
-        // console.log(update_path, fs.statSync(update_path).isDirectory())
-        try {
+        for (let i = 0; i < update_list.length; i++) {
+          var update_path = path.join(__dirname, "..", update_list[i])
+          // console.log(update_path, fs.statSync(update_path).isDirectory())
           if (fs.statSync(update_path).isDirectory()) {
               deleteFolderRecursive(update_path)
           } else {
               fs.unlinkSync(update_path)
           }
-        } catch (error) {console.log(error)}
-        try{
           fs.renameSync(path.join(path.join(__dirname, "..", 'Tool_Updater-master'), update_list[i]), update_path)
-        } catch (error) {console.log(error)}
-      }
-      progressBar.detail = "新しいファイルを適用しています..."
-      if (os_info == "darwin") {
-        fs.chmodSync(path.join(__dirname, "chromedriver"), 0o777)
-      }
-      // ZIPファイルを削除
-      fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))
-      // 展開ディレクトリを削除
-      deleteFolderRecursive(path.join(__dirname, "..", 'Tool_Updater-master'))
-      progressBar.setCompleted()
+        }
+        progressBar.detail = "新しいファイルを適用しています..."
+        if (os_info == "darwin") {
+          fs.chmodSync(path.join(__dirname, "chromedriver"), 0o777)
+        }
+        // ZIPファイルを削除
+        fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))
+        // 展開ディレクトリを削除
+        deleteFolderRecursive(path.join(__dirname, "..", 'Tool_Updater-master'))
+        progressBar.setCompleted()
+      } catch (error) {progressBar.detail = error.message}
     })
   }) 
 }

@@ -103,8 +103,10 @@ function choiceDir(dir_name) {
 
   for (let i = 0; i < keys_list.length; i++) {
     try{
-      // console.log(keys_list[i])
-      document.getElementById(keys_list[i]).value = img_parameter[keys_list[i]]
+      // undefinedの場合はスキップする
+      if(img_parameter[keys_list[i]]){
+        document.getElementById(keys_list[i]).value = img_parameter[keys_list[i]]
+      }
     }catch{
       console.log("error")
     }
