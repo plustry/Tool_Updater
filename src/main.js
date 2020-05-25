@@ -610,7 +610,9 @@ pyshell.on('message', function (message) {
 // });
 
 pyshell.end(function (err,code,signal) {
-  if (err) throw err;
+  if (err){
+    event.sender.send('log-create', 'err');
+  }
   // console.log('The exit signal was: ' + signal);
   // console.log('log-create', 'The exit code was: ' + code);
   event.sender.send('log-create', '処理は全て終了しました');
