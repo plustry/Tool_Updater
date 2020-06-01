@@ -478,10 +478,16 @@ pyshell.on('message', function (message) {
 });
 
 // DEBUG情報などを取得したい場合
-// pyshell.on('stderr', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   event.sender.send('log-create', message);
-// });
+pyshell.on('stderr', function (message) {
+  if(message.indexOf("ModuleNotFoundError") !== -1){
+    var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
+    event.sender.send('log-create', ModuleNotFoundError)
+  }
+  if(message.indexOf("FileNotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
+  }
+})
 
 pyshell.end(function (err,code,signal) {
   if (err) throw err
@@ -573,10 +579,16 @@ pyshell.on('message', function (message) {
 });
 
 // DEBUG情報などを取得したい場合
-// pyshell.on('stderr', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   event.sender.send('log-create', message);
-// });
+pyshell.on('stderr', function (message) {
+  if(message.indexOf("ModuleNotFoundError") !== -1){
+    var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
+    event.sender.send('log-create', ModuleNotFoundError)
+  }
+  if(message.indexOf("FileNotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
+  }
+});
 
 pyshell.end(function (err,code,signal) {
   if (err) throw err;
@@ -621,11 +633,13 @@ pyshell.on('message', function (message) {
 
 // DEBUG情報などを取得したい場合
 pyshell.on('stderr', function (message) {
-  // console.log(message)
-  // received a message sent from the Python script (a simple "print" statement)
   if(message.indexOf("ModuleNotFoundError") !== -1){
     var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
     event.sender.send('log-create', ModuleNotFoundError)
+  }
+  if(message.indexOf("FileNotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
   }
 })
 
@@ -892,10 +906,16 @@ pyshell.on('message', function (message) {
 });
 
 // DEBUG情報などを取得したい場合
-// pyshell.on('stderr', function (message) {
-//   // received a message sent from the Python script (a simple "print" statement)
-//   event.sender.send('log-create', message);
-// });
+pyshell.on('stderr', function (message) {
+  if(message.indexOf("ModuleNotFoundError") !== -1){
+    var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
+    event.sender.send('log-create', ModuleNotFoundError)
+  }
+  if(message.indexOf("FileNotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
+  }
+})
 
 pyshell.end(function (err,code,signal) {
   if (err) throw err;
