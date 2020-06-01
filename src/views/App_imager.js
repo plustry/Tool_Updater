@@ -44,6 +44,31 @@ selectDirBtn.addEventListener('click', (event) => {
   ipcRenderer.send('open-file-imager')
 })
 
+// ファイル選択呼び出し
+const selectLogoBtn = document.getElementById('select-logo')
+selectLogoBtn.addEventListener('click', (event) => {
+  ipcRenderer.send('open-file-logo')
+})
+const selectFrameBtn = document.getElementById('select-frame')
+selectFrameBtn.addEventListener('click', (event) => {
+  ipcRenderer.send('open-file-frame')
+})
+const selectEffectBtn = document.getElementById('select-effect')
+selectEffectBtn.addEventListener('click', (event) => {
+  ipcRenderer.send('open-file-effect')
+})
+
+// 選択されたファイルを適用
+ipcRenderer.on('selected-logo', (event, path) => {
+  document.getElementById('img_logo').value = path
+})
+ipcRenderer.on('selected-frame', (event, path) => {
+  document.getElementById('img_frame').value = path
+})
+ipcRenderer.on('selected-effect', (event, path) => {
+  document.getElementById('img_effect').value = path
+})
+
 // 選択したディレクトリを表示
 ipcRenderer.on('selected-directory', (event, path) => {
   global.directory_name = path

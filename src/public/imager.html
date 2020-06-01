@@ -1,14 +1,15 @@
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>自動画像加工ツール</title>
-  <link rel="stylesheet" type="text/css" href="table.css">
+  <link rel="stylesheet" type="text/css" href="../css/table.css">
   <script>
-    window.jQuery = window.$ = require('./jquery.min.js');
+    window.jQuery = window.$ = require('js/jquery.min.js');
   </script>
   <script>
-    $(document).ready(function() {
-      $("#adv_btn").on("click", function() {
+    $(document).ready(function () {
+      $("#adv_btn").on("click", function () {
         $("#adv_prm").slideToggle();
       });
     });
@@ -18,22 +19,24 @@
 <body>
   <header id="header">
     <div align="center">
-      <ul id="gNavi">  
-        <li><a id="exhibition">自動出品ツール</a></li>  
-        <li><a id="buymanager">BuyManager</a></li>  
-        <li><a id="scraper">商品リスト自動作成ツール</a></li>  
-        <li><a id="imager">自動画像加工ツール</a></li>  
-      </ul>  
-    <h3>自動画像加工ツール</h3>
+      <ul id="gNavi">
+        <li><a id="exhibition">自動出品ツール</a></li>
+        <li><a id="buymanager">BuyManager</a></li>
+        <li><a id="scraper">商品リスト自動作成ツール</a></li>
+        <li><a id="imager">自動画像加工ツール</a></li>
+      </ul>
+      <h3>自動画像加工ツール</h3>
       <!-- Using node <script>document.write(process.versions.node)</script>,
       Chrome <script>document.write(process.versions.chrome)</script>,
       and Electron <script>document.write(process.versions.electron)</script>. -->
     </div>
-    
+
     <div>
       <button id="select-dir">保存フォルダを開く</button>
       <button onclick=gethelp('open_dir')>？</button>
-      <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
+      <a id="selected-folder">
+        <font color="red">フォルダが選択されていません</font>
+      </a>
       <div>
         <a id="dir-button"></a>
         <a id="dir-status"></a>
@@ -56,23 +59,24 @@
               </a>
             </li>
             <li>
-                <a>商品縦：
-                  <input type="text" id="item_move_y" size=5 value="">
-                  <button onclick=gethelp('item_move_y')>？</button>
-                </a>
+              <a>商品縦：
+                <input type="text" id="item_move_y" size=5 value="">
+                <button onclick=gethelp('item_move_y')>？</button>
+              </a>
             </li>
             <li>
               <a>商品横：
                 <input type="text" id="item_move_x" size=5 value="">
                 <button onclick=gethelp('item_move_x')>？</button>
               </a>
-            </li>  
-          </ul> 
+            </li>
+          </ul>
           <!-- ２列目 -->
           <ul id="prms">
             <li>
               <a>ロゴ：
                 <input type="text" id="img_logo" size=14 value="">
+                <button id="select-logo">ファイルを開く</button>
                 <button onclick=gethelp('img_logo')>？</button>
               </a>
             </li>
@@ -93,19 +97,21 @@
                 <input type="text" id="logo_move_x" size=5 value="">
                 <button onclick=gethelp('logo_move_x')>？</button>
               </a>
-            </li>  
-          </ul> 
+            </li>
+          </ul>
           <!-- ４列目 -->
           <ul id="prms">
             <li>
               <a>フレーム：
                 <input type="text" id="img_frame" size=14 value="">
+                <button id="select-frame">ファイルを開く</button>
                 <button onclick=gethelp('img_frame')>？</button>
               </a>
             </li>
             <li>
               <a>エフェクト：
                 <input type="text" id="img_effect" size=14 value="">
+                <button id="select-effect">ファイルを開く</button>
                 <button onclick=gethelp('img_effect')>？</button>
               </a>
             </li>
@@ -138,7 +144,7 @@
                   <option value="Main">全て編集</option>
                   <option value="Transmission">メイン画像の透過</option>
                 </select>
-              <button onclick=gethelp('edit_mode')>？</button>
+                <button onclick=gethelp('edit_mode')>？</button>
               </a>
             </li>
             <li class="prm12">
@@ -149,7 +155,7 @@
               <button id="adv_btn">↓拡張設定↓</button>
               <button onclick=gethelp('adv_btn')>？</button>
             </li>
-          </ul> 
+          </ul>
 
           <!-- 拡張編集設定 -->
           <div id="adv_prm" style="display: none;">
@@ -161,7 +167,7 @@
                   <button onclick=gethelp('bg_image')>？</button>
                 </a>
               </li>
-            </ul> 
+            </ul>
             <!-- A_1列目 -->
             <ul id="prms">
               <li>
@@ -187,8 +193,8 @@
                   <input type="text" id="back_move_x" size=14 value="">
                   <button onclick=gethelp('back_move_x')>？</button>
                 </a>
-              </li> 
-            </ul> 
+              </li>
+            </ul>
             <!-- A_1列目 -->
             <ul id="prms">
               <li>
@@ -215,7 +221,7 @@
                   <button onclick=gethelp('item_move_x')>？</button>
                 </a>
               </li>
-            </ul> 
+            </ul>
             <!-- A_2列目 -->
             <ul id="prms">
               <li>
@@ -242,7 +248,7 @@
                   <button onclick=gethelp('item_move_x')>？</button>
                 </a>
               </li>
-            </ul> 
+            </ul>
             <!-- A_3列目 -->
             <ul id="prms">
               <li>
@@ -269,10 +275,10 @@
                   <button onclick=gethelp('item_move_x')>？</button>
                 </a>
               </li>
-            </ul> 
+            </ul>
           </div>
           <!-- ６列目 -->
-        </ul>
+          </ul>
         </tr>
       </table>
     </div>
@@ -284,6 +290,7 @@
     <div id="logs"></div>
   </footer>
 
-  <script src="App_imager.js"></script>
+  <script src="../views/App_imager.js"></script>
 </body>
+
 </html>

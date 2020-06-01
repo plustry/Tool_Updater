@@ -1,29 +1,32 @@
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>商品リスト自動作成ツール</title>
-  <link rel="stylesheet" type="text/css" href="table.css">
+  <link rel="stylesheet" type="text/css" href="../css/table.css">
 </head>
 
 <body>
   <header id="settings">
     <div align="center">
-      <ul id="gNavi">  
-          <li><a id="exhibition">自動出品ツール</a></li>  
-          <li><a id="buymanager">BuyManager</a></li>  
-          <li><a id="scraper">商品リスト自動作成ツール</a></li>  
-          <li><a id="imager">自動画像加工ツール</a></li>  
-      </ul>  
-    <h3>商品リスト自動作成ツール</h3>
+      <ul id="gNavi">
+        <li><a id="exhibition">自動出品ツール</a></li>
+        <li><a id="buymanager">BuyManager</a></li>
+        <li><a id="scraper">商品リスト自動作成ツール</a></li>
+        <li><a id="imager">自動画像加工ツール</a></li>
+      </ul>
+      <h3>商品リスト自動作成ツール</h3>
       <!-- Using node <script>document.write(process.versions.node)</script>,
       Chrome <script>document.write(process.versions.chrome)</script>,
       and Electron <script>document.write(process.versions.electron)</script>. -->
     </div>
-    
+
     <div>
       <button id="select-dir">保存フォルダを開く</button>
       <button onclick=gethelp('open_dir')>？</button>
-      <a id="selected-folder"><font color="red">フォルダが選択されていません</font></a>
+      <a id="selected-folder">
+        <font color="red">フォルダが選択されていません</font>
+      </a>
       <table border="0">
         <tr>
           <td align="right"><b> メールアドレス：</b></td>
@@ -37,7 +40,9 @@
           <td></td>
           <td>
             <input type="submit" id="sql-login" value="認証開始">
-            <a id="sql-login-status"><font color="red">認証されていません</font></a>
+            <a id="sql-login-status">
+              <font color="red">認証されていません</font>
+            </a>
           </td>
         </tr>
       </table>
@@ -58,7 +63,9 @@
         <tr>
           <td>
             <input type="submit" id="start-scrapy" value="スクレイピング開始">
-            <a id="start-status"><font color="red">ショップが選択されていません</font></a>
+            <a id="start-status">
+              <font color="red">ショップが選択されていません</font>
+            </a>
           </td>
         </tr>
       </table>
@@ -78,9 +85,9 @@
         <td align="right"><b>性別 (例: レディース)：</b></td>
         <td>
           <select id="sex">
-                <option value=""></option>
-                <option value="レディース">レディース</option>
-              <option value="メンズ">メンズ</option>
+            <option value=""></option>
+            <option value="レディース">レディース</option>
+            <option value="メンズ">メンズ</option>
           </select>
           <button onclick=gethelp('sex')>？</button>
         </td>
@@ -89,8 +96,8 @@
         <td align="right"><b>ノーブランド取得 (例: OFF)：</b></td>
         <td>
           <select id="nobrand">
-                <option value="OFF" selected>OFF</option>
-                <option value="ON">ON</option>
+            <option value="OFF" selected>OFF</option>
+            <option value="ON">ON</option>
           </select>
           <button onclick=gethelp('nobrand')>？</button>
         </td>
@@ -111,15 +118,15 @@
       <tr>
         <td align="right"><b>通貨 (例: $)：</b></td>
         <td>
-            <select id="currency">
-                <option value=""></option>
-                <option value="$">$</option>
-                <option value="€">€</option>
-                <option value="£">£</option>
-                <option value="¥">¥</option>
-                <option value="AUD">AUD</option>
-                <option value="SAR">SAR</option>
-            </select>
+          <select id="currency">
+            <option value=""></option>
+            <option value="$">$</option>
+            <option value="€">€</option>
+            <option value="£">£</option>
+            <option value="¥">¥</option>
+            <option value="AUD">AUD</option>
+            <option value="SAR">SAR</option>
+          </select>
         </td>
       </tr>
       <tr>
@@ -130,12 +137,12 @@
         </td>
       </tr>
       <tr>
-          <td align="right"><b>最低価格 (例: 30000)：</b></td>
-          <td>
-            <input type="text" id="max_price" size="50" maxlength="1000">
-            <button onclick=gethelp('max_price')>？</button>
-          </td>
-        </tr>
+        <td align="right"><b>最低価格 (例: 30000)：</b></td>
+        <td>
+          <input type="text" id="max_price" size="50" maxlength="1000">
+          <button onclick=gethelp('max_price')>？</button>
+        </td>
+      </tr>
       <tr>
         <td align="right"><b>VatOff率 (例: 22)：</b></td>
         <td>
@@ -167,25 +174,25 @@
       <tr>
         <td align="right"><b>関税 (例: 関税元払い)：</b></td>
         <td>
-            <select id="duty_pattern">
-                <option value=""></option>
-                <option value="関税元払い">関税元払い</option>
-                <option value="購入者申請時、全額負担">購入者申請時、全額負担</option>
-                <option value="お客様負担">お客様負担</option>
-            </select>
-            <button onclick=gethelp('duty_pattern')>？</button>
-          </td>
+          <select id="duty_pattern">
+            <option value=""></option>
+            <option value="関税元払い">関税元払い</option>
+            <option value="購入者申請時、全額負担">購入者申請時、全額負担</option>
+            <option value="お客様負担">お客様負担</option>
+          </select>
+          <button onclick=gethelp('duty_pattern')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>サイズバリエーション (例: バリエーションあり)：</b></td>
         <td>
-            <select id="size_variation">
-                <option value=""></option>
-                <option value="バリエーションなし">バリエーションなし</option>
-                <option value="バリエーションあり">バリエーションあり</option>
-            </select>
-            <button onclick=gethelp('size_variation')>？</button>
-          </td>
+          <select id="size_variation">
+            <option value=""></option>
+            <option value="バリエーションなし">バリエーションなし</option>
+            <option value="バリエーションあり">バリエーションあり</option>
+          </select>
+          <button onclick=gethelp('size_variation')>？</button>
+        </td>
       </tr>
       <tr>
         <td align="right"><b>買い付け地 (例: 海外:ヨーロッパ:イタリア:選択なし)：</b></td>
@@ -225,32 +232,32 @@
       <tr>
         <td align="right"><b>シーズン (例: 2019-20AW)：</b></td>
         <td>
-            <select id="season">
-                <option value=""></option>
-                <option value="2020 SS">2020 SS</option>
-                <option value="2020 Cruise">2020 Cruise</option>
-                <option value="2019-20AW">2019-20AW</option>
-                <option value="2019 SS">2019 SS</option>
-                <option value="2019 Cruise">2019 Cruise</option>
-                <option value="2018-19AW">2018-19AW</option>
-                <option value="2018 SS">2018 SS</option>
-                <option value="2018 Cruise">2018 Cruise</option>
-                <option value="2017-18AW">2017-18AW</option>
-                <option value="2017 SS">2017 SS</option>
-                <option value="2017 Cruise">2017 Cruise</option>
-                <option value="2016-17AW">2016-17AW</option>
-                <option value="2016 SS">2016 SS</option>
-                <option value="2016 Cruise">2016 Cruise</option>
-                <option value="2015-16AW">2015-16AW</option>
-                <option value="2015 SS">2015 SS</option>
-                <option value="2015 Cruise">2015 Cruise</option>
-                <option value="2014-15AW">2014-15AW</option>
-            </select>
-            <button onclick=gethelp('season')>？</button>
-          </td>
+          <select id="season">
+            <option value=""></option>
+            <option value="2020 SS">2020 SS</option>
+            <option value="2020 Cruise">2020 Cruise</option>
+            <option value="2019-20AW">2019-20AW</option>
+            <option value="2019 SS">2019 SS</option>
+            <option value="2019 Cruise">2019 Cruise</option>
+            <option value="2018-19AW">2018-19AW</option>
+            <option value="2018 SS">2018 SS</option>
+            <option value="2018 Cruise">2018 Cruise</option>
+            <option value="2017-18AW">2017-18AW</option>
+            <option value="2017 SS">2017 SS</option>
+            <option value="2017 Cruise">2017 Cruise</option>
+            <option value="2016-17AW">2016-17AW</option>
+            <option value="2016 SS">2016 SS</option>
+            <option value="2016 Cruise">2016 Cruise</option>
+            <option value="2015-16AW">2015-16AW</option>
+            <option value="2015 SS">2015 SS</option>
+            <option value="2015 Cruise">2015 Cruise</option>
+            <option value="2014-15AW">2014-15AW</option>
+          </select>
+          <button onclick=gethelp('season')>？</button>
+        </td>
       </tr>
       <tr>
-        <td align="right"><b>配送方法名 (例: 	日本郵便 - ゆうパック)：</b></td>
+        <td align="right"><b>配送方法名 (例: 日本郵便 - ゆうパック)：</b></td>
         <td>
           <input type="text" id="delivery" size="50" maxlength="1000">
           <button onclick=gethelp('delivery')>？</button>
@@ -292,6 +299,7 @@
     <div id="logs"></div>
   </footer>
 
-  <script src="App_scraper.js"></script>
+  <script src="../views/App_scraper.js"></script>
 </body>
+
 </html>

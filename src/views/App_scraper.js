@@ -64,19 +64,23 @@ SqlLoginBtn.addEventListener('click', (event) => {
 // login情報を元に画面編集
 ipcRenderer.on('arg-json', (event, message) => {
   // console.log(message)
-  arg_json = JSON.parse(message)  
+  arg_json = JSON.parse(message)
+
   // load_shopやstart-scrapyで使用するためグローバル関数にする
-  global.all_data = arg_json["all_data"]
+  global.user_shop_dict = arg_json["user_shop_dict"]
   global.crawl_limit = arg_json["crawl_limit"]
-  button_list = ""
-  // console.log(all_data)
-  // console.log(user_shop_parameters)
-  // ユーザーの登録しているショップ情報を取得して、ページに反映
-  for (let i = 0; i < all_data.length; i++) {
-    shop_name = all_data[i]["shop"]
-    shop_id = all_data[i]["shop_id"]
-    button_list += "<button onclick=load_shop(" + shop_id + ")>" + shop_name + "</button>"
+  global.user_id = arg_json["user_id"]
+
+  // ユーザーの登録しているショップ情報を取得して、ドロップダウンをページに反映
+  button_list = "<select onchange=load_shop(this)><option value=-1>ショップを選択してください</option>"
+  keys_list = Object.keys(user_shop_dict)
+  for (let i = 0; i < keys_list.length; i++) {
+    spider_name = keys_list[i]
+    shop_name = user_shop_dict[spider_name]["shop"]
+    button_list += "<option value=" + spider_name + ">" + shop_name + "</option>"
   }
+  button_list += "</select>"
+
   // ショップごとのボタン作成 配列の取得
   document.getElementById('shop-list').innerHTML = button_list
   document.getElementById('sql-login-status').innerHTML = '<font color="green">認証しました</font>'
@@ -86,29 +90,28 @@ ipcRenderer.on('arg-json', (event, message) => {
 })
 
 // ショップボタンを押した際にデフォルト値をロード
-function load_shop(shop_id) {
-  for (let i = 0; i < all_data.length; i++) {
-    if(all_data[i]["shop_id"] == shop_id){
-      global.shop_data = all_data[i]
-    }
+function load_shop(obj) {
+  global.crawler_or_spidercls = obj.options[obj.selectedIndex].value
+  // console.log(obj.options[obj.selectedIndex].name);
+  // ショップが選択されていない場合はreturn
+  if (crawler_or_spidercls == -1) {
+    return
   }
-
-  // if(user_shop_parameter_info){
-  keys_list = Object.keys(shop_data)
-  values_list = Object.values(shop_data)
-  // console.log(shop_data)
+  // GUIにconfデータを反映
+  // console.log(scraping_conf);
+  var spider_data = scraping_conf[crawler_or_spidercls]
+  keys_list = Object.keys(spider_data)
   for (let i = 0; i < keys_list.length; i++) {
+    let key = keys_list[i]
     try{
-      if(values_list[i]){
-        document.getElementById(keys_list[i]).value = values_list[i]
-      }
+      document.getElementById(key).value = spider_data[key]
     }catch (error) {
       console.log(error);
     }
   }
 
   document.getElementById('start-status').innerHTML = 
-    '<a id="start-status"><font color="green">設定が完了しました。(' + shop_data["shop"] + ')</font></a>'
+    '<a id="start-status"><font color="green">設定が完了しました。(' + crawler_or_spidercls + ')</font></a>'
   checker2 = true
 }
 
@@ -124,25 +127,16 @@ StartBtn.addEventListener('click', (event) => {
   }else if (document.getElementById('csv_prm').value == ""){
     ipcRenderer.send('cause-error', '未設定項目', 'CSVパラメータは必須設定項目です。CSVは "ショップ名_パラメータ_日付.csv" という名前で保存されます。フォルダの重複を避けるため入力してください')
   }else{
-    if(shop_data['parameters']){
-      parameters = shop_data['parameters']
-    }else{
-      parameters = ""
-    }
+    // crawler_or_spiderclsはpipelineでなくなってしまう
     var args_list = {
-      "src_dir": __dirname,
-      "crawler_or_spidercls": shop_data["spider"], 
-      "user_id": shop_data['user_id'],
-      "shop_id": shop_data['shop_id'],
-      "parameters": parameters,
-      "user_shop_id": shop_data['user_shop_id'],
+      "crawler_or_spidercls": crawler_or_spidercls, 
+      "spider_name": crawler_or_spidercls, 
+      "user_id": user_id,
       "limit": crawl_limit,
       "dir_path": directory_name,
-      "email": document.getElementById('email').value,
-      "password": document.getElementById('password').value,
     }
     // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します   
-    keys_list = ["start_urls","sex","nobrand","no_ban_brand","currency","max_page", "csv_prm","edit_name","max_price","vatoff_late","vip_late","delivery_price","profit_late","duty_pattern","size_variation","buyplace","sendplace","buyma_shop","tag","thema","season","delivery","deadline","stock","memo","switch"]
+    keys_list = ["email", "password", "start_urls","sex","nobrand","no_ban_brand","currency","max_page", "csv_prm","edit_name","max_price","vatoff_late","vip_late","delivery_price","profit_late","duty_pattern","size_variation","buyplace","sendplace","buyma_shop","tag","thema","season","delivery","deadline","stock","memo","switch"]
     for (let i = 0; i < keys_list.length; i++) {
       try {
         args_list[keys_list[i]] = document.getElementById(keys_list[i]).value

@@ -1,16 +1,14 @@
 // アプリケーション作成用のモジュールを読み込み
 const { app, BrowserWindow, ipcMain, dialog, session, Menu } = require('electron');
 const fs = require("fs");
-var async = require('async');
+const async = require('async');
 const path = require('path');
-var getDirName = require("path").dirname
+const getDirName = require("path").dirname
 const request = require('request')
 const unzip = require("node-unzip-2")
 const csvSync = require('csv-parse/lib/sync')
 const makeDir = require("make-dir");
-var mkdirp = require("mkdirp")
-const exec = require('child_process').exec;
-const {PythonShell} = require('python-shell')
+const { PythonShell } = require('python-shell')
 const Encoding = require('encoding-japanese');
 const ProgressBar = require('electron-progressbar');
 script_dir = path.join("..", 'python_scripts')
@@ -25,6 +23,7 @@ python_path = path.join("..","python_modules","python.exe")
 } else if (os_info == "darwin") {
 python_path = path.join("..","python_modules","bin","python3")
 }
+console.log(python_path)
 
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -32,35 +31,28 @@ python_path = path.join("..","python_modules","bin","python3")
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 let mainWindow;
 function createWindow() {
+  // メインウィンドウを作成します
+  mainWindow = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true,
+    },
+    width: 1350, height: 750,
+    // frame: false,
+  });
 
-// メインウィンドウを作成します
-mainWindow = new BrowserWindow({
-  webPreferences: {
-    nodeIntegration: true,
-  },
-  width: 1350, height: 750,
-  // frame: false,
-});
+  mainWindow.setMenu(null);
 
-mainWindow.setMenu(null);
+  // メインウィンドウに表示するURLを指定します
+  mainWindow.loadFile(path.join(__dirname, 'public', 'exhibition.html'));
+  initWindowMenu()
 
-// メインウィンドウに表示するURLを指定します
-// （今回はmain.jsと同じディレクトリのindex.html）
-mainWindow.loadFile(path.join(__dirname, 'exhibition.html'));
-initWindowMenu()
-// mainWindow.loadURL(url.format({
-//   pathname: path.join(__dirname, 'exhibition.html'),
-//   protocol: 'file:',
-//   slashes: true
-// }));
+  // デベロッパーツールの起動
+  // mainWindow.webContents.openDevTools();
 
-// デベロッパーツールの起動
-// mainWindow.webContents.openDevTools();
-
-// メインウィンドウが閉じられたときの処理
-mainWindow.on('closed', () => {
-  mainWindow = null;
-});
+  // メインウィンドウが閉じられたときの処理
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
 }
 
 //  初期化が完了した時の処理
@@ -175,19 +167,19 @@ const template = [
   submenu: [
     {
       label: '自動出品ツール',
-      click () { mainWindow.loadFile(path.join(__dirname, 'exhibition.html')) }
+      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'exhibition.html')) }
     },
     {
       label: 'BuyManager',
-      click () { mainWindow.loadFile(path.join(__dirname, 'manager.html')) }
+      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'manager.html')) }
     },
     {
       label: '商品リスト自動作成ツール',
-      click () { mainWindow.loadFile(path.join(__dirname, 'scraper.html')) }
+      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'scraper.html')) }
     },
     {
       label: '自動画像加工ツール',
-      click () { mainWindow.loadFile(path.join(__dirname, 'imager.html')) }
+      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'imager.html')) }
     },
     {
       label: 'アップデート',
@@ -226,19 +218,19 @@ Menu.setApplicationMenu(menu)
 // ページ遷移
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on('change-to-exhibition', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'exhibition.html'));
+mainWindow.loadFile(path.join(__dirname, 'public', 'exhibition.html'));
 })
 
 ipcMain.on('change-to-manager', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'manager.html'))
+mainWindow.loadFile(path.join(__dirname, 'public', 'manager.html'))
 })
 
 ipcMain.on('change-to-scraper', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'scraper.html'))
+mainWindow.loadFile(path.join(__dirname, 'public', 'scraper.html'))
 })
 
 ipcMain.on('change-to-imager', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'imager.html'))
+mainWindow.loadFile(path.join(__dirname, 'public', 'imager.html'))
 })
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -421,6 +413,35 @@ dialog.showOpenDialog({
 })
 })
 
+// ファイル選択
+ipcMain.on('open-file-logo', (event) => { 
+  dialog.showOpenDialog({
+    properties: ['openFile'],
+  }).then (file => {
+    if (file.filePaths[0]) {
+      event.sender.send('selected-logo', file.filePaths[0])
+    }
+  })
+})
+ipcMain.on('open-file-frame', (event) => { 
+  dialog.showOpenDialog({
+    properties: ['openFile'],
+  }).then (file => {
+    if (file.filePaths[0]) {
+      event.sender.send('selected-frame', file.filePaths[0])
+    }
+  })
+})
+ipcMain.on('open-file-effect', (event) => { 
+  dialog.showOpenDialog({
+    properties: ['openFile'],
+  }).then (file => {
+    if (file.filePaths[0]) {
+      event.sender.send('selected-effect', file.filePaths[0])
+    }
+  })
+})
+
 ipcMain.on('start-imager', (event, args_list) => {
 // メインウィンドウを更新すれば新しい画像が表示される
 mainWindow.reload()
@@ -531,6 +552,7 @@ if (os_info == "darwin") {
 }
 
 // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+console.log(options)
 let pyshell = new PythonShell('login.py', options)
 
 // カウンターは同期処理するため？
@@ -540,18 +562,12 @@ pyshell.on('message', function (message) {
   // received a message sent from the Python script (a simple "print" statement)
   if (message == "False") {
     event.sender.send('log-create', '認証に失敗しました');
-  }else if (message == "1"){
-    event.sender.send('log-create', message);
   }else if (message.indexOf(">>>>>") !== -1){
     event.sender.send('log-create', message);
   }else{
-    // datetime&シングルクオテーションがあるとエラーになる
-    // message = message.replace(/datetime.datetime\(/g, '"')
-    // message = message.replace(/\)/g, '"')
-    message = message.replace(/'/g, '"')
-    // login.pyでの標準出力を画面に表示
     // console.log(message)
-    // event.sender.send('log-create', message);
+    // datetime&シングルクオテーションがあるとエラーになる
+    message = message.replace(/'/g, '"')
     event.sender.send('arg-json', message)
   }
 });
@@ -575,24 +591,24 @@ pyshell.end(function (err,code,signal) {
 ipcMain.on('start-scrapy', (event, args_list) => {
 console.log("\n\nスクレイピング開始\n\n")
 args_list = JSON.parse(args_list)
-args_list["electron_dir"] = __dirname
-args_list = JSON.stringify(args_list)
-// console.log(args_list)
+args_list["src_dir"] = __dirname
 
 let options = {
   mode: 'text',
-  pythonPath: path.join(__dirname, python_path),
   pythonOptions: ['-u'], // get print results in real-time
+  pythonPath: path.join(__dirname, python_path),
   scriptPath: path.join(__dirname, script_dir),
   // python側へGUIで拾った値を渡す
-  args: args_list,
+  args: JSON.stringify(args_list),
   encoding: "binary"
-};
+}
+
 // Macのときはエンコーディングする必要がない
 if (os_info == "darwin") {
   delete options["encoding"]
 }
-// console.log(options)
+
+console.log(options)
 
 // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
 let pyshell = new PythonShell('scrapy_start.py', options);

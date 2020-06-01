@@ -1,20 +1,21 @@
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>自動出品ツール</title>
-  <link rel="stylesheet" type="text/css" href="table.css">
+  <link rel="stylesheet" type="text/css" href="../css/table.css">
 </head>
 
 <body>
   <header id="header">
     <div align="center">
-      <ul id="gNavi">  
-        <li><a id="exhibition">自動出品ツール</a></li>  
-        <li><a id="buymanager">BuyManager</a></li>  
-        <li><a id="scraper">商品リスト自動作成ツール</a></li>  
-        <li><a id="imager">自動画像加工ツール</a></li>  
-      </ul>  
-    <h3>自動出品ツール</h3>
+      <ul id="gNavi">
+        <li><a id="exhibition">自動出品ツール</a></li>
+        <li><a id="buymanager">BuyManager</a></li>
+        <li><a id="scraper">商品リスト自動作成ツール</a></li>
+        <li><a id="imager">自動画像加工ツール</a></li>
+      </ul>
+      <h3>自動出品ツール</h3>
       <!-- Using node <script>document.write(process.versions.node)</script>,
       Chrome <script>document.write(process.versions.chrome)</script>,
       and Electron <script>document.write(process.versions.electron)</script>. -->
@@ -40,13 +41,13 @@
 
     <div>
       <table border="0">
-        <tr> 
+        <tr>
           <b> 日：</b>
           <input type="text" id="day-score" size="10" value="" maxlength="20">
           <b> 時間：</b>
           <input type="text" id="hour-score" size="10" value="" maxlength="20">
           <button onclick=gethelp('days')>？</button>
-          
+
           <b> 買付先メモ：</b>
           <input type="radio" id="url_memo" name="url_radio" value="on" checked="checked">ON
           <input type="radio" id="url_memo" name="url_radio" value="off">OFF
@@ -72,6 +73,7 @@
     <div id="logs"></div>
   </footer>
 
-  <script src="App_exhibition.js"></script>
+  <script src="../views/App_exhibition.js"></script>
 </body>
+
 </html>
