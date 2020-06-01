@@ -63,13 +63,13 @@ SqlLoginBtn.addEventListener('click', (event) => {
 
 // login情報を元に画面編集
 ipcRenderer.on('arg-json', (event, message) => {
-  // console.log(message)
   arg_json = JSON.parse(message)
 
   // load_shopやstart-scrapyで使用するためグローバル関数にする
   global.user_shop_dict = arg_json["user_shop_dict"]
   global.crawl_limit = arg_json["crawl_limit"]
   global.user_id = arg_json["user_id"]
+  // console.log(user_shop_dict)
 
   // ユーザーの登録しているショップ情報を取得して、ドロップダウンをページに反映
   button_list = "<select onchange=load_shop(this)><option value=-1>ショップを選択してください</option>"
@@ -77,6 +77,7 @@ ipcRenderer.on('arg-json', (event, message) => {
   for (let i = 0; i < keys_list.length; i++) {
     spider_name = keys_list[i]
     shop_name = user_shop_dict[spider_name]["shop"]
+    console.log(spider_name, shop_name)
     button_list += "<option value=" + spider_name + ">" + shop_name + "</option>"
   }
   button_list += "</select>"
@@ -92,7 +93,7 @@ ipcRenderer.on('arg-json', (event, message) => {
 // ショップボタンを押した際にデフォルト値をロード
 function load_shop(obj) {
   global.crawler_or_spidercls = obj.options[obj.selectedIndex].value
-  // console.log(obj.options[obj.selectedIndex].name);
+  console.log(crawler_or_spidercls);
   // ショップが選択されていない場合はreturn
   if (crawler_or_spidercls == -1) {
     return
@@ -100,16 +101,18 @@ function load_shop(obj) {
   // GUIにconfデータを反映
   // console.log(scraping_conf);
   var spider_data = scraping_conf[crawler_or_spidercls]
-  keys_list = Object.keys(spider_data)
-  for (let i = 0; i < keys_list.length; i++) {
-    let key = keys_list[i]
-    try{
-      document.getElementById(key).value = spider_data[key]
-    }catch (error) {
-      console.log(error);
+  if(spider_data){
+    keys_list = Object.keys(spider_data)
+    for (let i = 0; i < keys_list.length; i++) {
+      let key = keys_list[i]
+      try{
+        document.getElementById(key).value = spider_data[key]
+      }catch (error) {
+        console.log(error);
+      }
     }
   }
-
+  
   document.getElementById('start-status').innerHTML = 
     '<a id="start-status"><font color="green">設定が完了しました。(' + crawler_or_spidercls + ')</font></a>'
   checker2 = true
