@@ -90,7 +90,9 @@ ipcRenderer.on('after_reload', (event, args_list) => {
 })
 
 // ディレクトリを選択した時にパラメータを反映
-function choiceDir(dir_name) {
+function choiceDir(obj) {
+  var dir_name = obj.options[obj.selectedIndex].value
+  console.log(dir_name)
   global.choiced_dir = dir_name
   checker1 = true
   document.getElementById('dir-status').innerHTML = '<font color="green">' + choiced_dir + 'が選択されました</font>'
@@ -102,7 +104,6 @@ function choiceDir(dir_name) {
   }
 
   // args_listがあれば、新規の値を反映させる
-  // console.log(global.args_list)
   if(global.args_list){
     img_parameter = global.args_list
   }else{

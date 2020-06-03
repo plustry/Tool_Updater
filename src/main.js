@@ -70,10 +70,10 @@ if (process.platform !== 'darwin') {
 
 // アプリケーションがアクティブになった時の処理(Macだと、Dockがクリックされた時）
 app.on('activate', () => {
-// メインウィンドウが消えている場合は再度メインウィンドウを作成する
-if (mainWindow === null) {
-  createWindow();
-}
+  // メインウィンドウが消えている場合は再度メインウィンドウを作成する
+  if (mainWindow === null) {
+    createWindow();
+  }
 });
 
 function initWindowMenu(){
@@ -340,78 +340,65 @@ function ForceUpdater(event) {
 // 画像加工モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on('init-imager', (event) => {
-// デフォルトフォルダを開く
-let dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-var dir_desktop = require("path").join(dir_home, "Desktop", "BUYMA", "data");
-var dir_imgconf = path.join(dir_desktop, "..", "conf", "image.conf")
+  // デフォルトフォルダを開く
+  let dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
+  var dir_desktop = require("path").join(dir_home, "Desktop", "BUYMA", "data");
+  var dir_imgconf = path.join(dir_desktop, "..", "conf", "image.conf")
 
-// パラメータが存在すれば読み込む
-try {
-dic_list = fs.readFileSync(dir_imgconf, {encoding: 'utf-8'});
-event.sender.send('load-image-conf', dic_list)
-} catch (error) {
-  console.log(error);
-  event.sender.send('load-image-conf', "")
-  event.sender.send('log-create', dir_imgconf + "：こちらにファイルを置くと設定情報が保存されます。")
-}
-
-try {
-  fs.statSync(dir_desktop);
-  console.log('デフォルトフォルダが存在したので開きます。');
-  event.sender.send('selected-directory', dir_desktop);
-  // ディレクトリ選択ボタン
-  var button_text = ""
-  fs.readdir(dir_desktop, function (err, list) {
-    if (err) {
-      console.log(err)
-    }else {
-      for (var i = 0; i < list.length; i++) {
-        var dir_check = fs.statSync(path.join(dir_desktop, list[i])).isDirectory()
-        if (dir_check) {
-          button_text += "<button onclick=choiceDir('" + list[i] + "')>" + list[i] + "</button>"
-        }
-      }
-      event.sender.send('make-dir-button', button_text)
-    }
-  })
-} catch (error) {
-  console.log(error);
-}
+  // パラメータが存在すれば読み込む
+  try {
+  dic_list = fs.readFileSync(dir_imgconf, {encoding: 'utf-8'});
+  event.sender.send('load-image-conf', dic_list)
+  } catch (error) {
+    console.log(error);
+    event.sender.send('load-image-conf', "")
+    event.sender.send('log-create', dir_imgconf + "：こちらにファイルを置くと設定情報が保存されます。")
+  }
+  console.log(dir_desktop)
+  // dataフォルダが存在すれば開く
+  image_dir_select(event, dir_desktop)
 })
+
 
 // フォルダ展開
 ipcMain.on('open-file-imager', (event) => { 
-dialog.showOpenDialog({
-  properties: ['openDirectory'],
-  // filters: [
-  //   {
-  //     name: 'Open Directory',
-  //     // extensions: ['csv', 'txt', 'md']
-  //   }
-  // ]
-}).then (folder => {
-  if (folder.filePaths[0]) {
-    // 選択したディレクトリを表示
-    event.sender.send('selected-directory', folder.filePaths[0])
-    
+  dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  }).then (folder => {
+    if (folder.filePaths[0]) {
+      // 選択したフォルダを開く
+      console.log(folder.filePaths[0])
+      image_dir_select(event, folder.filePaths[0])
+    }
+  })
+})
+
+function image_dir_select(event, dir_desktop) {
+  try {
+    fs.statSync(dir_desktop);
+    console.log(dir_desktop + 'の中のフォルダを開きます。');
+    event.sender.send('selected-directory', dir_desktop);
     // ディレクトリ選択ボタン
-    var button_text = ""
-    fs.readdir(folder.filePaths[0], function (err, list) {
+    fs.readdir(dir_desktop, function (err, list) {
       if (err) {
         console.log(err)
       }else {
+        var button_text = "<select onchange=choiceDir(this)><option value=-1>フォルダを選択してください</option>"
         for (var i = 0; i < list.length; i++) {
-          var dir_check = fs.statSync(path.join(folder.filePaths[0], list[i])).isDirectory()
+          var dir_check = fs.statSync(path.join(dir_desktop, list[i])).isDirectory()
           if (dir_check) {
-            button_text += "<button onclick=choiceDir('" + list[i] + "')>" + list[i] + "</button>"
+            button_text += "<option value=" + list[i] + ">" + list[i] + "</option>"
           }
         }
+        button_text += "</select>"
         event.sender.send('make-dir-button', button_text)
       }
     })
+  } catch (error) {
+    console.log(error);
   }
-})
-})
+}
+
 
 // ファイル選択
 ipcMain.on('open-file-logo', (event) => { 
@@ -479,16 +466,15 @@ pyshell.on('message', function (message) {
 
 // DEBUG情報などを取得したい場合
 pyshell.on('stderr', function (message) {
+  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
   if(message.indexOf("ModuleNotFoundError") !== -1){
-    var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
-    event.sender.send('log-create', ModuleNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
   }else if(message.indexOf("FileNotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
   }else if(message.indexOf("NotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
   }
+  event.sender.send('log-create', ErrorMessage)
 })
 
 pyshell.end(function (err,code,signal) {
@@ -582,16 +568,15 @@ pyshell.on('message', function (message) {
 
 // DEBUG情報などを取得したい場合
 pyshell.on('stderr', function (message) {
+  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
   if(message.indexOf("ModuleNotFoundError") !== -1){
-    var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
-    event.sender.send('log-create', ModuleNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
   }else if(message.indexOf("FileNotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
   }else if(message.indexOf("NotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
   }
+  event.sender.send('log-create', ErrorMessage)
 })
 
 pyshell.end(function (err,code,signal) {
@@ -637,16 +622,15 @@ pyshell.on('message', function (message) {
 
 // DEBUG情報などを取得したい場合
 pyshell.on('stderr', function (message) {
+  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
   if(message.indexOf("ModuleNotFoundError") !== -1){
-    var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
-    event.sender.send('log-create', ModuleNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
   }else if(message.indexOf("FileNotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
   }else if(message.indexOf("NotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
   }
+  event.sender.send('log-create', ErrorMessage)
 })
 
 pyshell.end(function (err,code,signal) {
@@ -913,24 +897,20 @@ pyshell.on('message', function (message) {
 
 // DEBUG情報などを取得したい場合
 pyshell.on('stderr', function (message) {
+  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
   if(message.indexOf("ModuleNotFoundError") !== -1){
-    var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
-    event.sender.send('log-create', ModuleNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
   }else if(message.indexOf("FileNotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
   }else if(message.indexOf("NotFoundError") !== -1){
-    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
-    event.sender.send('log-create', FileNotFoundError)
+    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
   }
+  event.sender.send('log-create', ErrorMessage)
 })
 
 pyshell.end(function (err,code,signal) {
   if (err) throw err;
-  // event.sender.send('log-create', 'The exit code was: ' + code);
-  // console.log('The exit signal was: ' + signal);
   event.sender.send('log-create', '出品処理は全て終了しました');
-  // console.log('finished');
 });
 })
 
