@@ -123,34 +123,76 @@ const StartBtn = document.getElementById('start-scrapy')
 StartBtn.addEventListener('click', (event) => {
   if (!checker1){
     ipcRenderer.send('cause-error', '未設定項目', '認証を行ってください')
+    return
   }else if (!checker2){
     ipcRenderer.send('cause-error', '未設定項目', 'ショップを選択してください')
-  }else if (document.getElementById('sex').value == ""){
-    ipcRenderer.send('cause-error', '未設定項目', '性別は必須設定項目です')
-  }else if (document.getElementById('csv_prm').value == ""){
-    ipcRenderer.send('cause-error', '未設定項目', 'CSVパラメータは必須設定項目です。CSVは "ショップ名_パラメータ_日付.csv" という名前で保存されます。フォルダの重複を避けるため入力してください')
-  }else{
-    // crawler_or_spiderclsはpipelineでなくなってしまう
-    var args_list = {
-      "crawler_or_spidercls": crawler_or_spidercls, 
-      "spider_name": crawler_or_spidercls, 
-      "user_id": user_id,
-      "limit": crawl_limit,
-      "dir_path": directory_name,
-    }
-    // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します   
-    keys_list = ["email", "password", "start_urls","sex","nobrand","no_ban_brand","currency","max_page", "csv_prm","edit_name","max_price","vatoff_late","vip_late","delivery_price","profit_late","duty_pattern","size_variation","buyplace","sendplace","buyma_shop","tag","thema","season","delivery","deadline","stock","memo","switch"]
-    for (let i = 0; i < keys_list.length; i++) {
-      try {
-        args_list[keys_list[i]] = document.getElementById(keys_list[i]).value
-      } catch (error) {
-       console.log(error) 
-      }
-    }
-    ipcRenderer.send('show-info', 'スクレイピング開始', '商品リストの取得を開始しました', 'アプリを閉じると取得を終了します。\n取得可能商品数はこちらです：' + args_list['limit'] + '\n取得ショップ：' + args_list['crawler_or_spidercls'])
-    ipcRenderer.send('start-scrapy', JSON.stringify(args_list)) 
+    return
   }
+
+  must_list = [
+    "sex",
+    "csv_prm",
+    "start_urls",
+  ]
+  for(var i = 0; i < must_list.length; i++){
+    if (document.getElementById(must_list[i]).value == ""){
+      ipcRenderer.send('cause-error', "未設定項目", must_list[i] + "を入力してください")
+      return
+    }
+  }
+
+  integer_list = [
+    "delivery_price",
+    "max_price",
+    "vatoff_late",
+    "vip_late",
+    "deadline",
+    "stock",
+    "max_page",
+    "profit_late",
+  ]
+  for(var i = 0; i < integer_list.length; i++){
+    let data_value = document.getElementById(integer_list[i]).value
+    if (!/^[-]?([1-9]\d*|0)(\.\d+)?$/.test(data_value) && data_value !== ""){
+      ipcRenderer.send('cause-error', "入力エラー", integer_list[i] + "の入力に数値以外の文字が有ります")
+      return
+    }
+  }
+
+  if (!/^[A-Za-z0-9]+$/.test(document.getElementById("csv_prm").value)){
+    ipcRenderer.send('cause-error', "入力エラー",  "CSV パラメータは半角英数字のみで入力してください")
+    return
+  }
+
+  let buyplace = document.getElementById("buyplace").value
+  let sendplace = document.getElementById("sendplace").value
+  if (buyplace.match(new RegExp( ":", "g" )).length !== 3 || sendplace.match(new RegExp( ":", "g" )).length !== 3 && buyplace !== "" && sendplace !== ""){
+    ipcRenderer.send('cause-error', "入力エラー",  "買い付け地、発送地にはコロン「:」が3つ必要です")
+    return
+  }
+
+  // crawler_or_spiderclsはpipelineでなくなってしまう
+  var args_list = {
+    "crawler_or_spidercls": crawler_or_spidercls, 
+    "spider_name": crawler_or_spidercls, 
+    "user_id": user_id,
+    "limit": crawl_limit,
+    "dir_path": directory_name,
+  }
+  // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します   
+  keys_list = ["email", "password", "start_urls","sex","nobrand","no_ban_brand","currency","max_page", "csv_prm","edit_name","max_price","vatoff_late","vip_late","delivery_price","profit_late","duty_pattern","size_variation","buyplace","sendplace","buyma_shop","tag","thema","season","delivery","deadline","stock","memo","switch"]
+  for (let i = 0; i < keys_list.length; i++) {
+    try {
+      args_list[keys_list[i]] = document.getElementById(keys_list[i]).value
+    } catch (error) {
+      console.log(error) 
+    }
+  }
+  ipcRenderer.send('show-info', 'スクレイピング開始', '商品リストの取得を開始しました', 'アプリを閉じると取得を終了します。\n取得可能商品数はこちらです：' + args_list['limit'] + '\n取得ショップ：' + args_list['crawler_or_spidercls'])
+  ipcRenderer.send('start-scrapy', JSON.stringify(args_list)) 
+
 })
+
 // ログ画面
 ipcRenderer.on('log-create', (event, log_text) => {
   document.getElementById('logs').innerHTML += "<p>[log]: " + String(log_text) + "</p>"

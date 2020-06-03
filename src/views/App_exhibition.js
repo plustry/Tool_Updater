@@ -1,6 +1,7 @@
 // rendererとipc通信を行う
 const {ipcRenderer} = require('electron')
 const path = require('path');
+global.checker = false
 
 // 動的に作成したボタンから呼び出してCSV読みこみ
 global.csv_name = ""
@@ -44,6 +45,10 @@ ChangeToImagerBtn.addEventListener('click', (event) => {
 const makeDirBtn = document.getElementById('make-account-dir')
 makeDirBtn.addEventListener('click', (event) => {
   var user_dir = document.getElementById('user-dir').value
+  if (!/^[A-Za-z0-9]+$/.test(user_dir)){
+    ipcRenderer.send('cause-error', "入力エラー",  "アカウント名は半角英数字のみで入力してください")
+    return
+  }
   ipcRenderer.send('make-account-dir', user_dir)
 })
 
@@ -62,6 +67,16 @@ ipcRenderer.on('log-create', (event, log_text) => {
 // 自動出品開始
 const StartBtn = document.getElementById('start-exhibition')
 StartBtn.addEventListener('click', (event) => {
+  if (!checker) {
+    ipcRenderer.send('cause-error', "未設定項目", "CSVを選択してください")
+    return
+  }
+
+  let access_code = document.getElementById("access-code").value
+  if (access_code.indexOf("kaiin_id%22%3A") === -1 || access_code.indexOf("%2C%22nickname") === -1 || access_code.indexOf("_GEWZxdbe2H2bte4N") === -1 ){
+    ipcRenderer.send('cause-error', "設定エラー", "アクセスコードが正しくありません\n以下を参考にしてください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.6gmd5ogn4qo7")
+    return
+  }
   // var mail = document.getElementById('mail').value
   var args_list = {
     "day_score": document.getElementById('day-score').value,
@@ -95,6 +110,7 @@ ipcRenderer.on('selected-filedata', (event, text_data) => {
   // ボタン分高さが変わるので自動調整
   AutoAdjust()
   document.getElementById('text-data').innerHTML = `${text_data}`
+  checker = true
 })
 
 // パッディング自動調整

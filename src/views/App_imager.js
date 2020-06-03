@@ -171,50 +171,91 @@ MainStartBtn.addEventListener('click', (event) => {
   document.getElementById('images').innerHTML = ""
   if (!checker1) {
     ipcRenderer.send('cause-error', "未設定項目", "フォルダを選択してください")
-  } else if (document.getElementById('email').value == "") {
-    ipcRenderer.send('cause-error', "未設定項目", "メールアドレスを入力してください")
-  } else if (document.getElementById('password').value == ""){
-    ipcRenderer.send('cause-error', "未設定項目", "パスワードを入力してください")
-  } else {
-    global.args_list = {
-      "image_conf": image_conf,
-      "edit_mode": document.getElementById('edit_mode').value,
-      "master_dir": directory_name,
-      "choiced_dir": choiced_dir,
-      "scriptPath": __dirname,
-      "img_category": document.getElementById('img_category').value,
-      "img_new_category": document.getElementById('img_new_category').value,
-      "email": document.getElementById('email').value,
-      "password": document.getElementById('password').value,
-      "logo_size": document.getElementById('logo_size').value,
-      "item_size": document.getElementById('item_size').value,
-      "item_move_x": document.getElementById('item_move_x').value,
-      "item_move_y": document.getElementById('item_move_y').value,
-      "back_move_x": document.getElementById('back_move_x').value,
-      "back_move_y": document.getElementById('back_move_y').value,
-      "logo_move_x": document.getElementById('logo_move_x').value,
-      "logo_move_y": document.getElementById('logo_move_y').value,
-      "bg_num": document.getElementById('bg_num').value,
-      "bg_image": document.getElementById('bg_image').value,
-      "img_effect": document.getElementById('img_effect').value,
-      "img_frame": document.getElementById('img_frame').value,
-      "img_logo": document.getElementById('img_logo').value,
-      "image_diff": document.getElementById('image_diff').value,
-      "addimg_1_name": document.getElementById('addimg_1_name').value, 
-      "addimg_1_size": document.getElementById('addimg_1_size').value,
-      "addimg_1_x": document.getElementById('addimg_1_x').value, 
-      "addimg_1_y": document.getElementById('addimg_1_y').value,
-      "addimg_2_name": document.getElementById('addimg_2_name').value, 
-      "addimg_2_size": document.getElementById('addimg_2_size').value,
-      "addimg_2_x": document.getElementById('addimg_2_x').value, 
-      "addimg_2_y": document.getElementById('addimg_2_y').value,
-      "addimg_3_name": document.getElementById('addimg_3_name').value, 
-      "addimg_3_size": document.getElementById('addimg_3_size').value,
-      "addimg_3_x": document.getElementById('addimg_3_x').value, 
-      "addimg_3_y": document.getElementById('addimg_3_y').value
-    }
-    ipcRenderer.send('start-imager', JSON.stringify(args_list))
+    return
   }
+
+  must_list = [
+    "email",
+    "password"
+  ]
+
+  for(var i = 0; i < must_list.length; i++){
+    if (document.getElementById(must_list[i]).value == ""){
+      ipcRenderer.send('cause-error', "未設定項目", must_list[i] + "を入力してください")
+      return
+    }
+  }
+
+  integer_list = [
+    "image_diff",
+    "item_size",
+    "item_move_y",
+    "item_move_x",
+    "logo_size",
+    "logo_move_y",
+    "logo_move_x",
+    "bg_num",
+    "back_move_y",
+    "back_move_x",
+    "addimg_1_name",
+    "addimg_1_size",
+    "addimg_1_y",
+    "addimg_1_x",
+    "addimg_2_name",
+    "addimg_2_size",
+    "addimg_2_y",
+    "addimg_2_x",
+    "addimg_3_name",
+    "addimg_3_size",
+    "addimg_3_y",
+    "addimg_3_x",
+  ]
+  for(var i = 0; i < integer_list.length; i++){
+    if (!/^[-]?([1-9]\d*|0)(\.\d+)?$/.test(document.getElementById(integer_list[i]).value) && document.getElementById(integer_list[i]).value !== ""){
+      ipcRenderer.send('cause-error', "入力エラー", integer_list[i] + "の入力に数値以外の文字が有ります")
+      return
+    }
+  }
+
+  global.args_list = {
+    "image_conf": image_conf,
+    "edit_mode": document.getElementById('edit_mode').value,
+    "master_dir": directory_name,
+    "choiced_dir": choiced_dir,
+    "scriptPath": __dirname,
+    "img_category": document.getElementById('img_category').value,
+    "img_new_category": document.getElementById('img_new_category').value,
+    "email": document.getElementById('email').value,
+    "password": document.getElementById('password').value,
+    "logo_size": document.getElementById('logo_size').value,
+    "item_size": document.getElementById('item_size').value,
+    "item_move_x": document.getElementById('item_move_x').value,
+    "item_move_y": document.getElementById('item_move_y').value,
+    "back_move_x": document.getElementById('back_move_x').value,
+    "back_move_y": document.getElementById('back_move_y').value,
+    "logo_move_x": document.getElementById('logo_move_x').value,
+    "logo_move_y": document.getElementById('logo_move_y').value,
+    "bg_num": document.getElementById('bg_num').value,
+    "bg_image": document.getElementById('bg_image').value,
+    "img_effect": document.getElementById('img_effect').value,
+    "img_frame": document.getElementById('img_frame').value,
+    "img_logo": document.getElementById('img_logo').value,
+    "image_diff": document.getElementById('image_diff').value,
+    "addimg_1_name": document.getElementById('addimg_1_name').value, 
+    "addimg_1_size": document.getElementById('addimg_1_size').value,
+    "addimg_1_x": document.getElementById('addimg_1_x').value, 
+    "addimg_1_y": document.getElementById('addimg_1_y').value,
+    "addimg_2_name": document.getElementById('addimg_2_name').value, 
+    "addimg_2_size": document.getElementById('addimg_2_size').value,
+    "addimg_2_x": document.getElementById('addimg_2_x').value, 
+    "addimg_2_y": document.getElementById('addimg_2_y').value,
+    "addimg_3_name": document.getElementById('addimg_3_name').value, 
+    "addimg_3_size": document.getElementById('addimg_3_size').value,
+    "addimg_3_x": document.getElementById('addimg_3_x').value, 
+    "addimg_3_y": document.getElementById('addimg_3_y').value
+  }
+  ipcRenderer.send('start-imager', JSON.stringify(args_list))
+  
 })
 
 // ヘルプ項目

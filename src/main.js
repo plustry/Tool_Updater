@@ -482,9 +482,11 @@ pyshell.on('stderr', function (message) {
   if(message.indexOf("ModuleNotFoundError") !== -1){
     var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
     event.sender.send('log-create', ModuleNotFoundError)
-  }
-  if(message.indexOf("FileNotFoundError") !== -1){
+  }else if(message.indexOf("FileNotFoundError") !== -1){
     var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
+  }else if(message.indexOf("NotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
     event.sender.send('log-create', FileNotFoundError)
   }
 })
@@ -583,12 +585,14 @@ pyshell.on('stderr', function (message) {
   if(message.indexOf("ModuleNotFoundError") !== -1){
     var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
     event.sender.send('log-create', ModuleNotFoundError)
-  }
-  if(message.indexOf("FileNotFoundError") !== -1){
+  }else if(message.indexOf("FileNotFoundError") !== -1){
     var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
     event.sender.send('log-create', FileNotFoundError)
+  }else if(message.indexOf("NotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
   }
-});
+})
 
 pyshell.end(function (err,code,signal) {
   if (err) throw err;
@@ -636,9 +640,11 @@ pyshell.on('stderr', function (message) {
   if(message.indexOf("ModuleNotFoundError") !== -1){
     var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
     event.sender.send('log-create', ModuleNotFoundError)
-  }
-  if(message.indexOf("FileNotFoundError") !== -1){
+  }else if(message.indexOf("FileNotFoundError") !== -1){
     var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
+  }else if(message.indexOf("NotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
     event.sender.send('log-create', FileNotFoundError)
   }
 })
@@ -910,9 +916,11 @@ pyshell.on('stderr', function (message) {
   if(message.indexOf("ModuleNotFoundError") !== -1){
     var ModuleNotFoundError = message.substring(message.indexOf("ModuleNotFoundError"))
     event.sender.send('log-create', ModuleNotFoundError)
-  }
-  if(message.indexOf("FileNotFoundError") !== -1){
+  }else if(message.indexOf("FileNotFoundError") !== -1){
     var FileNotFoundError = message.substring(message.indexOf("FileNotFoundError"))
+    event.sender.send('log-create', FileNotFoundError)
+  }else if(message.indexOf("NotFoundError") !== -1){
+    var FileNotFoundError = message.substring(message.indexOf("NotFoundError"))
     event.sender.send('log-create', FileNotFoundError)
   }
 })
