@@ -14,17 +14,26 @@ header{
 }
 
 main{
-  padding-top: 13%;
+  /* padding-top: 13%; */
   height: 50%;
-  padding-bottom: 0%;
-  background-color: #fffff0;
+  background-color: #fbfff3;
   overflow: scroll;
 }
 
-section{
-  padding-top: 70%;
-  height: 20%;
-  padding-bottom: 0%;
+main table td{
+  width: 25%;
+  border-bottom: solid 1px #000000;
+  cursor: pointer;
+}
+
+main table td.col-8{
+  width: 75%;
+  border-bottom: solid 1px #000000;
+  cursor: pointer;
+}
+
+
+.images{
   background-color: #ffffff;
   overflow: scroll;
 }
@@ -36,7 +45,6 @@ footer{
   color: #000000;
   text-align: left;
   padding:10px 0;
-
   position: fixed;
   bottom: 0;
   overflow: scroll;
@@ -157,4 +165,9 @@ button{
   margin: 2px;
   padding: 2px;
   /* font-size: medium; */
+}
+
+/* windowsではスクロールバーの分だけ高さが変わるので非表示にする */
+.images::-webkit-scrollbar {
+  display:none;
 }

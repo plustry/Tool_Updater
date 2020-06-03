@@ -18,6 +18,11 @@ ipcRenderer.on('load-image-conf', (event, dic_list) => {
     event.sender.send('log-create', "BUYMA/conf フォルダにimage.confファイルが無いまたは空です")
     global.image_conf = {}
   }
+
+  // console.log(document.body.clientHeight)
+  // console.log(document.getElementsByTagName('header'))
+  // console.log(document.getElementsByTagName('footer'))
+  // console.log(document.getElementsByTagName('main'))
 })
 
 // ページ遷移
@@ -47,15 +52,15 @@ selectDirBtn.addEventListener('click', (event) => {
 // ファイル選択呼び出し
 const selectLogoBtn = document.getElementById('select-logo')
 selectLogoBtn.addEventListener('click', (event) => {
-  ipcRenderer.send('open-file-logo')
+  ipcRenderer.send('open-file', 'selected-logo')
 })
 const selectFrameBtn = document.getElementById('select-frame')
 selectFrameBtn.addEventListener('click', (event) => {
-  ipcRenderer.send('open-file-frame')
+  ipcRenderer.send('open-file', 'selected-frame')
 })
 const selectEffectBtn = document.getElementById('select-effect')
 selectEffectBtn.addEventListener('click', (event) => {
-  ipcRenderer.send('open-file-effect')
+  ipcRenderer.send('open-file', 'selected-effect')
 })
 
 // 選択されたファイルを適用
@@ -137,6 +142,7 @@ function choiceDir(obj) {
       console.log("error")
     }
   }
+  AutoAdjust()
 }
 
 // カテゴリをクリックして、適用した時にパラメータを反映させる
@@ -159,10 +165,10 @@ function choiceCat(){
 
 // 生成された画像を表示してみる
 ipcRenderer.on('disp-image', (event, image_path) => {
-  var height = document.body.clientHeight - document.getElementsByTagName('header')[0].offsetHeight - document.getElementsByTagName('footer')[0].offsetHeight
+  var height = document.body.clientHeight - document.getElementsByTagName('main')[0].offsetHeight - document.getElementsByTagName('footer')[0].offsetHeight
   // document.getElementById('logs').innerHTML += height
   document.getElementById('images').innerHTML += '<img src ="file://' + image_path + '" height=' + height +'>'
-  AutoAdjust()
+  document.getElementsByClassName('images')[0].style.height = height
 })
 
 // メイン編集開始
@@ -319,9 +325,12 @@ ipcRenderer.on('log-create', (event, log_text) => {
 
 // 最後に動的にパッディングする
 function AutoAdjust() {
-  var padding = document.getElementsByClassName('images')[0]
+  // var padding = document.getElementsByClassName('images')[0]
+  // // padding.style.paddingTop = document.getElementsByTagName('header')[0].offsetHeight
+  // padding.style.paddingBottom = document.getElementsByTagName('footer')[0].offsetHeight
+
+  padding = document.getElementsByTagName('main')[0]
   padding.style.paddingTop = document.getElementsByTagName('header')[0].offsetHeight
-  padding.style.paddingBottom = document.getElementsByTagName('footer')[0].offsetHeight
 }
 
 AutoAdjust()

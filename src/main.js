@@ -19,12 +19,15 @@ process.env.PYTHONPATH = path.join(path.dirname(__dirname),"scraping")
 // console.log(process.env)
 
 if (os_info == "win32") {
-python_path = path.join("..","python_modules","python.exe")
+  python_path = path.join("..","python_modules","python.exe")
 } else if (os_info == "darwin") {
-python_path = path.join("..","python_modules","bin","python3")
+  python_path = path.join("..","python_modules","bin","python3")
 }
-console.log(python_path)
-
+dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"]
+dir_data = require("path").join(dir_home, "Desktop", "BUYMA", "data")
+dir_account = require("path").join(dir_home, "Desktop", "BUYMA", "account")
+dir_image_conf = path.join(dir_data, "..", "conf", "image.conf")
+dir_scraping_conf = path.join(dir_data, "..", "conf", "scraping.conf")
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // ウィンドウ初期化処理
@@ -66,171 +69,171 @@ if (process.platform !== 'darwin') {
 }else{
   app.quit();
 }
-});
+})
 
 // アプリケーションがアクティブになった時の処理(Macだと、Dockがクリックされた時）
 app.on('activate', () => {
   // メインウィンドウが消えている場合は再度メインウィンドウを作成する
   if (mainWindow === null) {
-    createWindow();
+    createWindow()
   }
-});
+})
 
 function initWindowMenu(){
-const isMac = process.platform === 'darwin'
+  const isMac = process.platform === 'darwin'
 
-const template = [
-// { role: 'appMenu' }
-...(isMac ? [{
-  label: app.name,
-  submenu: [
-    { role: 'about' },
-    { type: 'separator' },
-    { role: 'services' },
-    { type: 'separator' },
-    { role: 'hide' },
-    { role: 'hideothers' },
-    { role: 'unhide' },
-    { type: 'separator' },
-    { role: 'quit' }
-  ]
-}] : []),
-// { role: 'fileMenu' }
-{
-  label: 'ファイル',
-  submenu: [
-    isMac ? { role: 'close' } : { role: 'quit' }
-  ]
-},
-// { role: 'editMenu' }
-{
-  label: '編集',
-  submenu: [
-    { role: 'undo' },
-    { role: 'redo' },
-    { type: 'separator' },
-    { role: 'cut' },
-    { role: 'copy' },
-    { role: 'paste' },
-    ...(isMac ? [
-      { role: 'pasteAndMatchStyle' },
-      { role: 'delete' },
-      { role: 'selectAll' },
+  const template = [
+  // { role: 'appMenu' }
+  ...(isMac ? [{
+    label: app.name,
+    submenu: [
+      { role: 'about' },
       { type: 'separator' },
+      { role: 'services' },
+      { type: 'separator' },
+      { role: 'hide' },
+      { role: 'hideothers' },
+      { role: 'unhide' },
+      { type: 'separator' },
+      { role: 'quit' }
+    ]
+  }] : []),
+  // { role: 'fileMenu' }
+  {
+    label: 'ファイル',
+    submenu: [
+      isMac ? { role: 'close' } : { role: 'quit' }
+    ]
+  },
+  // { role: 'editMenu' }
+  {
+    label: '編集',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      ...(isMac ? [
+        { role: 'pasteAndMatchStyle' },
+        { role: 'delete' },
+        { role: 'selectAll' },
+        { type: 'separator' },
+        {
+          label: 'Speech',
+          submenu: [
+            { role: 'startspeaking' },
+            { role: 'stopspeaking' }
+          ]
+        }
+      ] : [
+        { role: 'delete' },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      ])
+    ]
+  },
+  // { role: 'viewMenu' }
+  {
+    label: '表示',
+    submenu: [
+      { role: 'reload' },
+      { role: 'forcereload' },
+      { role: 'toggledevtools' },
+      { type: 'separator' },
+      { role: 'resetzoom' },
+      { role: 'zoomin' },
+      { role: 'zoomout' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' }
+    ]
+  },
+  // { role: 'windowMenu' }
+  {
+    label: 'ウィンドウ',
+    submenu: [
+      { role: 'minimize' },
+      { role: 'zoom' },
+      ...(isMac ? [
+        { type: 'separator' },
+        { role: 'front' },
+        { type: 'separator' },
+        { role: 'window' }
+      ] : [
+        { role: 'close' }
+      ])
+    ]
+  },
+  {
+    label: 'システム',
+    submenu: [
       {
-        label: 'Speech',
-        submenu: [
-          { role: 'startspeaking' },
-          { role: 'stopspeaking' }
-        ]
+        label: '自動出品ツール',
+        click () { mainWindow.loadFile(path.join(__dirname, 'public', 'exhibition.html')) }
+      },
+      {
+        label: 'BuyManager',
+        click () { mainWindow.loadFile(path.join(__dirname, 'public', 'manager.html')) }
+      },
+      {
+        label: '商品リスト自動作成ツール',
+        click () { mainWindow.loadFile(path.join(__dirname, 'public', 'scraper.html')) }
+      },
+      {
+        label: '自動画像加工ツール',
+        click () { mainWindow.loadFile(path.join(__dirname, 'public', 'imager.html')) }
+      },
+      {
+        label: 'アップデート',
+        click () { AutoUpdater() }
+      },
+      {
+        label: '強制アップデート',
+        click () { ForceUpdater() }
+      },
+      {
+        label: '終了',
+        click () { app.quit() }
       }
-    ] : [
-      { role: 'delete' },
-      { type: 'separator' },
-      { role: 'selectAll' }
-    ])
+    ]
+  },
+  {
+    label: 'リンク',
+    submenu: [
+      {
+        label: 'PLUSELECT Webページ',
+        click () { mainWindow.loadURL('https://pluselect.com/') }
+      },
+      {
+        label: 'お問い合わせ',
+        click () { mainWindow.loadURL('mailto:pluselect.2019@gmail.com') }
+      },
+    ]
+  }
   ]
-},
-// { role: 'viewMenu' }
-{
-  label: '表示',
-  submenu: [
-    { role: 'reload' },
-    { role: 'forcereload' },
-    { role: 'toggledevtools' },
-    { type: 'separator' },
-    { role: 'resetzoom' },
-    { role: 'zoomin' },
-    { role: 'zoomout' },
-    { type: 'separator' },
-    { role: 'togglefullscreen' }
-  ]
-},
-// { role: 'windowMenu' }
-{
-  label: 'ウィンドウ',
-  submenu: [
-    { role: 'minimize' },
-    { role: 'zoom' },
-    ...(isMac ? [
-      { type: 'separator' },
-      { role: 'front' },
-      { type: 'separator' },
-      { role: 'window' }
-    ] : [
-      { role: 'close' }
-    ])
-  ]
-},
-{
-  label: 'システム',
-  submenu: [
-    {
-      label: '自動出品ツール',
-      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'exhibition.html')) }
-    },
-    {
-      label: 'BuyManager',
-      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'manager.html')) }
-    },
-    {
-      label: '商品リスト自動作成ツール',
-      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'scraper.html')) }
-    },
-    {
-      label: '自動画像加工ツール',
-      click () { mainWindow.loadFile(path.join(__dirname, 'public', 'imager.html')) }
-    },
-    {
-      label: 'アップデート',
-      click () { AutoUpdater() }
-    },
-    {
-      label: '強制アップデート',
-      click () { ForceUpdater() }
-    },
-    {
-      label: '終了',
-      click () { app.quit() }
-    }
-  ]
-},
-{
-  label: 'リンク',
-  submenu: [
-    {
-      label: 'PLUSELECT Webページ',
-      click () { mainWindow.loadURL('https://pluselect.com/') }
-    },
-    {
-      label: 'お問い合わせ',
-      click () { mainWindow.loadURL('mailto:pluselect.2019@gmail.com') }
-    },
-  ]
-}
-]
 
-const menu = Menu.buildFromTemplate(template)
-Menu.setApplicationMenu(menu)
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 }
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // ページ遷移
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on('change-to-exhibition', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'public', 'exhibition.html'));
+  mainWindow.loadFile(path.join(__dirname, 'public', 'exhibition.html'));
 })
 
 ipcMain.on('change-to-manager', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'public', 'manager.html'))
+  mainWindow.loadFile(path.join(__dirname, 'public', 'manager.html'))
 })
 
 ipcMain.on('change-to-scraper', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'public', 'scraper.html'))
+  mainWindow.loadFile(path.join(__dirname, 'public', 'scraper.html'))
 })
 
 ipcMain.on('change-to-imager', (event) => {
-mainWindow.loadFile(path.join(__dirname, 'public', 'imager.html'))
+  mainWindow.loadFile(path.join(__dirname, 'public', 'imager.html'))
 })
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -300,7 +303,16 @@ function StartUpdate(current_version, new_version) {
         // 展開ディレクトリを削除
         deleteFolderRecursive(path.join(__dirname, "..", 'Tool_Updater-master'))
         progressBar.setCompleted()
-      } catch (error) {progressBar.detail = error.message}
+      } catch (error) {
+        var message = error.message
+        if(error.message.indexOf("EPERM") != -1) {
+          message = "アップデートに失敗しました。ファイルが別の場所で開かれているか、chromedriverがバックグラウンドで動いている可能性があります。https://drive.google.com/file/d/1kfrWoGcz4mhmBkOdb77HixiMHjdm6b08/view"
+        } else if (error.massage.indexOf("ENOENT") != -1) {
+          message = "アップデートに失敗しました。前回のアップデートが途中で終わった可能性があります。再度「強制アップデート」をお試しください。"  
+        }
+        progressBar.detail = massage
+        progressBar.setCompleted()
+      }
     })
   }) 
 }
@@ -340,23 +352,18 @@ function ForceUpdater(event) {
 // 画像加工モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on('init-imager', (event) => {
-  // デフォルトフォルダを開く
-  let dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-  var dir_desktop = require("path").join(dir_home, "Desktop", "BUYMA", "data");
-  var dir_imgconf = path.join(dir_desktop, "..", "conf", "image.conf")
-
   // パラメータが存在すれば読み込む
   try {
-  dic_list = fs.readFileSync(dir_imgconf, {encoding: 'utf-8'});
-  event.sender.send('load-image-conf', dic_list)
+    dic_list = fs.readFileSync(dir_image_conf, {encoding: 'utf-8'});
+    event.sender.send('load-image-conf', dic_list)
   } catch (error) {
     console.log(error);
     event.sender.send('load-image-conf', "")
-    event.sender.send('log-create', dir_imgconf + "：こちらにファイルを置くと設定情報が保存されます。")
+    event.sender.send('log-create', dir_image_conf + "：こちらにファイルを置くと設定情報が保存されます。")
   }
-  console.log(dir_desktop)
-  // dataフォルダが存在すれば開く
-  image_dir_select(event, dir_desktop)
+  // dataフォルダが存在すれば配下のディレクトリを表示させる
+  console.log(dir_data)
+  image_dir_select(event, dir_data)
 })
 
 
@@ -366,26 +373,26 @@ ipcMain.on('open-file-imager', (event) => {
     properties: ['openDirectory'],
   }).then (folder => {
     if (folder.filePaths[0]) {
-      // 選択したフォルダを開く
+      // 選択したフォルダ配下のディレクトリを表示させる
       console.log(folder.filePaths[0])
       image_dir_select(event, folder.filePaths[0])
     }
   })
 })
 
-function image_dir_select(event, dir_desktop) {
+function image_dir_select(event, dir_image) {
   try {
-    fs.statSync(dir_desktop);
-    console.log(dir_desktop + 'の中のフォルダを開きます。');
-    event.sender.send('selected-directory', dir_desktop);
+    fs.statSync(dir_image);
+    console.log(dir_image + 'の中のフォルダを開きます。');
+    event.sender.send('selected-directory', dir_image);
     // ディレクトリ選択ボタン
-    fs.readdir(dir_desktop, function (err, list) {
+    fs.readdir(dir_image, function (err, list) {
       if (err) {
         console.log(err)
       }else {
         var button_text = "<select onchange=choiceDir(this)><option value=-1>フォルダを選択してください</option>"
         for (var i = 0; i < list.length; i++) {
-          var dir_check = fs.statSync(path.join(dir_desktop, list[i])).isDirectory()
+          var dir_check = fs.statSync(path.join(dir_image, list[i])).isDirectory()
           if (dir_check) {
             button_text += "<option value=" + list[i] + ">" + list[i] + "</option>"
           }
@@ -401,87 +408,72 @@ function image_dir_select(event, dir_desktop) {
 
 
 // ファイル選択
-ipcMain.on('open-file-logo', (event) => { 
+ipcMain.on('open-file', (event, value) => { 
+  console.log(value)
   dialog.showOpenDialog({
     properties: ['openFile'],
   }).then (file => {
     if (file.filePaths[0]) {
-      event.sender.send('selected-logo', file.filePaths[0])
-    }
-  })
-})
-ipcMain.on('open-file-frame', (event) => { 
-  dialog.showOpenDialog({
-    properties: ['openFile'],
-  }).then (file => {
-    if (file.filePaths[0]) {
-      event.sender.send('selected-frame', file.filePaths[0])
-    }
-  })
-})
-ipcMain.on('open-file-effect', (event) => { 
-  dialog.showOpenDialog({
-    properties: ['openFile'],
-  }).then (file => {
-    if (file.filePaths[0]) {
-      event.sender.send('selected-effect', file.filePaths[0])
+      event.sender.send(value, file.filePaths[0])
     }
   })
 })
 
 ipcMain.on('start-imager', (event, args_list) => {
-// メインウィンドウを更新すれば新しい画像が表示される
-mainWindow.reload()
-args_list = JSON.parse(args_list)
-args_list["electron_dir"] = __dirname
-args_list = JSON.stringify(args_list)
+  // メインウィンドウを更新すれば新しい画像が表示される
+  mainWindow.reload()
+  args_list = JSON.parse(args_list)
+  args_list["electron_dir"] = __dirname
 
-let options = {
-  pythonPath: path.join(__dirname, python_path),
-  pythonOptions: ['-u'], // get print results in real-time
-  scriptPath: path.join(__dirname, script_dir),
-  // python側へGUIで拾った値を渡す
-  args: args_list,
-  encoding: "binary"
-};
-// Macのときはエンコーディングする必要がない
-if (os_info == "darwin") {
-  delete options["encoding"]
-}
-console.log(options)
-
-// pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
-let pyshell = new PythonShell('imager.py', options);
-
-pyshell.on('message', function (message) {
-  message = toString(message)
-  // received a message sent from the Python script (a simple "print" statement)
-  event.sender.send('log-create', message);
-  if (message.indexOf("image.png") !== -1) {
-    var image_path = message.slice(message.indexOf("：") + 1)
-    // console.log(image_path)
-    event.sender.send('disp-image', image_path);
+  let options = {
+    pythonPath: path.join(__dirname, python_path),
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: path.join(__dirname, script_dir),
+    // python側へGUIで拾った値を渡す
+    args: JSON.stringify(args_list),
+    encoding: "binary"
+  };
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"]
   }
-});
+  // console.log(options)
 
-// DEBUG情報などを取得したい場合
-pyshell.on('stderr', function (message) {
-  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
-  if(message.indexOf("ModuleNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
-  }else if(message.indexOf("FileNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
-  }else if(message.indexOf("NotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
-  }
-  event.sender.send('log-create', ErrorMessage)
-})
+  // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+  let pyshell = new PythonShell('imager.py', options);
 
-pyshell.end(function (err,code,signal) {
-  if (err) throw err
-  event.sender.send('after_reload', args_list);
-  event.sender.send('log-create', '処理は全て終了しました')
-})
+  pyshell.on('message', function (message) {
+    message = toString(message)
+    // received a message sent from the Python script (a simple "print" statement)
+    event.sender.send('log-create', message);
+    if (message.indexOf("image.png") !== -1) {
+      var image_path = message.slice(message.indexOf("：") + 1)
+      // console.log(image_path)
+      event.sender.send('disp-image', image_path);
+    }
+  });
+
+  // DEBUG情報などを取得したい場合
+  pyshell.on('stderr', function (message) {
+    var ErrorMessage = ""
+    if(message.indexOf("ModuleNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
+    }else if(message.indexOf("FileNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
+    }else if(message.indexOf("NotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("NotFoundError"))
+    }
+    if(ErrorMessage){
+      ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+      event.sender.send('log-create', ErrorMessage)
+    }
+  })
+
+  pyshell.end(function (err,code,signal) {
+    if (err) throw err
+    event.sender.send('after_reload', args_list);
+    event.sender.send('log-create', '処理は全て終了しました')
+  })
 })
 
 
@@ -489,36 +481,34 @@ pyshell.end(function (err,code,signal) {
 // スクレイピング モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on('init-scraper', (event) => {
-let dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-var dir_desktop = require("path").join(dir_home, "Desktop", "BUYMA", "data");
-try {
-  fs.statSync(dir_desktop);
-  console.log('デフォルトフォルダが存在したので開きます。');
-  event.sender.send('selected-directory', dir_desktop);
-} catch (error) {
-  console.log(error);
-}
+  try {
+    fs.statSync(dir_data);
+    console.log('デフォルトフォルダが存在したので開きます。');
+    event.sender.send('selected-directory', dir_data);
+  } catch (error) {
+    console.log(error);
+  }
 
-// パラメータが存在すれば読み込む
-try {
-dic_list = fs.readFileSync(path.join(dir_desktop, "..", "conf", "scraping.conf"), {encoding: 'utf-8'});
-event.sender.send('load-scraping-conf', dic_list)
-}catch (error) {
-  event.sender.send('log-create', dic_list + "：こちらにファイルを置くと設定情報が保存されます。")
-  console.log(error);
-}
+  // パラメータが存在すれば読み込む
+  try {
+    dic_list = fs.readFileSync(dir_scraping_conf, {encoding: 'utf-8'});
+    event.sender.send('load-scraping-conf', dic_list)
+  }catch (error) {
+    event.sender.send('log-create', dir_scraping_conf + "：こちらにファイルを置くと設定情報が保存されます。")
+    console.log(error);
+  }
 })
 
 // フォルダ展開
 ipcMain.on('open-file-scraper', (event) => { 
-dialog.showOpenDialog({
-  properties: ['openDirectory'],
-}).then (folder => {
-  if (folder.filePaths[0]) {
-    // 選択したディレクトリを表示
-    event.sender.send('selected-directory', folder.filePaths[0]);
-  }
-})
+  dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  }).then (folder => {
+    if (folder.filePaths[0]) {
+      // 選択したディレクトリを表示
+      event.sender.send('selected-directory', folder.filePaths[0]);
+    }
+  })
 })
 
 // SQLログイン
@@ -530,117 +520,120 @@ ipcMain.on('sql-login', (event, email, password) => {
   args_list["electron_dir"] = __dirname
   args_list = JSON.stringify(args_list)
 
-let options = {
-  mode: 'text',
-  // python側へGUIで拾った値を渡す
-  args: args_list,
-  pythonPath: path.join(__dirname, python_path),
-  pythonOptions: ['-u'], // get print results in real-time
-  scriptPath: path.join(__dirname, script_dir),
-  encoding: "binary"
-}
-
-// Macのときはエンコーディングする必要がない
-if (os_info == "darwin") {
-  delete options["encoding"]
-}
-
-// pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
-console.log(options)
-let pyshell = new PythonShell('login.py', options)
-
-// カウンターは同期処理するため？
-var button_list = ""
-pyshell.on('message', function (message) {
-  message = toString(message)
-  // received a message sent from the Python script (a simple "print" statement)
-  if (message == "False") {
-    event.sender.send('log-create', '認証に失敗しました');
-  }else if (message.indexOf(">>>>>") !== -1){
-    event.sender.send('log-create', message);
-  }else{
-    // console.log(message)
-    // datetime&シングルクオテーションがあるとエラーになる
-    message = message.replace(/'/g, '"')
-    event.sender.send('arg-json', message)
+  let options = {
+    mode: 'text',
+    // python側へGUIで拾った値を渡す
+    args: args_list,
+    pythonPath: path.join(__dirname, python_path),
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: path.join(__dirname, script_dir),
+    encoding: "binary"
   }
-});
 
-// DEBUG情報などを取得したい場合
-pyshell.on('stderr', function (message) {
-  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
-  if(message.indexOf("ModuleNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
-  }else if(message.indexOf("FileNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
-  }else if(message.indexOf("NotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"]
   }
-  event.sender.send('log-create', ErrorMessage)
-})
 
-pyshell.end(function (err,code,signal) {
-  if (err) throw err;
-  // event.sender.send('log-create', 'The exit code was: ' + code);
-  console.log('The exit signal was: ' + signal);
-  event.sender.send('log-create', '認証が終了しました');
-  console.log('finished');
-});
+  // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+  // console.log(options)
+  let pyshell = new PythonShell('login.py', options)
+
+  // カウンターは同期処理するため？
+  var button_list = ""
+  pyshell.on('message', function (message) {
+    message = toString(message)
+    // received a message sent from the Python script (a simple "print" statement)
+    if (message == "False") {
+      event.sender.send('log-create', '認証に失敗しました');
+    }else if (message.indexOf(">>>>>") !== -1){
+      event.sender.send('log-create', message);
+    }else{
+      // console.log(message)
+      // datetime&シングルクオテーションがあるとエラーになる
+      message = message.replace(/'/g, '"')
+      event.sender.send('arg-json', message)
+    }
+  });
+
+  // DEBUG情報などを取得したい場合
+  pyshell.on('stderr', function (message) {
+    var ErrorMessage = ""
+    if(message.indexOf("ModuleNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
+    }else if(message.indexOf("FileNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
+    }else if(message.indexOf("NotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("NotFoundError"))
+    }
+    if(ErrorMessage){
+      ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+      event.sender.send('log-create', ErrorMessage)
+    }
+  })
+
+  pyshell.end(function (err,code,signal) {
+    if (err) throw err;
+    // event.sender.send('log-create', 'The exit code was: ' + code);
+    console.log('The exit signal was: ' + signal);
+    event.sender.send('log-create', '認証が終了しました');
+    console.log('finished');
+  });
 })
 
 // スクレイピング開始
 ipcMain.on('start-scrapy', (event, args_list) => {
-console.log("\n\nスクレイピング開始\n\n")
-args_list = JSON.parse(args_list)
-args_list["src_dir"] = __dirname
+  console.log("\n\nスクレイピング開始\n\n")
+  args_list = JSON.parse(args_list)
+  args_list["src_dir"] = __dirname
 
-let options = {
-  mode: 'text',
-  pythonOptions: ['-u'], // get print results in real-time
-  pythonPath: path.join(__dirname, python_path),
-  scriptPath: path.join(__dirname, script_dir),
-  // python側へGUIで拾った値を渡す
-  args: JSON.stringify(args_list),
-  encoding: "binary"
-}
-
-// Macのときはエンコーディングする必要がない
-if (os_info == "darwin") {
-  delete options["encoding"]
-}
-
-console.log(options)
-
-// pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
-let pyshell = new PythonShell('scrapy_start.py', options);
-
-pyshell.on('message', function (message) {
-  message = toString(message)
-  // received a message sent from the Python script (a simple "print" statement)
-  event.sender.send('log-create', message);
-});
-
-// DEBUG情報などを取得したい場合
-pyshell.on('stderr', function (message) {
-  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
-  if(message.indexOf("ModuleNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
-  }else if(message.indexOf("FileNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
-  }else if(message.indexOf("NotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
+  let options = {
+    mode: 'text',
+    pythonOptions: ['-u'], // get print results in real-time
+    pythonPath: path.join(__dirname, python_path),
+    scriptPath: path.join(__dirname, script_dir),
+    // python側へGUIで拾った値を渡す
+    args: JSON.stringify(args_list),
+    encoding: "binary"
   }
-  event.sender.send('log-create', ErrorMessage)
-})
 
-pyshell.end(function (err,code,signal) {
-  if (err){
-    event.sender.send('log-create', 'err');
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"]
   }
-  // console.log('The exit signal was: ' + signal);
-  // console.log('log-create', 'The exit code was: ' + code);
-  event.sender.send('log-create', '処理は全て終了しました');
-});
+
+  console.log(options)
+
+  // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+  let pyshell = new PythonShell('scrapy_start.py', options);
+
+  pyshell.on('message', function (message) {
+    message = toString(message)
+    // received a message sent from the Python script (a simple "print" statement)
+    event.sender.send('log-create', message);
+  });
+
+  // DEBUG情報などを取得したい場合
+  pyshell.on('stderr', function (message) {
+    var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+    if(message.indexOf("ModuleNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
+    }else if(message.indexOf("FileNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
+    }else if(message.indexOf("NotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("NotFoundError"))
+    }
+    event.sender.send('log-create', ErrorMessage)
+  })
+
+  pyshell.end(function (err,code,signal) {
+    if (err){
+      event.sender.send('log-create', 'err');
+    }
+    // console.log('The exit signal was: ' + signal);
+    // console.log('log-create', 'The exit code was: ' + code);
+    event.sender.send('log-create', '処理は全て終了しました');
+  });
 })
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -648,50 +641,47 @@ pyshell.end(function (err,code,signal) {
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 開いた時にデスクトップにBUYMAフォルダがあれば展開
 ipcMain.on('init-manager', (event) => {
-let dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-var dir_desktop = require("path").join(dir_home, "Desktop", "BUYMA", "account");
-try {
-  fs.statSync(dir_desktop);
-  console.log('デフォルトフォルダが存在したので開きます。');
-  event.sender.send('selected-directory', dir_desktop);
-} catch (error) {
-  console.log(error);
-}
+  try {
+    fs.statSync(dir_account);
+    console.log('デフォルトフォルダが存在したので開きます。');
+    event.sender.send('selected-directory', dir_account);
+  } catch (error) {
+    console.log(error);
+  }
 })
 
 // フォルダ展開
 ipcMain.on('open-file-manager', (event) => { 
-dialog.showOpenDialog({
-  properties: ['openDirectory'],
-}).then (folder => {
-  if (folder.filePaths[0]) {
-    // 選択したディレクトリを表示
-    event.sender.send('selected-directory', folder.filePaths[0]);
-  }
-})
+  dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  }).then (folder => {
+    if (folder.filePaths[0]) {
+      // 選択したディレクトリを表示
+      event.sender.send('selected-directory', folder.filePaths[0]);
+    }
+  })
 })
 
 // BUY Manager実行
 ipcMain.on('start-manager', (event, args_list) => {
   args_list = JSON.parse(args_list)
   args_list["electron_dir"] = __dirname
-  args_list = JSON.stringify(args_list)
   // console.log(args_list)
 
-let options = {
-  mode: 'text',
-  pythonPath: path.join(__dirname, python_path),
-  pythonOptions: ['-u'], // get print results in real-time
-  scriptPath: path.join(__dirname, script_dir),
-  // python側へGUIで拾った値を渡す
-  args: args_list,
-  encoding: "binary"
-};
-// Macのときはエンコーディングする必要がない
-if (os_info == "darwin") {
-  delete options["encoding"]
-}
-// console.log(options)
+  let options = {
+    mode: 'text',
+    pythonPath: path.join(__dirname, python_path),
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: path.join(__dirname, script_dir),
+    // python側へGUIで拾った値を渡す
+    args: JSON.stringify(args_list),
+    encoding: "binary"
+  };
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"]
+  }
+  // console.log(options)
 
 // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
 let pyshell = new PythonShell('BuyManager.py', options);
@@ -702,13 +692,12 @@ pyshell.on('message', function (message) {
   event.sender.send('log-create', message);
 });
 
-pyshell.end(function (err,code,signal) {
-  if (err) throw err;
-  // event.sender.send('log-create', 'The exit code was: ' + code);
-  // console.log('The exit signal was: ' + signal);
-  event.sender.send('log-create', '処理は全て終了しました');
-  // console.log('finished');
-});
+  pyshell.end(function (err,code,signal) {
+    if (err) throw err;
+    // event.sender.send('log-create', 'The exit code was: ' + code);
+    // console.log('The exit signal was: ' + signal);
+    event.sender.send('log-create', '処理は全て終了しました');
+  });
 })
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -716,127 +705,101 @@ pyshell.end(function (err,code,signal) {
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // ユーザーディレクトリ新規作成
 ipcMain.on('make-account-dir', (event, user_name) => {
-console.log(user_name)
-if (user_name == "") {
-  dialog.showErrorBox("空白ディレクトリ", "新規アカウントディレクトリを作成する場合はアカウント名を入力してください");
-}else{
-  dialog.showOpenDialog({
-    properties: ['openDirectory'],
-  }).then (folder => {
-    if (folder.filePaths[0]) {
-      makeDir(path.join(folder.filePaths[0], "BUYMA")).then(new_user_dir => {
-        //logsディレクトリ作成
-      makeDir(path.join(new_user_dir, 'logs'))
-        //dataディレクトリ作成
-      makeDir(path.join(new_user_dir, 'data'))
-        //confディレクトリ作成
-      makeDir(path.join(new_user_dir, 'conf')).then(dir_path => {
-      var txt_list = ["image.conf", "scraping.conf"]
-      for (let i = 0; i < txt_list.length; i++) {
-        var conf_path = path.join(dir_path, txt_list[i])
-        if(!fs.existsSync(conf_path)){
-          fs.writeFile(conf_path , "" , (err) => {
-          if(err) throw err;
-        })
+  console.log(user_name)
+  if (user_name == "") {
+    dialog.showErrorBox("空白ディレクトリ", "新規アカウントディレクトリを作成する場合はアカウント名を入力してください");
+  }else{
+    dialog.showOpenDialog({
+      properties: ['openDirectory'],
+    }).then (folder => {
+      if (folder.filePaths[0]) {
+        makeDir(path.join(folder.filePaths[0], "BUYMA")).then(new_user_dir => {
+          //logsディレクトリ作成
+        makeDir(path.join(new_user_dir, 'logs'))
+          //dataディレクトリ作成
+        makeDir(path.join(new_user_dir, 'data'))
+          //confディレクトリ作成
+        makeDir(path.join(new_user_dir, 'conf')).then(dir_path => {
+        var txt_list = ["image.conf", "scraping.conf"]
+        for (let i = 0; i < txt_list.length; i++) {
+          var conf_path = path.join(dir_path, txt_list[i])
+          if(!fs.existsSync(conf_path)){
+            fs.writeFile(conf_path , "" , (err) => {
+            if(err) throw err;
+          })
+          }
         }
-      }
+        })
+
+          //tmp_brandディレクトリ作成
+        makeDir(path.join(new_user_dir, 'tmp_brand')).then(dir_path => {
+        makeDir(path.join(dir_path, "Saint Laurent")).then(dir_path2 => {
+        mkfile(dir_path2)
+            
+        text_data = "「商品コメント」\n「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。"
+        var brand_path = path.join(dir_path2, 'Saint Laurent.txt')
+        if(!fs.existsSync(brand_path)){
+          fs.writeFile(brand_path, text_data, function(err){
+            if(err) throw err;
+        });
+        }
       })
-
-        //tmp_brandディレクトリ作成
-      makeDir(path.join(new_user_dir, 'tmp_brand')).then(dir_path => {
-      makeDir(path.join(dir_path, "Saint Laurent")).then(dir_path2 => {
-      mkfile(dir_path2)
-          
-      text_data = "「商品コメント」\n「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。"
-      var brand_path = path.join(dir_path2, 'Saint Laurent.txt')
-      if(!fs.existsSync(brand_path)){
-        fs.writeFile(brand_path, text_data, function(err){
-          if(err) throw err;
-      });
-      }
     })
-  })
 
-        //img_contentディレクトリ作成
-      makeDir(path.join(new_user_dir, 'img_content')).then(dir_path => {
-        console.log(dir_path);
-        makeDir(path.join(dir_path, 'background'))
-        makeDir(path.join(dir_path, 'effect'))
-        makeDir(path.join(dir_path, 'frame'))
-        makeDir(path.join(dir_path, 'logo'))
-      });
+          //img_contentディレクトリ作成
+        makeDir(path.join(new_user_dir, 'img_content')).then(dir_path => {
+          console.log(dir_path);
+          makeDir(path.join(dir_path, 'background'))
+          makeDir(path.join(dir_path, 'effect'))
+          makeDir(path.join(dir_path, 'frame'))
+          makeDir(path.join(dir_path, 'logo'))
+        });
 
-        //accountディレクトリ作成
-      makeDir(path.join(new_user_dir, 'account')).then(dir_path => {
-        console.log(dir_path);
-        makeDir(path.join(dir_path, user_name)).then(dir_path2 => {
-          console.log(dir_path2);
-          makeDir(path.join(dir_path2, "template")).then(dir_path3 => {
-            console.log(dir_path3)
-            var txt_list = ["ColorFooter.txt", "ColorHeader.txt", "CommentFooter.txt", "CommentHeader.txt"]
-            for (let i = 0; i < txt_list.length; i++) {
-              var temp_path = path.join(dir_path3, txt_list[i])
-              if(!fs.existsSync(temp_path)){
-                fs.writeFile(temp_path , "" , (err) => {
-                if(err) throw err;
-              })
+          //accountディレクトリ作成
+        makeDir(path.join(new_user_dir, 'account')).then(dir_path => {
+          console.log(dir_path);
+          makeDir(path.join(dir_path, user_name)).then(dir_path2 => {
+            console.log(dir_path2);
+            makeDir(path.join(dir_path2, "template")).then(dir_path3 => {
+              console.log(dir_path3)
+              var txt_list = ["ColorFooter.txt", "ColorHeader.txt", "CommentFooter.txt", "CommentHeader.txt"]
+              for (let i = 0; i < txt_list.length; i++) {
+                var temp_path = path.join(dir_path3, txt_list[i])
+                if(!fs.existsSync(temp_path)){
+                  fs.writeFile(temp_path , "" , (err) => {
+                  if(err) throw err;
+                })
+                }
               }
-            }
+            })
           })
         })
       })
+      }
     })
-    }
-  })
-}
+  }
 })
 
 //ファイル選択画面-ipc受信
 ipcMain.on('open-file-exhibition', (event) => { 
-dialog.showOpenDialog({
-  properties: ['openDirectory'],
-}).then (folder => {
-  if (folder.filePaths[0]) {
-    // var log_path = path.join(folder.filePaths[0], '..', 'logs')
-    // var tmp_brand_path = path.join(folder.filePaths[0], '..', 'tmp_brand')
-    // var sample_path = path.join(folder.filePaths[0], '..', 'sample')
-
-    // // logsディレクトリがなければ作成
-    // if(!fs.existsSync(log_path)){
-    //   makeDir(log_path).then(path => {
-    //   console.log(path);
-    // });
-    // }
-    
-    // // tmp_brandディレクトリがなければ作成
-    // if(!fs.existsSync(tmp_brand_path)){
-    //   makeDir(tmp_brand_path).then(path => {
-    //   console.log(path);
-    // });
-    // }
-    
-    // // sampleディレクトリがなければ作成
-    // if(!fs.existsSync(sample_path)){
-    //   makeDir(sample_path).then(dir_path => {
-    //   console.log(dir_path)
-    //   var txt_list = ["ColorFooter.txt", "ColorHeader.txt", "CommentFooter.txt", "CommentHeader.txt"]
-    //   for (let i = 0; i < txt_list.length; i++) {
-    //     fs.writeFile(path.join(dir_path, txt_list[i]), "", (err) => {
-    //       if(err) throw err;
-    //     })
-    //   }
-    // })
-    // }
-    
-    // 選択したディレクトリを表示
-    event.sender.send('selected-directory', folder.filePaths[0]);
-    var files = fs.readdirSync(folder.filePaths[0]);
-    var fileList = []
-    for (let index = 0; index < files.length; index++) {
-      if (files[index].indexOf(".csv") !== -1) {
-        fileList.push(files[index])
+  dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  }).then (folder => {
+    if (folder.filePaths[0]) {
+      // 選択したディレクトリを表示
+      event.sender.send('selected-directory', folder.filePaths[0]);
+      var files = fs.readdirSync(folder.filePaths[0]);
+      var fileList = []
+      for (let index = 0; index < files.length; index++) {
+        if (files[index].indexOf(".csv") !== -1) {
+          fileList.push(files[index])
+        }
+      // 選択したディレクトリにバックアップがあれば読み込み
+        if (files[index].indexOf("access_code.backup") !== -1) {
+          event.sender.send('update-accesscode', readTXT(path.join(folder.filePaths[0], files[index])))
+        }
       }
-    // 選択したディレクトリにバックアップがあれば読み込み
+      // 選択したディレクトリにバックアップがあれば読み込み
       if (files[index].indexOf("access_code.backup") !== -1) {
         event.sender.send('update-accesscode', readTXT(path.join(folder.filePaths[0], files[index])))
       }
@@ -848,70 +811,73 @@ dialog.showOpenDialog({
       return_text += "<button onclick=load_csv('" + fileList[index] + "')>" + fileList[index] + "</button>"
       event.sender.send('selected-csv', return_text);
     }
-  }
+  })
 })
-})
+
 
 //CSV読み込み-ipc受信
 ipcMain.on('load-csv', (event, csv_file_name) => {
-const res_data = readCSV(csv_file_name);
-const table_data = ARRAYtoTABLE(res_data);
-event.sender.send('selected-filedata', table_data);
+  const res_data = readCSV(csv_file_name);
+  const table_data = ARRAYtoTABLE(res_data);
+  event.sender.send('selected-filedata', table_data);
 })
 
 //自動出品開始
 ipcMain.on('start-exhibition', (event, args_list) => {
-args_list = JSON.parse(args_list)
-args_list["electron_dir"] = __dirname
-cookie = args_list["cookie"]
-dir_path = args_list["dir_path"]
-args_list = JSON.stringify(args_list)
+  args_list = JSON.parse(args_list)
+  args_list["electron_dir"] = __dirname
+  cookie = args_list["cookie"]
+  dir_path = args_list["dir_path"]
+  args_list = JSON.stringify(args_list)
 
-// アクセスコードのバックアップ
-fs.writeFile(path.join(dir_path, 'access_code.backup'), cookie, (err, data) => {
-  if(err) event.sender.send('log-create', err);
-  else event.sender.send('log-create', 'maked backup: access code');
-});
-let options = {
-  mode: 'text',
-  pythonPath: path.join(__dirname, python_path),
-  pythonOptions: ['-u'], // get print results in real-time
-  scriptPath: path.join(__dirname, script_dir),
-  // python側へGUIで拾った値を渡す
-  args: args_list,
-  encoding: "binary"
-}
-// Macのときはエンコーディングする必要がない
-if (os_info == "darwin") {
-  delete options["encoding"]
-}
-
-// pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
-let pyshell = new PythonShell('exhibition.py', options);
-
-pyshell.on('message', function (message) {
-  message = toString(message)
-  // received a message sent from the Python script (a simple "print" statement)
-  event.sender.send('log-create', message);
-});
-
-// DEBUG情報などを取得したい場合
-pyshell.on('stderr', function (message) {
-  var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
-  if(message.indexOf("ModuleNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
-  }else if(message.indexOf("FileNotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
-  }else if(message.indexOf("NotFoundError") !== -1){
-    ErrorMessage += message.substring(message.indexOf("NotFoundError"))
+  // アクセスコードのバックアップ
+  fs.writeFile(path.join(dir_path, 'access_code.backup'), cookie, (err, data) => {
+    if(err) event.sender.send('log-create', err);
+    else event.sender.send('log-create', 'maked backup: access code');
+  });
+  let options = {
+    mode: 'text',
+    pythonPath: path.join(__dirname, python_path),
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: path.join(__dirname, script_dir),
+    // python側へGUIで拾った値を渡す
+    args: args_list,
+    encoding: "binary"
   }
-  event.sender.send('log-create', ErrorMessage)
-})
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"]
+  }
 
-pyshell.end(function (err,code,signal) {
-  if (err) throw err;
-  event.sender.send('log-create', '出品処理は全て終了しました');
-});
+  // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+  let pyshell = new PythonShell('exhibition.py', options);
+
+  pyshell.on('message', function (message) {
+    message = toString(message)
+    // received a message sent from the Python script (a simple "print" statement)
+    event.sender.send('log-create', message);
+  });
+
+  // DEBUG情報などを取得したい場合
+  pyshell.on('stderr', function (message) {
+    var ErrorMessage = ""
+    if(message.indexOf("ModuleNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
+    }else if(message.indexOf("FileNotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("FileNotFoundError"))
+    }else if(message.indexOf("NotFoundError") !== -1){
+      ErrorMessage += message.substring(message.indexOf("NotFoundError"))
+    }
+    if(ErrorMessage){
+      ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+      event.sender.send('log-create', ErrorMessage)
+    }
+  })
+
+  pyshell.end(function (err,code,signal) {
+    if (err) throw err;
+      event.sender.send('log-create', '出品処理は全て終了しました');
+  });
 })
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
@@ -926,97 +892,97 @@ function fcmkfile(file_path) {
       if(err) console.log(err)
       resolve()
       })
+    })
   })
-})
 }
 
 async function mkfile(dir_path2) {
-    for (var i = 0; i < file_list.length; i++) {
-        await fcmkfile(path.join(dir_path2, file_list[i]));
-    }
-    return 'ループ終わった。'
+  for (var i = 0; i < file_list.length; i++) {
+      await fcmkfile(path.join(dir_path2, file_list[i]));
+  }
+  return 'ループ終わった。'
 }
 
 // エラー表示用
 ipcMain.on('cause-error', (event, txt1, txt2) => {
-dialog.showErrorBox(txt1, txt2);
+  dialog.showErrorBox(txt1, txt2);
 })
 
 // 情報表示用
 ipcMain.on('show-info', (event, txt1, txt2, txt3) => {
-var options = {
-  type: 'info',
-  title: txt1,
-  message: txt2,
-  detail: txt3
-}
-dialog.showMessageBox(mainWindow, options);
+  var options = {
+    type: 'info',
+    title: txt1,
+    message: txt2,
+    detail: txt3
+  }
+  dialog.showMessageBox(mainWindow, options);
 })
 
 // ファイル読み込み用
 function readCSV(path) {
-let data = fs.readFileSync(path);
-let res = csvSync(data);
-return res;
+  let data = fs.readFileSync(path);
+  let res = csvSync(data);
+  return res;
 }
 
 function readTXT(path) {
-let res = fs.readFileSync(path)
-return res
+  let res = fs.readFileSync(path)
+  return res
 }
 
 // 文字列を表形式(HTML)に
 function ARRAYtoTABLE(res_data) {
-var table_text = '<table rules="all">';
-var data_list = res_data
-var need_list = [0, 1, 2, 4, 8, 18]
+  var table_text = '<table rules="all">';
+  var data_list = res_data
+  var need_list = [0, 1, 2, 4, 8, 18]
 
-// 項目処理
-for (let i = 0; i < data_list.length; i++) {
-  // 見出し処理
-  if (i == 0) {
-    var start_tag = "<th nowrap>"
-    var end_tag = "</th>"
-  } else {
-    var start_tag = "<td nowrap>"
-    var end_tag = "</td>"
-  }
+  // 項目処理
+  for (let i = 0; i < data_list.length; i++) {
+    // 見出し処理
+    if (i == 0) {
+      var start_tag = "<th nowrap>"
+      var end_tag = "</th>"
+    } else {
+      var start_tag = "<td nowrap>"
+      var end_tag = "</td>"
+    }
 
-  if (i == 0) {
-    table_text += "<thead> <tr>";
-  } else {
-    table_text += "<tr>";
-  }
-  for (let j = 0; j < data_list[i].length; j++) {
-    for (let need = 0; need < need_list.length; need++) {
-      if (need_list[need] == j) {
-        table_text += start_tag + data_list[i][j] + end_tag;
+    if (i == 0) {
+      table_text += "<thead> <tr>";
+    } else {
+      table_text += "<tr>";
+    }
+    for (let j = 0; j < data_list[i].length; j++) {
+      for (let need = 0; need < need_list.length; need++) {
+        if (need_list[need] == j) {
+          table_text += start_tag + data_list[i][j] + end_tag;
+        }
       }
     }
+    if (i == 0) {
+      table_text += "</tr> </thead> <tbody>";
+    } else {
+      table_text += "</tr>";
+    }
   }
-  if (i == 0) {
-    table_text += "</tr> </thead> <tbody>";
-  } else {
-    table_text += "</tr>";
-  }
-}
-table_text += "</tbody> </table>";
+  table_text += "</tbody> </table>";
 
-return table_text;
+  return table_text;
 }
 
 // 文字列変換用
 const toString = (bytes) => {
-if (os_info == "win32") {
-  return Encoding.convert(bytes, {
-    from: 'SJIS',
-    to: 'UNICODE',
-    type: 'string',
-  })
-}else if (os_info == "darwin") {
-  return bytes
+  if (os_info == "win32") {
+    return Encoding.convert(bytes, {
+      from: 'SJIS',
+      to: 'UNICODE',
+      type: 'string',
+    })
+  }else if (os_info == "darwin") {
+    return bytes
+  }
 }
-};
 
 // ディレクトリ削除
 var deleteFolderRecursive = function(pathe) {

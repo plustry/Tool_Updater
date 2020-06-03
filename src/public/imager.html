@@ -111,205 +111,147 @@
   <main id="main">
     <table>
       <tr>
-        <td align="right"><b>透明度 (例: レディース)：</b></td>
         <td>
-          <input type="text" id="image_diff" size=5 value="">
+          <input placeholder="透明度" type="text" id="image_diff" size=30 value="">
           <button onclick=gethelp('image_diff')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b>商品画像サイズ (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="item_size" size=5 value="">
+          <input placeholder="商品画像サイズ" type="text" id="item_size" size=30 value="">
           <button onclick=gethelp('item_size')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b>商品縦 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="item_move_y" size=5 value="">
+          <input placeholder="商品縦" type="text" id="item_move_y" size=30 value="">
           <button onclick=gethelp('item_move_y')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b>商品横 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="item_move_x" size=5 value="">
+          <input placeholder="商品横" type="text" id="item_move_x" size=30 value="">
           <button onclick=gethelp('item_move_x')>？</button>
         </td>
       </tr>
       <tr>
-        <td align="right"><b> ロゴ (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="img_logo" size=14 value="">
-          <button id="select-logo">ファイルを開く</button>
-          <button onclick=gethelp('img_logo')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td align="right"><b> ロゴサイズ（%）(デフォルト: 0)：</b></td>
-        <td>
-          <input type="text" id="logo_size" size=5 value="">
-          <button onclick=gethelp('logo_size')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td align="right"><b> ロゴ縦 (デフォルト: 0)：</b></td>
-        <td>
-          <input type="text" id="logo_move_y" size=5 value="">
-          <button onclick=gethelp('logo_move_y')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td align="right"><b> ロゴ横 (デフォルト: 0)：</b></td>
-        <td>
-          <input type="text" id="logo_move_x" size=5 value="">
-          <button onclick=gethelp('logo_move_x')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td align="right"><b> フレーム (デフォルト: 0)：</b></td>
-        <td>
-          <input type="text" id="img_frame" size=14 value="">
-          <button id="select-frame">ファイルを開く</button>
+          <input placeholder="フレームPATH" type="text" id="img_frame" size=30 value="">
           <button onclick=gethelp('img_frame')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> エフェクト (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="img_effect" size=14 value="">
-          <button id="select-effect">ファイルを開く</button>
-          <button onclick=gethelp('img_effect')>？</button>
+          <button id="select-frame">ファイルを開く</button>
         </td>
       </tr>
       <tr>
-        <td align="right"><b> 指定背景画像 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="bg_image" size=14 value="">
+          <input placeholder="エフェクトPATH" type="text" id="img_effect" size=30 value="">
+          <button onclick=gethelp('img_effect')>？</button>
+        </td>
+        <td>
+          <button id="select-effect">ファイルを開く</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input placeholder="ロゴPATH" type="text" id="img_logo" size=30 value="">
+          <button onclick=gethelp('img_logo')>？</button>
+        </td>
+        <td>
+          <button id="select-logo">ファイルを開く</button>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <input placeholder="ロゴサイズ（%）" type="text" id="logo_size" size=30 value="">
+          <button onclick=gethelp('logo_size')>？</button>
+        </td>
+        <td>
+          <input placeholder="ロゴ縦" type="text" id="logo_move_y" size=30 value="">
+           <button onclick=gethelp('logo_move_y')>？</button>
+       </td>
+       <td>
+         <input placeholder="ロゴ横" type="text" id="logo_move_x" size=30 value="">
+         <button onclick=gethelp('logo_move_x')>？</button>
+       </td>
+      </tr>
+      <tr>
+        <td>
+          <input placeholder="指定背景画像" type="text" id="bg_image" size=30 value="">
           <button onclick=gethelp('bg_image')>？</button>
         </td>
       </tr>
       <tr>
-        <td align="right"><b> 背景画像番号 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="bg_num" size=14 value="">
+          <input placeholder="背景画像番号" type="text" id="bg_num" size=30 value="">
           <button onclick=gethelp('bg_num')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> サイズ (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_1_size" size=14 value="">
+          <input placeholder="サイズ" type="text" id="bg_size" size=30 value="">
           <button onclick=gethelp('bg_size')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 縦 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="back_move_y" size=14 value="">
+          <input placeholder="縦" type="text" id="back_move_y" size=30 value="">
           <button onclick=gethelp('back_move_y')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 横 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="back_move_x" size=14 value="">
+          <input placeholder="横" type="text" id="back_move_x" size=30 value="">
           <button onclick=gethelp('back_move_x')>？</button>
         </td>
       </tr>
       <tr>
-        <td align="right"><b> 追加商品画像1 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_1_name" size=14 value="">
+          <input placeholder="追加商品画像1" type="text" id="addimg_1_name" size=30 value="">
           <button onclick=gethelp('add_img_name')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> サイズ (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_1_size" size=14 value="">
+          <input placeholder="サイズ" type="text" id="addimg_1_size" size=30 value="">
           <button onclick=gethelp('item_size')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 縦 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_1_y" size=14 value="">
+          <input placeholder="縦" type="text" id="addimg_1_y" size=30 value="">
           <button onclick=gethelp('item_move_y')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 横 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_1_x" size=14 value="">
+          <input placeholder="横" type="text" id="addimg_1_x" size=30 value="">
           <button onclick=gethelp('item_move_x')>？</button>
         </td>
       </tr>
       <tr>
-        <td align="right"><b> 追加商品画像2 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_2_name" size=14 value="">
+          <input placeholder="追加商品画像2" type="text" id="addimg_2_name" size=30 value="">
           <button onclick=gethelp('add_img_name')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> サイズ (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_2_size" size=14 value="">
+          <input placeholder="サイズ" type="text" id="addimg_2_size" size=30 value="">
           <button onclick=gethelp('item_size')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 縦 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_2_y" size=14 value="">
+          <input placeholder="縦" type="text" id="addimg_2_y" size=30 value="">
           <button onclick=gethelp('item_move_y')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 横 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_2_x" size=14 value="">
+          <input placeholder="横" type="text" id="addimg_2_x" size=30 value="">
           <button onclick=gethelp('item_move_x')>？</button>
         </td>
       </tr>
       <tr>
-        <td align="right"><b> 追加商品画像3 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_3_name" size=14 value="">
+          <input placeholder="追加商品画像3" type="text" id="addimg_3_name" size=30 value="">
           <button onclick=gethelp('add_img_name')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> サイズ (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_3_size" size=14 value="">
+          <input placeholder="サイズ" type="text" id="addimg_3_size" size=30 value="">
           <button onclick=gethelp('item_size')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 縦 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_3_y" size=14 value="">
+          <input placeholder="縦" type="text" id="addimg_3_y" size=30 value="">
           <button onclick=gethelp('item_move_y')>？</button>
         </td>
-      </tr>
-      <tr>
-        <td align="right"><b> 横 (デフォルト: 0)：</b></td>
         <td>
-          <input type="text" id="addimg_3_x" size=14 value="">
+          <input placeholder="横" type="text" id="addimg_3_x" size=30 value="">
           <button onclick=gethelp('item_move_x')>？</button>
         </td>
       </tr>
     </table>
   </main>
 
-  <section>
-    <div class="row">
-      <div class="images" id="images"></div>
-    </div>
-  </section>
+  <div class="images" id="images">
+  </div>
 
   <footer id="footer">
     <div id="logs"></div>

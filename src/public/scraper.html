@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <title>商品リスト自動作成ツール</title>
   <link rel="stylesheet" type="text/css" href="../css/table.css">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+    
 </head>
 
 <body>
@@ -21,55 +27,51 @@
       and Electron <script>document.write(process.versions.electron)</script>. -->
     </div>
 
-    <div>
-      <button id="select-dir">保存フォルダを開く</button>
-      <button onclick=gethelp('open_dir')>？</button>
-      <a id="selected-folder">
-        <font color="red">フォルダが選択されていません</font>
-      </a>
-      <table border="0">
-        <tr>
-          <td align="right"><b> メールアドレス：</b></td>
-          <td><input type="text" id="email" size="50" maxlength="1000" value=""></td>
-        </tr>
-        <tr>
-          <td align="right"><b> パスワード：</b></td>
-          <td><input type="password" id="password" size="50" maxlength="1000" value=""></td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            <input type="submit" id="sql-login" value="認証開始">
-            <a id="sql-login-status">
-              <font color="red">認証されていません</font>
-            </a>
-          </td>
-        </tr>
-      </table>
+    <div class="row">
+      <div class="col-sm-6">
+        <button id="select-dir">保存フォルダを開く</button>
+        <button onclick=gethelp('open_dir')>？</button>
+        <a id="selected-folder">
+          <font color="red">フォルダが選択されていません</font>
+        </a>
+      </div>
     </div>
-    <a id="shop-list"></a>
-    <div>
-      <table border="0">
-        <tr>
-          <td align="left"><b> 取得ページ数(0で無制限)：</b>
-            <input type="text" id="max_page" size="10" maxlength="30" value=0>
-            <button onclick=gethelp('max_page')>？</button>
-          </td>
-          <td align="left"><b> 開始URL：</b>
-            <input type="text" id="start_urls" size="30" maxlength="1000" value=''>
-            <button onclick=gethelp('start_urls')>？</button>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <input type="submit" id="start-scrapy" value="スクレイピング開始">
-            <a id="start-status">
-              <font color="red">ショップが選択されていません</font>
-            </a>
-          </td>
-        </tr>
-      </table>
+
+    <div class="row">
+      <div class="col-sm-4">
+        <input placeholder="メールアドレス" type="text" id="email" size="50" maxlength="1000" value="">
+      </div>
+      <div class="col-sm-4">
+        <input placeholder="パスワード" type="password" id="password" size="50" maxlength="1000" value="">
+      </div>
+      <div class="col-sm-4">
+        <input type="submit" id="sql-login" value="認証開始">
+        <a id="sql-login-status">
+          <font color="red">認証されていません</font>
+        </a>
+      </div>
     </div>
+
+    <div class="row">
+      <div class="col-sm-2">
+        <input placeholder="取得ページ数" type="text" id="max_page" size="20" maxlength="30" value=0>
+        <button onclick=gethelp('max_page')>？</button>
+      </div>
+      <div class="col-sm-2">
+        <input placeholder="開始URL" type="text" id="start_urls" size="20" maxlength="1000" value=''>
+        <button onclick=gethelp('start_urls')>？</button>
+      </div>
+      <div class="col-sm-4">
+        <a id="shop-list"></a>
+      </div>
+      <div class="col-sm-4">
+        <input type="submit" id="start-scrapy" value="スクレイピング開始">
+        <a id="start-status">
+          <font color="red">ショップが選択されていません</font>
+        </a>
+      </div>
+    </div>
+
   </header>
 
   <div class="shop-setting" style="white-space:nowrap;">
@@ -300,6 +302,8 @@
   </footer>
 
   <script src="../views/App_scraper.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
 </body>
 
 </html>
