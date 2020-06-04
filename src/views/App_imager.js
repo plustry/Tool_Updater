@@ -81,7 +81,13 @@ ipcRenderer.on('selected-directory', (event, path) => {
 })
 
 // 選択されたディレクトリ内のフォルダをボタンにして表示
-ipcRenderer.on('make-dir-button', (event, button_text) => {
+ipcRenderer.on('make-dir-button', (event, dir_list) => {
+  var button_text = "<select onchange=choiceDir(this)><option value=-1>フォルダを選択してください</option>"
+  for (var i = 0; i < dir_list.length; i++) {
+    button_text += "<option value=" + dir_list[i] + ">" + dir_list[i] + "</option>"
+  }
+  button_text += "</select>"
+
   document.getElementById('dir-button').innerHTML = button_text
   document.getElementById('dir-status').innerHTML = '<font color="red">ディレクトリを選択してください</font>'
   // 高さが変わるので自動パッディング
@@ -224,9 +230,16 @@ MainStartBtn.addEventListener('click', (event) => {
     }
   }
 
-  if (document.getElementById("img_effect").value.indexOf("\\") === -1 && document.getElementById("img_effect").value.indexOf("/") === -1){
-    ipcRenderer.send('cause-error', "入力エラー", "パスではありません。")
-    return
+  path_list = [
+    "img_effect",
+    "img_frame",
+    "img_logo",
+  ]
+  for(var i = 0; i < path_list.length; i++){
+    if (document.getElementById(path_list[i]).value.indexOf("\\") === -1 && document.getElementById(path_list[i]).value.indexOf("/") === -1){
+      ipcRenderer.send('cause-error', "入力エラー",path_list[i] + "が正しくありません。\nファイルを開くで選択してください。")
+      return
+    }
   }
 
   global.args_list = {
@@ -267,7 +280,6 @@ MainStartBtn.addEventListener('click', (event) => {
     "addimg_3_y": document.getElementById('addimg_3_y').value
   }
   ipcRenderer.send('start-imager', JSON.stringify(args_list))
-  
 })
 
 // ヘルプ項目
@@ -316,6 +328,7 @@ var txt2 = {
   "edit_mode":"■テスト編集の場合：選択したフォルダの画像を3つだけ編集して画像の出来具合を確かめることができます。\n\n■全て編集の場合：選択したフォルダにある画像を全て編集します。\n\n■メイン画像の透過の場合：image000.pngを透過した画像をimage000_edit.pngという名前で保存します。\nimage000_edit.pngがある場合、その画像が一番前面にくる画像として使われるので、背景透過を綺麗にしたい場合は、ご自分の使い慣れている画像編集ソフトで背景を綺麗に透過させてご使用ください。",
   "add_img_name":"さらに追加したい商品画像のファイル名を指定してください。"
 }
+
 // ヘルプボタン
 function gethelp(key) {
   console.log(key)
@@ -330,10 +343,6 @@ ipcRenderer.on('log-create', (event, log_text) => {
 
 // 最後に動的にパッディングする
 function AutoAdjust() {
-  // var padding = document.getElementsByClassName('images')[0]
-  // // padding.style.paddingTop = document.getElementsByTagName('header')[0].offsetHeight
-  // padding.style.paddingBottom = document.getElementsByTagName('footer')[0].offsetHeight
-
   padding = document.getElementsByTagName('main')[0]
   padding.style.paddingTop = document.getElementsByTagName('header')[0].offsetHeight
 }

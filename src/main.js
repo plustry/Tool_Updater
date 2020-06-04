@@ -390,15 +390,14 @@ function image_dir_select(event, dir_image) {
       if (err) {
         console.log(err)
       }else {
-        var button_text = "<select onchange=choiceDir(this)><option value=-1>フォルダを選択してください</option>"
+        var dir_list = []
         for (var i = 0; i < list.length; i++) {
           var dir_check = fs.statSync(path.join(dir_image, list[i])).isDirectory()
           if (dir_check) {
-            button_text += "<option value=" + list[i] + ">" + list[i] + "</option>"
+            dir_list.push(list[i])
           }
         }
-        button_text += "</select>"
-        event.sender.send('make-dir-button', button_text)
+        event.sender.send('make-dir-button', dir_list)
       }
     })
   } catch (error) {
@@ -615,7 +614,7 @@ ipcMain.on('start-scrapy', (event, args_list) => {
 
   // DEBUG情報などを取得したい場合
   pyshell.on('stderr', function (message) {
-    // var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+    var ErrorMessage = ""
     if(message.indexOf("ModuleNotFoundError") !== -1){
       ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
     }else if(message.indexOf("FileNotFoundError") !== -1){
