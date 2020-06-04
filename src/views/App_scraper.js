@@ -4,6 +4,7 @@ const {ipcRenderer} = require('electron')
 // 設定項目をすべて満たしているかどうか
 global.checker1 = false
 global.checker2 = false
+global.scraping_conf = ""
 
 // デフォルトフォルダを読み込む
 ipcRenderer.send('init-scraper')
@@ -11,7 +12,7 @@ ipcRenderer.send('init-scraper')
 // 設定データがあれば読み込み
 ipcRenderer.on('load-scraping-conf', (event, dic_list) => {
   // console.log(dic_list)
-  global.scraping_conf = JSON.parse(dic_list)
+  scraping_conf = JSON.parse(dic_list)
   var email = scraping_conf["login"]["email"]
   var password = scraping_conf["login"]["password"]
   if(email && password){
@@ -99,8 +100,10 @@ function load_shop(obj) {
     return
   }
   // GUIにconfデータを反映
-  // console.log(scraping_conf);
-  var spider_data = scraping_conf[crawler_or_spidercls]
+  var spider_data = ""
+  if(scraping_conf){
+    var spider_data = scraping_conf[crawler_or_spidercls]
+  }
   if(spider_data){
     keys_list = Object.keys(spider_data)
     for (let i = 0; i < keys_list.length; i++) {
@@ -113,8 +116,7 @@ function load_shop(obj) {
     }
   }
   
-  document.getElementById('start-status').innerHTML = 
-    '<a id="start-status"><font color="green">設定が完了しました。(' + crawler_or_spidercls + ')</font></a>'
+  document.getElementById('start-status').innerHTML = '<a id="start-status"><font color="green">設定が完了しました。(' + crawler_or_spidercls + ')</font></a>'
   checker2 = true
 }
 
@@ -166,7 +168,9 @@ StartBtn.addEventListener('click', (event) => {
 
   let buyplace = document.getElementById("buyplace").value
   let sendplace = document.getElementById("sendplace").value
-  if (buyplace.match(new RegExp( ":", "g" )).length !== 3 || sendplace.match(new RegExp( ":", "g" )).length !== 3 && buyplace !== "" && sendplace !== ""){
+  if(!buyplace || !sendplace){
+    console.log("buyplaceかsendplaceが未記入です")
+  }else if (buyplace.match(new RegExp( ":", "g" )).length !== 3 || sendplace.match(new RegExp( ":", "g" )).length !== 3 && buyplace !== "" && sendplace !== ""){
     ipcRenderer.send('cause-error', "入力エラー",  "買い付け地、発送地にはコロン「:」が3つ必要です")
     return
   }

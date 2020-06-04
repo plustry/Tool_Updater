@@ -296,7 +296,7 @@ function StartUpdate(current_version, new_version) {
         }
         progressBar.detail = "新しいファイルを適用しています..."
         if (os_info == "darwin") {
-          fs.chmodSync(path.join(__dirname, "chromedriver"), 0o777)
+          fs.chmodSync(path.join(__dirname, "chromedriver", "chromedriver"), 0o777)
         }
         // ZIPファイルを削除
         fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))

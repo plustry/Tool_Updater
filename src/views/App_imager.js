@@ -224,6 +224,11 @@ MainStartBtn.addEventListener('click', (event) => {
     }
   }
 
+  if (document.getElementById("img_effect").value.indexOf("\\") === -1 && document.getElementById("img_effect").value.indexOf("/") === -1){
+    ipcRenderer.send('cause-error', "入力エラー", "パスではありません。")
+    return
+  }
+
   global.args_list = {
     "image_conf": image_conf,
     "edit_mode": document.getElementById('edit_mode').value,
