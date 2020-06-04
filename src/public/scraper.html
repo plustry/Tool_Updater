@@ -38,13 +38,13 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-4">
+      <div class="col-sm-5">
         <input placeholder="メールアドレス" type="text" id="email" size="50" maxlength="1000" value="">
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-5">
         <input placeholder="パスワード" type="password" id="password" size="50" maxlength="1000" value="">
       </div>
-      <div class="col-sm-4">
+      <div class="col-sm-2">
         <input type="submit" id="sql-login" value="認証開始">
         <a id="sql-login-status">
           <font color="red">認証されていません</font>
@@ -54,21 +54,21 @@
 
     <div class="row">
       <div class="col-sm-2">
-        <input placeholder="取得ページ数" type="text" id="max_page" size="20" maxlength="30" value=0>
+        <input placeholder="取得ページ数" type="text" id="max_page" size="10" maxlength="30" value=0>
         <button onclick=gethelp('max_page')>？</button>
       </div>
-      <div class="col-sm-2">
+      <div class="col-sm-3">
         <input placeholder="開始URL" type="text" id="start_urls" size="20" maxlength="1000" value=''>
         <button onclick=gethelp('start_urls')>？</button>
       </div>
-      <div class="col-sm-4">
-        <a id="shop-list"></a>
-      </div>
-      <div class="col-sm-4">
-        <input type="submit" id="start-scrapy" value="スクレイピング開始">
+      <div class="col-sm-5">
+        <a id="shop-list">ログイン中です！少々お待ちください</a>
         <a id="start-status">
           <font color="red">ショップが選択されていません</font>
         </a>
+      </div>
+      <div class="col-sm-2">
+        <input type="submit" id="start-scrapy" value="スクレイピング開始">
       </div>
     </div>
 

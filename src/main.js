@@ -464,7 +464,7 @@ ipcMain.on('start-imager', (event, args_list) => {
       ErrorMessage += message.substring(message.indexOf("NotFoundError"))
     }
     if(ErrorMessage){
-      ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+      // ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
       event.sender.send('log-create', ErrorMessage)
     }
   })
@@ -567,7 +567,7 @@ ipcMain.on('sql-login', (event, email, password) => {
       ErrorMessage += message.substring(message.indexOf("NotFoundError"))
     }
     if(ErrorMessage){
-      ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+      // ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
       event.sender.send('log-create', ErrorMessage)
     }
   })
@@ -615,7 +615,7 @@ ipcMain.on('start-scrapy', (event, args_list) => {
 
   // DEBUG情報などを取得したい場合
   pyshell.on('stderr', function (message) {
-    var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+    // var ErrorMessage = "エラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
     if(message.indexOf("ModuleNotFoundError") !== -1){
       ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
     }else if(message.indexOf("FileNotFoundError") !== -1){
@@ -799,18 +799,8 @@ ipcMain.on('open-file-exhibition', (event) => {
           event.sender.send('update-accesscode', readTXT(path.join(folder.filePaths[0], files[index])))
         }
       }
-      // 選択したディレクトリにバックアップがあれば読み込み
-      if (files[index].indexOf("access_code.backup") !== -1) {
-        event.sender.send('update-accesscode', readTXT(path.join(folder.filePaths[0], files[index])))
-      }
     }
-
-    // 選択したディレクトリからcsvだけピックアップしてボタンの作成
-    var return_text = ""
-    for (let index = 0; index < fileList.length; index++) {
-      return_text += "<button onclick=load_csv('" + fileList[index] + "')>" + fileList[index] + "</button>"
-      event.sender.send('selected-csv', return_text);
-    }
+    event.sender.send('selected-csv', fileList);
   })
 })
 
@@ -869,7 +859,7 @@ ipcMain.on('start-exhibition', (event, args_list) => {
       ErrorMessage += message.substring(message.indexOf("NotFoundError"))
     }
     if(ErrorMessage){
-      ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
+      // ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
       event.sender.send('log-create', ErrorMessage)
     }
   })

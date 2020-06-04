@@ -101,7 +101,13 @@ ipcRenderer.on('update-accesscode', (event, code) => {
 })
 
 // 選択したcsvをボタンで表示
-ipcRenderer.on('selected-csv', (event, text_data) => {
+ipcRenderer.on('selected-csv', (event, fileList) => {
+  // console.log(fileList)
+  // 選択したディレクトリからcsvだけピックアップしてボタンの作成
+  var text_data = ""
+  for (let index = 0; index < fileList.length; index++) {
+    text_data += "<button onclick=load_csv('" + fileList[index] + "')>" + fileList[index] + "</button>"
+  }
   document.getElementById('csv-list').innerHTML = `${text_data}`
 })
 

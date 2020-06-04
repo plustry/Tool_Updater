@@ -27,64 +27,123 @@
       and Electron <script>document.write(process.versions.electron)</script>. -->
     </div>
 
-    <br>
-    <button id="select-dir">BUYMAフォルダを開く</button>
-    <button onclick=gethelp('open_dir')>？</button>
-    <a id="selected-folder">
-      <font color="red">フォルダが選択されていません</font>
-    </a>
-    <br>
-    <div>
-      <table border="0">
-        <tr>
-          <td align="right"><b> ページ選択：</b>
-            <button onclick=gethelp('page_choice')>？</button>
-          </td>
-          <td>
-            <form id="page-choice">
-              <input type="radio" name="set1" value="request" checked> リクエスト受付中
-              <input type="radio" name="set1" value="syuppin"> 出品中
-              <input type="radio" name="set1" value="teishi"> 停止中
-            </form>
-          </td>
-        </tr>
-        <tr>
-          <td align="right"><b> 設定モード：</b>
-            <button onclick=gethelp('set_mode')>？</button>
-          </td>
-          <td>
-            <form id="onoff">
-              <input type="radio" name="set2" value="on" checked> 出品
-              <input type="radio" name="set2" value="off"> 出品停止
-              <input type="radio" name="set2" value="delete"> 削除
-            </form>
-          </td>
-        </tr>
-      </table>
-      <ul id="prms">
-        <li align="center"><b> アカウント：</b><button onclick=gethelp('buyma_account')>？</button><input type="text"
-            id="buyma-account" size="10" maxlength="20"></li>
-        <li align="center"><b> 出品期限延長日数：</b><button onclick=gethelp('days')>？</button><input type="text" id="days"
-            value="21" size="10" maxlength="100"></li>
-        <li><b> アクセス数：</b><button onclick=gethelp('access')>？</button><input type="text" id="access-prm" value="1"
-            size="10"></li>
-        <li><b> 欲しいもの数：</b><button onclick=gethelp('want')>？</button><input type="text" id="want-prm" value="3"
-            size="10"></li>
-      </ul>
-      <ul id="prms">
-        <li><b> カート数：</b><button onclick=gethelp('cart')>？</button><input type="text" id="cart-prm" value="15"></li>
-        <li><b> 価格を割る数：</b><button onclick=gethelp('price')>？</button><input type="text" id="price-prm" value="10000"
-            size="10"></li>
-        <li><b> MAX価格スコア：</b><button onclick=gethelp('maxprice')>？</button><input type="text" id="maxprice-prm"
-            value="20" size="10"></li>
-        <li><b> 経過日数を割る数：</b><button onclick=gethelp('date')>？</button><input type="text" id="date-prm" value="4"
-            size="10"></li>
-      </ul>
-      <table border="0">
-        <tr>
-          <td align="center"><button id="start-manager">スタート</button></td>
-        </tr>
-      </table>
+    <div class="row">
+      <div class="col-sm-8">
+        <button id="select-dir">BUYMAフォルダを開く</button>
+        <button onclick=gethelp('open_dir')>？</button>
+        <a id="selected-folder">
+          <font color="red">フォルダが選択されていません</font>
+        </a>
+      </div>
+      <div class="col-sm-4">
+        <button id="start-manager">スタート</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <b> ページ選択：</b>
+        <button onclick=gethelp('page_choice')>？</button>
+        <form id="page-choice">
+          <input type="radio" name="set1" value="request" checked> リクエスト受付中
+          <input type="radio" name="set1" value="syuppin"> 出品中
+          <input type="radio" name="set1" value="teishi"> 停止中
+        </form>
+      </div>
+      <div class="col-sm-6">
+        <b> 設定モード：</b>
+        <button onclick=gethelp('set_mode')>？</button>
+        <form id="onoff">
+          <input type="radio" name="set2" value="on" checked> 出品
+          <input type="radio" name="set2" value="off"> 出品停止
+          <input type="radio" name="set2" value="delete"> 削除
+        </form>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">
+        <b> アカウント：</b>
+        <button onclick=gethelp('buyma_account')>？</button>
+        <input 
+          type="text"
+          id="buyma-account" 
+          size="10" 
+          maxlength="20"
+        >
+      </div>
+      <div class="col-sm-3">
+        <b> 出品期限延長日数：</b>
+        <button onclick=gethelp('days')>？</button>
+        <input type="text" 
+          id="days"
+          value="21" 
+          size="10" 
+          maxlength="100"
+          >
+      </div>
+      <div class="col-sm-3">
+        <b> アクセス数：</b>
+        <button onclick=gethelp('access')>？</button>
+        <input 
+          type="text" 
+          id="access-prm" 
+          value="1"
+          size="10"
+        >
+      </div>
+      <div class="col-sm-3">
+        <b> 欲しいもの数：</b>
+        <button onclick=gethelp('want')>？</button>
+        <input 
+          type="text" 
+          id="want-prm" 
+          value="3"
+          size="10"
+        >
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">
+        <b> カート数：</b>
+        <button onclick=gethelp('cart')>？</button>
+        <input 
+          type="text" 
+          id="cart-prm" 
+          value="15"
+        >
+      </div>
+      <div class="col-sm-3">
+        <b> 価格を割る数：</b>
+          <button onclick=gethelp('price')>？</button>
+          <input 
+            type="text" 
+            id="price-prm" 
+            value="10000"
+            size="10"
+          >
+      </div>
+      <div class="col-sm-3">
+        <b> MAX価格スコア：</b>
+          <button onclick=gethelp('maxprice')>？</button>
+          <input 
+            type="text" 
+            id="maxprice-prm"
+            value="20" 
+            size="10"
+          >
+      </div>
+      <div class="col-sm-3">
+        <b> 経過日数を割る数：</b>
+          <button onclick=gethelp('date')>？</button>
+          <input 
+            type="text" 
+            id="date-prm" 
+            value="4"
+            size="10"
+          >
+      </div>
     </div>
   </header>
 
