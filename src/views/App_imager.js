@@ -3,27 +3,15 @@ const {ipcRenderer} = require('electron')
 
 // 設定項目をすべて満たしているかどうか
 global.checker1 = false
-global.keys_list = ["image_conf","edit_mode","master_dir","choiced_dir","scriptPath","img_category","img_new_category","email","password","logo_size","item_size","item_move_x","item_move_y","back_move_x","back_move_y","logo_move_x","logo_move_y","bg_num","bg_image","img_effect","img_frame","img_logo","image_diff","addimg_1_name","addimg_1_size","addimg_1_x","addimg_1_y","addimg_2_name","addimg_2_size","addimg_2_x","addimg_2_y","addimg_3_name","addimg_3_size","addimg_3_x","addimg_3_y","electron_dir"]
+global.keys_list = process.env.imager_conf_list.split(',') 
 global.args_list = ""
+global.choiced_category = ""
+global.image_conf = ""
+global.spider_name = ""
+global.directory_name = ""
+global.choiced_dir = ""
 // デフォルトフォルダを読み込む
 ipcRenderer.send('init-imager')
-
-// 設定データがあれば読み込み
-ipcRenderer.on('load-image-conf', (event, dic_list) => {
-  if(dic_list){
-    global.image_conf = JSON.parse(dic_list)
-    document.getElementById('email').value = image_conf["login"]["email"]
-    document.getElementById('password').value = image_conf["login"]["password"]
-  }else{
-    event.sender.send('log-create', "BUYMA/conf フォルダにimage.confファイルが無いまたは空です")
-    global.image_conf = {}
-  }
-
-  // console.log(document.body.clientHeight)
-  // console.log(document.getElementsByTagName('header'))
-  // console.log(document.getElementsByTagName('footer'))
-  // console.log(document.getElementsByTagName('main'))
-})
 
 // ページ遷移
 const ChangeToExhibitionBtn = document.getElementById('exhibition')
@@ -76,7 +64,8 @@ ipcRenderer.on('selected-effect', (event, path) => {
 
 // 選択したディレクトリを表示
 ipcRenderer.on('selected-directory', (event, path) => {
-  global.directory_name = path
+  console.log(choiced_category)
+  directory_name = path
   document.getElementById('selected-folder').innerHTML = `You selected: ${path}`
 })
 
@@ -94,54 +83,60 @@ ipcRenderer.on('make-dir-button', (event, dir_list) => {
   AutoAdjust()
 })
 
-// ウィンドウをリロードした時に画面を書き直す
-ipcRenderer.on('after_reload', (event, args_list) => {
-  global.args_list = JSON.parse(args_list)
-  choiceDir(global.args_list["choiced_dir"])
+// 設定データがあれば読み込み
+ipcRenderer.on('load-image-conf', (event, dic_list) => {
+  if(dic_list){
+    image_conf = JSON.parse(dic_list)
+    document.getElementById('email').value = image_conf["login"]["email"]
+    document.getElementById('password').value = image_conf["login"]["password"]
+  }else{
+    event.sender.send('log-create', "BUYMA/conf フォルダにimage.confファイルが無いまたは空です")
+  }
+  // カテゴリーリストを更新
+  ViewCategoryList()
 })
 
-// ディレクトリを選択した時にパラメータを反映
-function choiceDir(obj) {
-  var dir_name = obj.options[obj.selectedIndex].value
-  console.log(dir_name)
-  global.choiced_dir = dir_name
-  checker1 = true
-  document.getElementById('dir-status').innerHTML = '<font color="green">' + choiced_dir + 'が選択されました</font>'
-  // spider名を取得
-  if(choiced_dir.indexOf("_") !== -1){
-    spider_name = choiced_dir.substring(0,choiced_dir.indexOf("_"))
-  }else{
-    spider_name = ""
-  }
 
-  // args_listがあれば、新規の値を反映させる
-  if(global.args_list){
-    img_parameter = global.args_list
-  }else{
-    img_parameter = image_conf[spider_name][""]
-  }
+// 生成された画像を表示してみる
+ipcRenderer.on('disp-image', (event, image_path) => {
+  var height = document.body.clientHeight - document.getElementsByTagName('main')[0].offsetHeight - document.getElementsByTagName('footer')[0].offsetHeight
+  // document.getElementById('logs').innerHTML += height
+  document.getElementById('images').innerHTML += '<img src ="file://' + image_path + "?" +Date.now() + '" height=' + height +'/>'
+  document.getElementsByClassName('images')[0].style.height = height
+})
 
-  // spiderのカテゴリーリストを反映
-  var img_category_list = ""
-  try{
-  spider_keys_list = Object.keys(image_conf[spider_name])
-  // console.log(spider_keys_list)
-  }catch{
-    console.log("データが存在しません")
-  }
-  for (var i = 0; i < spider_keys_list.length; i++) {
-    try{
-      img_category_list += '<option value="' + spider_keys_list[i] + '">' + spider_keys_list[i] + "</option>"
-    }catch{
-      console.log("error")
+// ログ画面
+ipcRenderer.on('log-create', (event, log_text) => {
+  document.getElementById('logs').innerHTML += "<p>[log]: " + log_text + "</p>"
+  document.getElementById('footer').scrollTop = document.getElementById('footer').scrollHeight;
+})
+
+
+function ViewCategoryList() {
+  var img_category_list = ''
+  if(image_conf){
+    if(spider_name){
+      if(Object.keys(image_conf).indexOf(spider_name) !== -1){
+        spider_keys_list = Object.keys(image_conf[spider_name])
+        // console.log(spider_keys_list)
+        for (var i = 0; i < spider_keys_list.length; i++) {
+          img_category_list += '<option value="' + spider_keys_list[i] + '">' + spider_keys_list[i] + "</option>"
+        }
+      }
     }
   }
   document.getElementById('img_category').innerHTML = img_category_list
+  document.getElementById('img_new_category').value = ""
+}
 
+// パラメータ更新
+function Reload_Prm(img_parameter) {
+  // console.log(img_parameter)
+  // htmlフォームのkeyに値を代入
   for (let i = 0; i < keys_list.length; i++) {
     try{
       // undefinedの場合はスキップする
-      if(img_parameter[keys_list[i]]){
+      if(img_parameter[keys_list[i]] !== undefined){
         document.getElementById(keys_list[i]).value = img_parameter[keys_list[i]]
       }
     }catch{
@@ -151,31 +146,61 @@ function choiceDir(obj) {
   AutoAdjust()
 }
 
-// カテゴリをクリックして、適用した時にパラメータを反映させる
-function choiceCat(){
+// ディレクトリを選択した時にパラメータを反映
+function choiceDir(obj) {
+  choiced_dir = obj.options[obj.selectedIndex].value
+  document.getElementById('dir-status').innerHTML = '<font color="green">' + choiced_dir + 'が選択されました</font>'
+  
+  // spider名を取得
   if(choiced_dir.indexOf("_") !== -1){
-    spider_name = choiced_dir.substring(0,choiced_dir.indexOf("_"))
+    spider_name = choiced_dir.substring(0, choiced_dir.indexOf("_"))
   }else{
     spider_name = ""
   }
-    img_category = document.getElementById('img_category').value
-  for (let i = 0; i < keys_list.length; i++) {
-    try{
-      document.getElementById(keys_list[i]).value = image_conf[spider_name][img_category][keys_list[i]]
-    }catch{
-      console.log("error")
+
+  // 初期パラメータを入力
+  let img_parameter = ""
+  if(image_conf){
+    if(spider_name){
+      if(Object.keys(image_conf).indexOf(spider_name) !== -1){
+        img_parameter = image_conf[spider_name][""]
+        Reload_Prm(img_parameter)
+      }
     }
   }
-  document.getElementById('img_category').value = img_category
+
+  // spiderのカテゴリーリストを反映
+  ViewCategoryList()
+  checker1 = true
 }
 
-// 生成された画像を表示してみる
-ipcRenderer.on('disp-image', (event, image_path) => {
-  var height = document.body.clientHeight - document.getElementsByTagName('main')[0].offsetHeight - document.getElementsByTagName('footer')[0].offsetHeight
-  // document.getElementById('logs').innerHTML += height
-  document.getElementById('images').innerHTML += '<img src ="file://' + image_path + '" height=' + height +'>'
-  document.getElementsByClassName('images')[0].style.height = height
-})
+// カテゴリをクリックして、適用した時にパラメータを反映させる
+function choiceCat(){
+  choiced_category = document.getElementById('img_category').value
+  document.getElementById('img_category').value = choiced_category
+  img_parameter = ""
+  if(image_conf){
+    if(spider_name){
+      if(choiced_category){
+        // choiced_categoryがあれば、新規の値を反映させる
+        img_parameter = image_conf[spider_name][choiced_category]
+        Reload_Prm(img_parameter)
+      }
+    }
+  }
+}
+
+// ヘルプボタン
+function gethelp(key) {
+  console.log(key)
+  ipcRenderer.send('show-info', "ヘルプ", txt1[key], txt2[key])
+}
+
+// 最後に動的にパッディングする
+function AutoAdjust() {
+  padding = document.getElementsByTagName('main')[0]
+  padding.style.paddingTop = document.getElementsByTagName('header')[0].offsetHeight
+}
 
 // メイン編集開始
 const MainStartBtn = document.getElementById('imager-main')
@@ -224,7 +249,8 @@ MainStartBtn.addEventListener('click', (event) => {
     "addimg_3_x",
   ]
   for(var i = 0; i < integer_list.length; i++){
-    if (!/^[-]?([1-9]\d*|0)(\.\d+)?$/.test(document.getElementById(integer_list[i]).value) && document.getElementById(integer_list[i]).value !== ""){
+    let doc_data = document.getElementById(integer_list[i]).value
+    if (!/^[-]?([1-9]\d*|0)(\.\d+)?$/.test(doc_data) && doc_data !== ""){
       ipcRenderer.send('cause-error', "入力エラー", integer_list[i] + "の入力に数値以外の文字が有ります")
       return
     }
@@ -236,49 +262,32 @@ MainStartBtn.addEventListener('click', (event) => {
     "img_logo",
   ]
   for(var i = 0; i < path_list.length; i++){
-    if (document.getElementById(path_list[i]).value.indexOf("\\") === -1 && document.getElementById(path_list[i]).value.indexOf("/") === -1){
+    let doc_data = document.getElementById(path_list[i]).value
+    if (doc_data.indexOf("\\") === -1 && doc_data.indexOf("/") === -1 && doc_data !== ""){
       ipcRenderer.send('cause-error', "入力エラー",path_list[i] + "が正しくありません。\nファイルを開くで選択してください。")
       return
     }
   }
 
-  global.args_list = {
-    "image_conf": image_conf,
-    "edit_mode": document.getElementById('edit_mode').value,
+  var args_list = {
     "master_dir": directory_name,
     "choiced_dir": choiced_dir,
     "scriptPath": __dirname,
-    "img_category": document.getElementById('img_category').value,
-    "img_new_category": document.getElementById('img_new_category').value,
     "email": document.getElementById('email').value,
     "password": document.getElementById('password').value,
-    "logo_size": document.getElementById('logo_size').value,
-    "item_size": document.getElementById('item_size').value,
-    "item_move_x": document.getElementById('item_move_x').value,
-    "item_move_y": document.getElementById('item_move_y').value,
-    "back_move_x": document.getElementById('back_move_x').value,
-    "back_move_y": document.getElementById('back_move_y').value,
-    "logo_move_x": document.getElementById('logo_move_x').value,
-    "logo_move_y": document.getElementById('logo_move_y').value,
-    "bg_num": document.getElementById('bg_num').value,
-    "bg_image": document.getElementById('bg_image').value,
-    "img_effect": document.getElementById('img_effect').value,
-    "img_frame": document.getElementById('img_frame').value,
-    "img_logo": document.getElementById('img_logo').value,
-    "image_diff": document.getElementById('image_diff').value,
-    "addimg_1_name": document.getElementById('addimg_1_name').value, 
-    "addimg_1_size": document.getElementById('addimg_1_size').value,
-    "addimg_1_x": document.getElementById('addimg_1_x').value, 
-    "addimg_1_y": document.getElementById('addimg_1_y').value,
-    "addimg_2_name": document.getElementById('addimg_2_name').value, 
-    "addimg_2_size": document.getElementById('addimg_2_size').value,
-    "addimg_2_x": document.getElementById('addimg_2_x').value, 
-    "addimg_2_y": document.getElementById('addimg_2_y').value,
-    "addimg_3_name": document.getElementById('addimg_3_name').value, 
-    "addimg_3_size": document.getElementById('addimg_3_size').value,
-    "addimg_3_x": document.getElementById('addimg_3_x').value, 
-    "addimg_3_y": document.getElementById('addimg_3_y').value
+    "img_category": document.getElementById('img_category').value,
+    "img_new_category": document.getElementById('img_new_category').value,
   }
+  
+  // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します  
+  for (let i = 0; i < keys_list.length; i++) {
+    try {
+      args_list[keys_list[i]] = document.getElementById(keys_list[i]).value
+    } catch (error) {
+      console.log(error) 
+    }
+  }
+  console.log(args_list)
   ipcRenderer.send('start-imager', JSON.stringify(args_list))
 })
 
@@ -327,24 +336,6 @@ var txt2 = {
   "bg_image":"背景(最背面に適用)の画像名を入力してください。\nフォルダは、dataフォルダと同じ階層のimg_content>backgroundを参照します。\n設定しない場合は空欄で大丈夫です。",
   "edit_mode":"■テスト編集の場合：選択したフォルダの画像を3つだけ編集して画像の出来具合を確かめることができます。\n\n■全て編集の場合：選択したフォルダにある画像を全て編集します。\n\n■メイン画像の透過の場合：image000.pngを透過した画像をimage000_edit.pngという名前で保存します。\nimage000_edit.pngがある場合、その画像が一番前面にくる画像として使われるので、背景透過を綺麗にしたい場合は、ご自分の使い慣れている画像編集ソフトで背景を綺麗に透過させてご使用ください。",
   "add_img_name":"さらに追加したい商品画像のファイル名を指定してください。"
-}
-
-// ヘルプボタン
-function gethelp(key) {
-  console.log(key)
-  ipcRenderer.send('show-info', "ヘルプ", txt1[key], txt2[key])
-}
-
-// ログ画面
-ipcRenderer.on('log-create', (event, log_text) => {
-  document.getElementById('logs').innerHTML += "<p>[log]: " + log_text + "</p>"
-  document.getElementById('footer').scrollTop = document.getElementById('footer').scrollHeight;
-})
-
-// 最後に動的にパッディングする
-function AutoAdjust() {
-  padding = document.getElementsByTagName('main')[0]
-  padding.style.paddingTop = document.getElementsByTagName('header')[0].offsetHeight
 }
 
 AutoAdjust()

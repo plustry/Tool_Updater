@@ -1,6 +1,6 @@
 // rendererとipc通信を行う
 const {ipcRenderer} = require('electron')
-const path = require('path');
+const path = require('path')
 global.checker = false
 
 // 動的に作成したボタンから呼び出してCSV読みこみ

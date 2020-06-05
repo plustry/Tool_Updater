@@ -2,8 +2,7 @@
 const {ipcRenderer} = require('electron')
 
 // 設定項目をすべて満たしているかどうか
-global.checker1 = false
-global.checker2 = false
+global.checker = false
 global.scraping_conf = ""
 
 // デフォルトフォルダを読み込む
@@ -18,8 +17,7 @@ ipcRenderer.on('load-scraping-conf', (event, dic_list) => {
   if(email && password){
     document.getElementById('email').value = email
     document.getElementById('password').value = password
-    ipcRenderer.send('sql-login', email, password)
-    checker1 = true
+    ipcRenderer.send('sql-login', email, password) 
   }
 })
 
@@ -59,12 +57,11 @@ SqlLoginBtn.addEventListener('click', (event) => {
   var email = document.getElementById('email').value
   var password = document.getElementById('password').value
   ipcRenderer.send('sql-login', email, password) 
-  checker1 = true
 })
 
 // login情報を元に画面編集
-ipcRenderer.on('arg-json', (event, message) => {
-  arg_json = JSON.parse(message)
+ipcRenderer.on('load-login-data', (event, arg_json) => {
+  arg_json = JSON.parse(arg_json)
 
   // load_shopやstart-scrapyで使用するためグローバル関数にする
   global.user_shop_dict = arg_json["user_shop_dict"]
@@ -99,11 +96,12 @@ function load_shop(obj) {
   if (crawler_or_spidercls == -1) {
     return
   }
-  // GUIにconfデータを反映
+  // spiderのconfデータを取得
   var spider_data = ""
   if(scraping_conf){
     var spider_data = scraping_conf[crawler_or_spidercls]
   }
+  // GUIにconfデータを反映
   if(spider_data){
     keys_list = Object.keys(spider_data)
     for (let i = 0; i < keys_list.length; i++) {
@@ -117,16 +115,11 @@ function load_shop(obj) {
   }
   
   document.getElementById('start-status').innerHTML = '<a id="start-status"><font color="green">設定が完了しました。(' + crawler_or_spidercls + ')</font></a>'
-  checker2 = true
+  checker = true
 }
 
-// スクレイピング開始
-const StartBtn = document.getElementById('start-scrapy')
-StartBtn.addEventListener('click', (event) => {
-  if (!checker1){
-    ipcRenderer.send('cause-error', '未設定項目', '認証を行ってください')
-    return
-  }else if (!checker2){
+function start_check() {
+  if (!checker){
     ipcRenderer.send('cause-error', '未設定項目', 'ショップを選択してください')
     return
   }
@@ -170,10 +163,17 @@ StartBtn.addEventListener('click', (event) => {
   let sendplace = document.getElementById("sendplace").value
   if(!buyplace || !sendplace){
     console.log("buyplaceかsendplaceが未記入です")
-  }else if (buyplace.match(new RegExp( ":", "g" )).length !== 3 || sendplace.match(new RegExp( ":", "g" )).length !== 3 && buyplace !== "" && sendplace !== ""){
+  }else if (buyplace.match(new RegExp( ":", "g" )).length !== 3 || sendplace.match(new RegExp( ":", "g" )).length !== 3){
     ipcRenderer.send('cause-error', "入力エラー",  "買い付け地、発送地にはコロン「:」が3つ必要です")
     return
   }
+}
+
+// スクレイピング開始
+const StartBtn = document.getElementById('start-scrapy')
+StartBtn.addEventListener('click', (event) => {
+  // 入力チェック
+  start_check()
 
   // crawler_or_spiderclsはpipelineでなくなってしまう
   var args_list = {
@@ -182,9 +182,13 @@ StartBtn.addEventListener('click', (event) => {
     "user_id": user_id,
     "limit": crawl_limit,
     "dir_path": directory_name,
+    "email": document.getElementById("email").value, 
+    "password": document.getElementById("password").value,
   }
-  // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します   
-  keys_list = ["email", "password", "start_urls","sex","nobrand","no_ban_brand","currency","max_page", "csv_prm","edit_name","max_price","vatoff_late","vip_late","delivery_price","profit_late","duty_pattern","size_variation","buyplace","sendplace","buyma_shop","tag","thema","season","delivery","deadline","stock","memo","switch"]
+  
+  // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します  
+  var keys_list = process.env.scraper_conf_list.split(',') 
+  console.log(keys_list)
   for (let i = 0; i < keys_list.length; i++) {
     try {
       args_list[keys_list[i]] = document.getElementById(keys_list[i]).value
@@ -194,7 +198,6 @@ StartBtn.addEventListener('click', (event) => {
   }
   ipcRenderer.send('show-info', 'スクレイピング開始', '商品リストの取得を開始しました', 'アプリを閉じると取得を終了します。\n取得可能商品数はこちらです：' + args_list['limit'] + '\n取得ショップ：' + args_list['crawler_or_spidercls'])
   ipcRenderer.send('start-scrapy', JSON.stringify(args_list)) 
-
 })
 
 // ログ画面
