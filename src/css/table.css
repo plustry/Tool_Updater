@@ -47,13 +47,14 @@ footer{
   padding:10px 0;
   position: fixed;
   bottom: 0;
+  z-index: 1000;
   overflow: scroll;
 }
 
 .csv-table{
-  padding-top: 30%;
-  height: 50%;
-  padding-bottom: 20%;
+  /* padding-top: 30%; */
+  /* height: 50%; */
+  /* padding-bottom: 20%; */
   overflow: scroll;
 }
 
@@ -127,39 +128,6 @@ table th,table td{
 .prms {
   width: 25%;
 }
-
-#prms2 {  
-  margin:5px 0;
-  padding:0;  
-  width:95%;  
-  height:30px;  
-  overflow:hidden;  
-  background:#eeeeee;  
-}  
-#prms2 li { list-style:none; width:30%; float:left; }  
-#prms2 li a {  
-  display:block;  
-  line-height:25px;  
-  color:#000000;  
-  text-align:center;  
-}  
-#prms2 li a:hover { background:rgb(103, 162, 250); }  
-
-.prms2 {
-  width: 50%;
-}
-
-.prm12{ 
-  list-style:none; 
-  width:12%; 
-  float:left; 
-}
-#prms3 li { 
-  list-style:none; 
-  width:20%;
-  float:left; 
-}
-
 
 button{
   margin: 2px;
