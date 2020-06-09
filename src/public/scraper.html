@@ -53,13 +53,9 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-2">
-        <input placeholder="取得ページ数" type="text" id="max_page" size="10" maxlength="30" value=0>
+      <div class="col-sm-5">
+        <input placeholder="取得ページ数" type="text" id="max_page" size="50" maxlength="30" value=0>
         <button onclick=gethelp('max_page')>？</button>
-      </div>
-      <div class="col-sm-3">
-        <input placeholder="開始URL" type="text" id="start_urls" size="20" maxlength="1000" value=''>
-        <button onclick=gethelp('start_urls')>？</button>
       </div>
       <div class="col-sm-5">
         <a id="shop-list">ログイン中です！少々お待ちください</a>
@@ -69,6 +65,13 @@
       </div>
       <div class="col-sm-2">
         <input type="submit" id="start-scrapy" value="スクレイピング開始">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <input placeholder="開始URL" type="text" id="start_urls" size="150" maxlength="1000" value=''>
+        <button onclick=gethelp('start_urls')>？</button>
       </div>
     </div>
 

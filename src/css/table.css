@@ -59,8 +59,8 @@ footer{
 }
 
 .manager-logs{
-  padding-top: 30%;
-  height: 65%;
+  /* padding-top: 30%; */
+  height: 100%;
   overflow: scroll;
 }
 
@@ -105,7 +105,7 @@ table th,table td{
   line-height:30px;  
   color:#000000;  
   text-align:center;  
-}  
+}
 #gNavi li a:hover { background:rgb(103, 162, 250); }  
 
 #prms {  
