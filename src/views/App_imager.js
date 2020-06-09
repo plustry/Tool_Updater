@@ -127,6 +127,9 @@ function ViewCategoryList() {
   }
   document.getElementById('img_category').innerHTML = img_category_list
   document.getElementById('img_new_category').value = ""
+  if(choiced_category){
+    document.getElementById('img_category').value = choiced_category
+  }
 }
 
 // パラメータ更新
