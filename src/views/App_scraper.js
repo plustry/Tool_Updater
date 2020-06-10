@@ -3,6 +3,7 @@ const {ipcRenderer} = require('electron')
 
 // 設定項目をすべて満たしているかどうか
 global.checker = false
+global.login = false
 global.scraping_conf = ""
 
 // デフォルトフォルダを読み込む
@@ -14,7 +15,7 @@ ipcRenderer.on('load-scraping-conf', (event, dic_list) => {
   scraping_conf = JSON.parse(dic_list)
   var email = scraping_conf["login"]["email"]
   var password = scraping_conf["login"]["password"]
-  if(email && password){
+  if(!login && email && password){
     document.getElementById('email').value = email
     document.getElementById('password').value = password
     ipcRenderer.send('sql-login', email, password) 
@@ -61,6 +62,8 @@ SqlLoginBtn.addEventListener('click', (event) => {
 
 // login情報を元に画面編集
 ipcRenderer.on('load-login-data', (event, arg_json) => {
+  // ログイン成功
+  login = true
   arg_json = JSON.parse(arg_json)
 
   // load_shopやstart-scrapyで使用するためグローバル関数にする

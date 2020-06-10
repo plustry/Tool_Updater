@@ -345,7 +345,7 @@ function AutoUpdater(event) {
 
 function ErrorLog(event, message) {
   var ErrorMessage = ""
-  var ErrorMessage = message
+  // var ErrorMessage = message
   if(message.indexOf("ModuleNotFoundError") !== -1){
     ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
   }else if(message.indexOf("FileNotFoundError") !== -1){
@@ -618,7 +618,6 @@ ipcMain.on('sql-login', (event, email, password) => {
   args_list = {
     "email":email,
     "password":password,
-    "electron_dir":__dirname,
   }
 
   let options = {

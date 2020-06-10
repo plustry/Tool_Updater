@@ -109,147 +109,144 @@
   </header>
 
   <main id="main">
-    <table>
-      <tr>
-        <td>
-          <input placeholder="透明度" type="text" id="image_diff" size=30 value="">
-          <button onclick=gethelp('image_diff')>？</button>
-        </td>
-        <td>
-          <input placeholder="商品画像サイズ" type="text" id="item_size" size=30 value="">
-          <button onclick=gethelp('item_size')>？</button>
-        </td>
-        <td>
-          <input placeholder="商品縦" type="text" id="item_move_y" size=30 value="">
-          <button onclick=gethelp('item_move_y')>？</button>
-        </td>
-        <td>
-          <input placeholder="商品横" type="text" id="item_move_x" size=30 value="">
-          <button onclick=gethelp('item_move_x')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="フレームPATH" type="text" id="img_frame" size=30 value="">
-          <button onclick=gethelp('img_frame')>？</button>
-        </td>
-        <td>
-          <button id="select-frame">ファイルを開く</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="エフェクトPATH" type="text" id="img_effect" size=30 value="">
-          <button onclick=gethelp('img_effect')>？</button>
-        </td>
-        <td>
-          <button id="select-effect">ファイルを開く</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="ロゴPATH" type="text" id="img_logo" size=30 value="">
-          <button onclick=gethelp('img_logo')>？</button>
-        </td>
-        <td>
-          <button id="select-logo">ファイルを開く</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="ロゴサイズ（%）" type="text" id="logo_size" size=30 value="">
-          <button onclick=gethelp('logo_size')>？</button>
-        </td>
-        <td>
-          <input placeholder="ロゴ縦" type="text" id="logo_move_y" size=30 value="">
-           <button onclick=gethelp('logo_move_y')>？</button>
-       </td>
-       <td>
-         <input placeholder="ロゴ横" type="text" id="logo_move_x" size=30 value="">
-         <button onclick=gethelp('logo_move_x')>？</button>
-       </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="指定背景画像" type="text" id="bg_image" size=30 value="">
-          <button onclick=gethelp('bg_image')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="背景画像番号" type="text" id="bg_num" size=30 value="">
-          <button onclick=gethelp('bg_num')>？</button>
-        </td>
-        <td>
-          <input placeholder="サイズ" type="text" id="bg_size" size=30 value="">
-          <button onclick=gethelp('bg_size')>？</button>
-        </td>
-        <td>
-          <input placeholder="縦" type="text" id="back_move_y" size=30 value="">
-          <button onclick=gethelp('back_move_y')>？</button>
-        </td>
-        <td>
-          <input placeholder="横" type="text" id="back_move_x" size=30 value="">
-          <button onclick=gethelp('back_move_x')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="追加商品画像1" type="text" id="addimg_1_name" size=30 value="">
-          <button onclick=gethelp('add_img_name')>？</button>
-        </td>
-        <td>
-          <input placeholder="サイズ" type="text" id="addimg_1_size" size=30 value="">
-          <button onclick=gethelp('item_size')>？</button>
-        </td>
-        <td>
-          <input placeholder="縦" type="text" id="addimg_1_y" size=30 value="">
-          <button onclick=gethelp('item_move_y')>？</button>
-        </td>
-        <td>
-          <input placeholder="横" type="text" id="addimg_1_x" size=30 value="">
-          <button onclick=gethelp('item_move_x')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="追加商品画像2" type="text" id="addimg_2_name" size=30 value="">
-          <button onclick=gethelp('add_img_name')>？</button>
-        </td>
-        <td>
-          <input placeholder="サイズ" type="text" id="addimg_2_size" size=30 value="">
-          <button onclick=gethelp('item_size')>？</button>
-        </td>
-        <td>
-          <input placeholder="縦" type="text" id="addimg_2_y" size=30 value="">
-          <button onclick=gethelp('item_move_y')>？</button>
-        </td>
-        <td>
-          <input placeholder="横" type="text" id="addimg_2_x" size=30 value="">
-          <button onclick=gethelp('item_move_x')>？</button>
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <input placeholder="追加商品画像3" type="text" id="addimg_3_name" size=30 value="">
-          <button onclick=gethelp('add_img_name')>？</button>
-        </td>
-        <td>
-          <input placeholder="サイズ" type="text" id="addimg_3_size" size=30 value="">
-          <button onclick=gethelp('item_size')>？</button>
-        </td>
-        <td>
-          <input placeholder="縦" type="text" id="addimg_3_y" size=30 value="">
-          <button onclick=gethelp('item_move_y')>？</button>
-        </td>
-        <td>
-          <input placeholder="横" type="text" id="addimg_3_x" size=30 value="">
-          <button onclick=gethelp('item_move_x')>？</button>
-        </td>
-      </tr>
-    </table>
-  </main>
+    <div class="row">
+      <div class="col-sm-12">　フレームPATH：
+        <input type="text" id="img_frame" size=130 value="">
+        <button onclick=gethelp('img_frame')>？</button>
+        <button id="select-frame">ファイルを開く</button>
+      </div>
+    </div>
 
+    <div class="row">
+      <div class="col-sm-12">エフェクトPATH：
+        <input type="text" id="img_effect" size=130 value="">
+        <button onclick=gethelp('img_effect')>？</button>
+        <button id="select-effect">ファイルを開く</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">　　　ロゴPATH：
+        <input type="text" id="img_logo" size=130 value="">
+        <button onclick=gethelp('img_logo')>？</button>
+        <button id="select-logo">ファイルを開く</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">　　　　透明度：
+        <input type="text" id="image_diff" size=5 value="">
+        <button onclick=gethelp('image_diff')>？</button>  
+      </div>
+      <div class="col-sm-3">　　メイン画像サイズ：
+        <input type="text" id="item_size" size=5 value="">
+        <button onclick=gethelp('item_size')>？</button>
+      </div>
+      <div class="col-sm-3">　　メイン画像縦：
+        <input type="text" id="item_move_y" size=5 value="">
+        <button onclick=gethelp('item_move_y')>？</button>
+      </div>
+      <div class="col-sm-3">　　メイン画像横：
+        <input type="text" id="item_move_x" size=5 value="">
+        <button onclick=gethelp('item_move_x')>？</button>  
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">　指定背景画像：
+        <input type="text" id="bg_image" size=5 value="">
+        <button onclick=gethelp('bg_image')>？</button>  
+      </div>
+      <div class="col-sm-3">　　ロゴサイズ（％）：
+        <input type="text" id="logo_size" size=5 value="">
+        <button onclick=gethelp('logo_size')>？</button>  
+      </div>
+      <div class="col-sm-3">　　　　　ロゴ縦：
+        <input type="text" id="logo_move_y" size=5 value="">
+        <button onclick=gethelp('logo_move_y')>？</button>  
+      </div>
+      <div class="col-sm-3">　　　　　ロゴ横：
+        <input type="text" id="logo_move_x" size=5 value="">
+        <button onclick=gethelp('logo_move_x')>？</button>  
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">　背景画像番号：
+        <input type="text" id="bg_num" size=5 value="">
+        <button onclick=gethelp('bg_num')>？</button>
+      </div>
+      <div class="col-sm-3">　　　背景画像サイズ：
+        <input type="text" id="bg_size" size=5 value="">
+        <button onclick=gethelp('bg_size')>？</button>
+      </div>
+      <div class="col-sm-3">　　　背景画像縦：
+        <input type="text" id="back_move_y" size=5 value="">
+        <button onclick=gethelp('back_move_y')>？</button>
+      </div>
+      <div class="col-sm-3">　　　背景画像横：
+        <input type="text" id="back_move_x" size=5 value="">
+        <button onclick=gethelp('back_move_x')>？</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">追加商品画像１：
+        <input type="text" id="addimg_1_name" size=5 value="">
+        <button onclick=gethelp('add_img_name')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像１サイズ：
+        <input type="text" id="addimg_1_size" size=5 value="">
+        <button onclick=gethelp('item_size')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像１縦：
+        <input type="text" id="addimg_1_y" size=5 value="">
+        <button onclick=gethelp('item_move_y')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像１横：
+        <input type="text" id="addimg_1_x" size=5 value="">
+        <button onclick=gethelp('item_move_x')>？</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">追加商品画像２：
+        <input type="text" id="addimg_2_name" size=5 value="">
+        <button onclick=gethelp('add_img_name')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像２サイズ：
+        <input type="text" id="addimg_2_size" size=5 value="">
+        <button onclick=gethelp('item_size')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像２縦：
+        <input type="text" id="addimg_2_y" size=5 value="">
+        <button onclick=gethelp('item_move_y')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像２横：
+        <input type="text" id="addimg_2_x" size=5 value="">
+        <button onclick=gethelp('item_move_x')>？</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-3">追加商品画像３：
+        <input type="text" id="addimg_3_name" size=5 value="">
+        <button onclick=gethelp('add_img_name')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像３サイズ：
+        <input type="text" id="addimg_3_size" size=5 value="">
+        <button onclick=gethelp('item_size')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像３縦：
+        <input type="text" id="addimg_3_y" size=5 value="">
+        <button onclick=gethelp('item_move_y')>？</button>
+      </div>
+      <div class="col-sm-3">追加商品画像３横：
+        <input type="text" id="addimg_3_x" size=5 value="">
+        <button onclick=gethelp('item_move_x')>？</button>
+      </div>
+    </div>
+  </main>
   <div class="images" id="images">
   </div>
 
