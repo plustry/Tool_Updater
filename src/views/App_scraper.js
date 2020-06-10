@@ -177,12 +177,13 @@ StartBtn.addEventListener('click', (event) => {
 
   // crawler_or_spiderclsはpipelineでなくなってしまう
   var args_list = {
-    "crawler_or_spidercls": crawler_or_spidercls, 
-    "spider_name": crawler_or_spidercls, 
+    "crawler_or_spidercls": crawler_or_spidercls,
+    "spider_name": crawler_or_spidercls,
     "user_id": user_id,
     "limit": crawl_limit,
     "dir_path": directory_name,
-    "email": document.getElementById("email").value, 
+    "start_urls": document.getElementById("start_urls").value,
+    "email": document.getElementById("email").value,
     "password": document.getElementById("password").value,
   }
   

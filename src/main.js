@@ -345,7 +345,7 @@ function AutoUpdater(event) {
 
 function ErrorLog(event, message) {
   var ErrorMessage = ""
-  // var ErrorMessage = message
+  var ErrorMessage = message
   if(message.indexOf("ModuleNotFoundError") !== -1){
     ErrorMessage += message.substring(message.indexOf("ModuleNotFoundError"))
   }else if(message.indexOf("FileNotFoundError") !== -1){
@@ -691,7 +691,7 @@ ipcMain.on('start-scrapy', (event, args_list) => {
   }
 
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
-  // console.log(options)
+  console.log(options)
   let pyshell = new PythonShell('scrapy_start.py', options)
 
   pyshell.on('message', function (message) {
