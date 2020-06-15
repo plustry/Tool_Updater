@@ -50,6 +50,10 @@ const selectEffectBtn = document.getElementById('select-effect')
 selectEffectBtn.addEventListener('click', (event) => {
   ipcRenderer.send('open-file', 'selected-effect')
 })
+const selectBgBtn = document.getElementById('select-bg')
+selectBgBtn.addEventListener('click', (event) => {
+  ipcRenderer.send('open-file', 'selected-bg')
+})
 
 // 選択されたファイルを適用
 ipcRenderer.on('selected-logo', (event, path) => {
@@ -60,6 +64,9 @@ ipcRenderer.on('selected-frame', (event, path) => {
 })
 ipcRenderer.on('selected-effect', (event, path) => {
   document.getElementById('img_effect').value = path
+})
+ipcRenderer.on('selected-bg', (event, path) => {
+  document.getElementById('bg_image').value = path
 })
 
 // 選択したディレクトリを表示
