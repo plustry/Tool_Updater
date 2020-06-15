@@ -124,7 +124,7 @@ function load_shop(obj) {
 function start_check() {
   if (!checker){
     ipcRenderer.send('cause-error', '未設定項目', 'ショップを選択してください')
-    return
+    return false
   }
 
   must_list = [
@@ -134,8 +134,8 @@ function start_check() {
   ]
   for(var i = 0; i < must_list.length; i++){
     if (document.getElementById(must_list[i]).value == ""){
-      ipcRenderer.send('cause-error', "未設定項目", must_list[i] + "を入力してください")
-      return
+      ipcRenderer.send('cause-error', "未設定項目", txt1[must_list[i]] + "を入力してください")
+      return false
     }
   }
 
@@ -152,14 +152,14 @@ function start_check() {
   for(var i = 0; i < integer_list.length; i++){
     let data_value = document.getElementById(integer_list[i]).value
     if (!/^[-]?([1-9]\d*|0)(\.\d+)?$/.test(data_value) && data_value !== ""){
-      ipcRenderer.send('cause-error', "入力エラー", integer_list[i] + "の入力に数値以外の文字が有ります")
-      return
+      ipcRenderer.send('cause-error', "入力エラー", txt1[integer_list[i]] + "の入力に数値以外の文字が有ります")
+      return false
     }
   }
 
-  if (!/^[A-Za-z0-9]+$/.test(document.getElementById("csv_prm").value)){
-    ipcRenderer.send('cause-error', "入力エラー",  "CSV パラメータは半角英数字のみで入力してください")
-    return
+  if (!/^[A-Za-z0-9_]+$/.test(document.getElementById("csv_prm").value)){
+    ipcRenderer.send('cause-error', "入力エラー",  "CSVパラメータは半角英数字プラス、アンダーバー（_）のみで入力してください")
+    return false
   }
 
   let buyplace = document.getElementById("buyplace").value
@@ -168,15 +168,19 @@ function start_check() {
     console.log("buyplaceかsendplaceが未記入です")
   }else if (buyplace.match(new RegExp( ":", "g" )).length !== 3 || sendplace.match(new RegExp( ":", "g" )).length !== 3){
     ipcRenderer.send('cause-error', "入力エラー",  "買い付け地、発送地にはコロン「:」が3つ必要です")
-    return
+    return false
   }
+  return true
 }
 
 // スクレイピング開始
 const StartBtn = document.getElementById('start-scrapy')
 StartBtn.addEventListener('click', (event) => {
   // 入力チェック
-  start_check()
+  if(!start_check()){
+    return
+  }
+
 
   // crawler_or_spiderclsはpipelineでなくなってしまう
   var args_list = {
