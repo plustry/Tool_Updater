@@ -188,7 +188,7 @@ function initWindowMenu(){
       },
       {
         label: '強制アップデート',
-        click () { StartUpdate("Force Update", "Force Update")() }
+        click () { StartUpdate("Force Update", "Force Update") }
       },
       {
         label: '終了',
@@ -253,7 +253,7 @@ function StartUpdate(current_version, new_version) {
   progressBar.on('completed', function() {
     console.info(`completed...`)
     progressBar.title = "Finished"
-    progressBar.detail = "アップデートは正常に終了しました " + current_version.toString() + "=>" + new_version.toString()
+    progressBar.detail = "重要※アプリを再起動してください！\nアップデートは正常に終了しました " + current_version.toString() + "=>" + new_version.toString()
   })
   console.log(progressBar.detail)
   // ZIPファイルをGithubからダウンロード
@@ -300,6 +300,7 @@ function StartUpdate(current_version, new_version) {
         fs.unlinkSync(path.join(__dirname, "..", 'updater.zip'))
         // 展開ディレクトリを削除
         deleteFolderRecursive(path.join(__dirname, "..", 'Tool_Updater-master'))
+        progressBar.detail = "アップデートに成功しました。\nアプリを再起動してください！"
         progressBar.setCompleted()
       } catch (error) {
         var message = error.message
