@@ -84,7 +84,8 @@ StartBtn.addEventListener('click', (event) => {
     "cookie": document.getElementById('access-code').value,
     "dir_path": global.directory_name,
     "csv_name": global.csv_name,
-    "url_memo": document.getElementById('url_memo').value
+    "url_memo": document.getElementById('url_memo').value,
+    "duplicate": document.getElementById('duplicate').value,
   }
   ipcRenderer.send('start-exhibition',JSON.stringify(args_list))
 })
