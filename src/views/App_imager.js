@@ -146,7 +146,7 @@ function Reload_Prm(img_parameter) {
   for (let i = 0; i < keys_list.length; i++) {
     try{
       // undefinedの場合はスキップする
-      if(img_parameter[keys_list[i]] !== undefined){
+      if(img_parameter[keys_list[i]] !== undefined && img_parameter[keys_list[i]] !== ""){
         document.getElementById(keys_list[i]).value = img_parameter[keys_list[i]]
       }
     }catch{
