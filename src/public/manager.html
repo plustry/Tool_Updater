@@ -28,123 +28,136 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-8">
+      <div class="col-sm-12">
         <button id="select-dir">BUYMAフォルダを開く</button>
         <button onclick=gethelp('open_dir')>？</button>
         <a id="selected-folder">
           <font color="red">フォルダが選択されていません</font>
         </a>
       </div>
-      <div class="col-sm-4">
-        <button id="start-manager">スタート</button>
-      </div>
     </div>
 
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-sm-1">
         <b> ページ選択：</b>
-        <button onclick=gethelp('page_choice')>？</button>
+      </div>
+      <div class="col-sm-4">
         <form id="page-choice">
           <input type="radio" name="set1" value="request" checked> リクエスト受付中
           <input type="radio" name="set1" value="syuppin"> 出品中
           <input type="radio" name="set1" value="teishi"> 停止中
         </form>
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-1">
+        <button onclick=gethelp('page_choice')>？</button>
+      </div>
+      <div class="col-sm-1">
         <b> 設定モード：</b>
-        <button onclick=gethelp('set_mode')>？</button>
+      </div>
+      <div class="col-sm-4">
         <form id="onoff">
           <input type="radio" name="set2" value="on" checked> 出品
           <input type="radio" name="set2" value="off"> 出品停止
           <input type="radio" name="set2" value="delete"> 削除
         </form>
       </div>
+      <div class="col-sm-1">
+        <button onclick=gethelp('set_mode')>？</button>
+      </div>
     </div>
 
     <div class="row">
       <div class="col-sm-3">
         <b> アカウント：</b>
-        <button onclick=gethelp('buyma_account')>？</button>
         <input 
           type="text"
           id="buyma-account" 
           size="10" 
           maxlength="20"
         >
+        <button onclick=gethelp('buyma_account')>？</button>
       </div>
       <div class="col-sm-3">
         <b> 出品期限延長日数：</b>
-        <button onclick=gethelp('days')>？</button>
         <input type="text" 
           id="days"
           value="21" 
           size="10" 
           maxlength="100"
           >
+        <button onclick=gethelp('days')>？</button>
       </div>
       <div class="col-sm-3">
-        <b> アクセス数：</b>
-        <button onclick=gethelp('access')>？</button>
+        <b> 　　 アクセス数：</b>
         <input 
           type="text" 
           id="access-prm" 
           value="1"
           size="10"
         >
+        <button onclick=gethelp('access')>？</button>
       </div>
       <div class="col-sm-3">
-        <b> 欲しいもの数：</b>
-        <button onclick=gethelp('want')>？</button>
+        <b> 　　欲しいもの数：</b>
         <input 
           type="text" 
           id="want-prm" 
           value="3"
           size="10"
         >
+        <button onclick=gethelp('want')>？</button>
       </div>
     </div>
 
     <div class="row">
       <div class="col-sm-3">
-        <b> カート数：</b>
-        <button onclick=gethelp('cart')>？</button>
+        <b> 　カート数：</b>
         <input 
           type="text" 
           id="cart-prm" 
           value="15"
+          size="10"
         >
+        <button onclick=gethelp('cart')>？</button>
       </div>
       <div class="col-sm-3">
-        <b> 価格を割る数：</b>
-          <button onclick=gethelp('price')>？</button>
+        <b> 　　価格を割る数：</b>
           <input 
             type="text" 
             id="price-prm" 
             value="10000"
             size="10"
           >
-      </div>
+          <button onclick=gethelp('price')>？</button>
+        </div>
       <div class="col-sm-3">
         <b> MAX価格スコア：</b>
-          <button onclick=gethelp('maxprice')>？</button>
           <input 
             type="text" 
             id="maxprice-prm"
             value="20" 
             size="10"
           >
+          <button onclick=gethelp('maxprice')>？</button>
       </div>
       <div class="col-sm-3">
         <b> 経過日数を割る数：</b>
-          <button onclick=gethelp('date')>？</button>
           <input 
             type="text" 
             id="date-prm" 
             value="4"
             size="10"
           >
+          <button onclick=gethelp('date')>？</button>
+        </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <button id="start-manager">スタート</button>
       </div>
     </div>
+
   </header>
 
   <div id="logs" class="manager-logs"></div>
