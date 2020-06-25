@@ -11,8 +11,7 @@ const makeDir = require("make-dir")
 const { PythonShell } = require('python-shell')
 const Encoding = require('encoding-japanese')
 const ProgressBar = require('electron-progressbar')
-python_script_dir = path.join(path.dirname(__dirname), 'python_scripts')
-// python_script_dir = path.join(path.dirname(__dirname), 'python_scripts_')
+
 
 // modelsを読み込むために必要
 const os_info = process.platform
@@ -21,7 +20,14 @@ const os_info = process.platform
 const ENV_PATH = path.join(path.dirname(__dirname), '.env')
 require('dotenv').config({ path: ENV_PATH })
 
-process.env.PYTHONPATH = path.join(path.dirname(__dirname), "scraping")
+const MODE = process.env.MODE
+if(MODE === "dev"){
+  python_script_dir = path.join(path.dirname(__dirname), 'python_scripts_')
+  process.env.PYTHONPATH = path.join(path.dirname(__dirname), "scraping_")
+}else if(MODE === "pro"){
+  python_script_dir = path.join(path.dirname(__dirname), 'python_scripts')
+  process.env.PYTHONPATH = path.join(path.dirname(__dirname), "scraping")
+}
 
 if (os_info == "win32") {
   python_path = path.join(path.dirname(__dirname), "python_modules", "python.exe")
@@ -257,10 +263,14 @@ function StartUpdate(current_version, new_version) {
   })
   console.log(progressBar.detail)
   // ZIPファイルをGithubからダウンロード
-  const zip_req = new Promise((resolve, reject)=>{
-    request(
-      {method: 'GET', url: "https://github.com/plustry/Tool_Updater/archive/master.zip", encoding: null},
-      function (error, response, body){
+  new Promise((resolve, reject)=>{
+    console.log(path.join(__dirname, "..", 'updater.zip'))
+    request({
+      method: 'GET', 
+      url: "https://github.com/plustry/Tool_Updater/archive/master.zip", 
+      encoding: null
+    },function (error, response, body){
+        console.log(response)
         if(!error && response.statusCode === 200){
             fs.writeFileSync(path.join(__dirname, "..", 'updater.zip'), body, 'binary')
             resolve("pass")
@@ -268,7 +278,7 @@ function StartUpdate(current_version, new_version) {
       }
     )
   }).then (response => {
-    const zip_req2 = new Promise((resolve, reject)=>{
+    new Promise((resolve, reject)=>{
       // ZIPファイルを解凍
       progressBar.detail = "新しいファイルを展開しています..."
       var stream = fs.createReadStream(path.join(__dirname, "..", 'updater.zip')).pipe(unzip.Extract({path: path.join(__dirname, "..")}))
@@ -908,6 +918,7 @@ ipcMain.on('start-exhibition', (event, args_list) => {
   if (os_info == "darwin") {
     delete options["encoding"]
   }
+  // console.log(options)
 
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   let pyshell = new PythonShell('exhibition.py', options)

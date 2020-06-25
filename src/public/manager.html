@@ -38,31 +38,23 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-2">
-        <b> ページ選択：</b>
-      </div>
-      <div class="col-sm-3">
+      <div class="col-sm-4">
         <form id="page-choice">
+          <b> ページ選択：</b>
           <input type="radio" name="set1" value="request" checked> リクエスト受付中
           <input type="radio" name="set1" value="syuppin"> 出品中
           <input type="radio" name="set1" value="teishi"> 停止中
+          <button onclick=gethelp('page_choice')>？</button>
         </form>
       </div>
-      <div class="col-sm-1">
-        <button onclick=gethelp('page_choice')>？</button>
-      </div>
-      <div class="col-sm-2">
-        <b> 設定モード：</b>
-      </div>
-      <div class="col-sm-3">
+      <div class="col-sm-4">
         <form id="onoff">
+          <b> 設定モード：</b>
           <input type="radio" name="set2" value="on" checked> 出品
           <input type="radio" name="set2" value="off"> 出品停止
           <input type="radio" name="set2" value="delete"> 削除
+          <button onclick=gethelp('set_mode')>？</button>
         </form>
-      </div>
-      <div class="col-sm-1">
-        <button onclick=gethelp('set_mode')>？</button>
       </div>
     </div>
 
@@ -152,7 +144,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row" align="center">
       <div class="col-sm-12">
         <button id="start-manager">スタート</button>
       </div>

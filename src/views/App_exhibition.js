@@ -5,7 +5,8 @@ global.checker = false
 
 // 動的に作成したボタンから呼び出してCSV読みこみ
 global.csv_name = ""
-function load_csv(csv_file_name) {
+function load_csv(obj) {
+  csv_file_name = obj.options[obj.selectedIndex].value
   ipcRenderer.send('load-csv', path.join(global.directory_name, csv_file_name))
   global.csv_name = csv_file_name
 }
@@ -105,11 +106,14 @@ ipcRenderer.on('update-accesscode', (event, code) => {
 ipcRenderer.on('selected-csv', (event, fileList) => {
   // console.log(fileList)
   // 選択したディレクトリからcsvだけピックアップしてボタンの作成
-  var text_data = ""
+  var button_text = "<select onchange=load_csv(this)><option value=-1>フォルダを選択してください</option>"
+  // var text_data = ""
   for (let index = 0; index < fileList.length; index++) {
-    text_data += "<button onclick=load_csv('" + fileList[index] + "')>" + fileList[index] + "</button>"
+    button_text += "<option value=" + fileList[index] + ">" + fileList[index] + "</option>"
+    // text_data += "<button onclick=load_csv('" + fileList[index] + "')>" + fileList[index] + "</button>"
   }
-  document.getElementById('csv-list').innerHTML = `${text_data}`
+  button_text += "</select>"
+  document.getElementById('csv-list').innerHTML = button_text
 })
 
 // csvファイルの内容を表示
