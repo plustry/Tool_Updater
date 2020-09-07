@@ -66,25 +66,34 @@
         <input type="text" id="hour-score" size="10" value="" maxlength="20">
         <button onclick=gethelp('days')>？</button>
       </div>
+      <div class="col-sm-6">
+        <b>アクセスコード：</b>
+        <input type="text" id="access-code" size="18" maxlength="100000">
+        <button onclick=gethelp('access_code')>？</button>
+      </div>
+    </div>
+
+    <div class="row">
       <div class="col-sm-2">
-        <b>　買付先メモ：</b>
+        <b>下書き：</b>
+        <select id="draft">
+          <option value="off">OFF</option>
+          <option value="on">ON</option>
+        </select>
+        <button onclick=gethelp('draft')>？</button>
+      </div>
+      <div class="col-sm-2">
+        <b>買付先メモ：</b>
         <select id="url_memo">
           <option value="on">ON</option>
           <option value="off">OFF</option>
         </select>
         <button onclick=gethelp('memo')>？</button>
       </div>
-      <div class="col-sm-3">
-        <b> アクセスコード：</b>
-        <input type="text" id="access-code" size="18" maxlength="100000">
-        <button onclick=gethelp('access_code')>？</button>
-      </div>
-      <div class="col-sm-1">
+      <div class="col-sm-8">
         <input type="submit" id="start-exhibition" value="出品開始">
       </div>
     </div>
-
-
   </header>
 
   <div id="text-data" class="csv-table" style="white-space:nowrap;"></div>
