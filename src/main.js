@@ -308,24 +308,29 @@ function StartUpdate(current_version, new_version) {
   // ZIPファイルをGithubからダウンロード
   new Promise((resolve, reject) => {
     console.log(path.join(__dirname, "..", "updater.zip"));
-    request(
-      {
-        method: "GET",
-        url: "https://github.com/plustry/Tool_Updater/archive/master.zip",
-        encoding: null,
-      },
-      function (error, response, body) {
-        console.log(response);
-        if (!error && response.statusCode === 200) {
-          fs.writeFileSync(
-            path.join(__dirname, "..", "updater.zip"),
-            body,
-            "binary"
-          );
-          resolve("pass");
+    try {
+      request(
+        {
+          method: "GET",
+          url: "https://github.com/plustry/Tool_Updater/archive/master.zip",
+          encoding: null,
+        },
+        function (error, response, body) {
+          console.log(response);
+          if (!error && response.statusCode === 200) {
+            fs.writeFileSync(
+              path.join(__dirname, "..", "updater.zip"),
+              body,
+              "binary"
+            );
+            resolve("pass");
+          }
         }
-      }
-    );
+      );
+    } catch (error) {
+      progressBar.detail = "ツールは必ずデスクトップに置いてください。";
+      reject("ツールは必ずデスクトップに置いてください。");
+    }
   }).then((response) => {
     new Promise((resolve, reject) => {
       // ZIPファイルを解凍
