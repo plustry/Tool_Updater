@@ -651,17 +651,15 @@ function WriteConf(event, args_list, which_conf) {
     spider_name = args_list["spider_name"];
   }
 
-  if (which_conf === "imager" && which_conf === "scraper") {
-    // 初めて設定するspiderの場合
-    if (Object.keys(conf_data).indexOf(spider_name) === -1) {
-      conf_data[spider_name] = {};
-    }
-
-    var imager_conf_list = process.env.imager_conf_list.split(",");
-    var scraper_conf_list = process.env.scraper_conf_list.split(",");
-    console.log(imager_conf_list);
-    console.log(scraper_conf_list);
+  // 初めて設定するspiderの場合
+  if (Object.keys(conf_data).indexOf(spider_name) === -1) {
+    conf_data[spider_name] = {};
   }
+
+  var imager_conf_list = process.env.imager_conf_list.split(",");
+  var scraper_conf_list = process.env.scraper_conf_list.split(",");
+  console.log(imager_conf_list);
+  console.log(scraper_conf_list);
 
   var conf_list = {};
   if (which_conf === "imager") {
