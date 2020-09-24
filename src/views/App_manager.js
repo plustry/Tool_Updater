@@ -30,7 +30,7 @@ selectDirBtn.addEventListener("click", (event) => {
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  global.directory_name = path + "/";
+  global.directory_name = path;
   document.getElementById(
     "selected-folder"
   ).innerHTML = `You selected: ${path}`;
@@ -54,13 +54,6 @@ StartBtn.addEventListener("click", (event) => {
     maxprice_prm: document.getElementById("maxprice-prm").value,
     date_prm: document.getElementById("date-prm").value,
   };
-
-  document.getElementById("logs").innerHTML +=
-    "<p>[log]: ページ選択：" + args_list["page_setting"] + "</p>";
-  document.getElementById("logs").innerHTML +=
-    "<p>[log]: 設定モード：" + args_list["onoff"] + "</p>";
-  document.getElementById("logs").innerHTML +=
-    "<p>[log]: 出品期間延長日数：" + args_list["days"] + "</p>";
   ipcRenderer.send("start-manager", JSON.stringify(args_list));
 });
 
@@ -94,7 +87,7 @@ ipcRenderer.on("load-manager-conf", (event, dic_list) => {
 var txt1 = {
   open_dir: "BUYMAディレクトリ",
   page_choice: "ページ選択",
-  set_mode: "モード設定",
+  onoff: "モード設定",
   buyma_account: "BUYMA アカウント名",
   days: "出品期限延長日数",
   access: "アクセス数",
@@ -108,7 +101,7 @@ var txt1 = {
 var txt2 = {
   open_dir: "BUYMAアカウントディレクトリを選択してください。(BUYMA/account)",
   page_choice: "Managerを適用するページを選択してください。",
-  set_mode: "商品情報をどのように変更するかを選択してください。",
+  onoff: "商品情報をどのように変更するかを選択してください。",
   buyma_account:
     "適用したいアカウント名のディレクトリを指定できます。\n空の場合はすべてのアカウントに対して実行します。",
   days: "出品の期限を延長する場合、日数を記入してください。",
