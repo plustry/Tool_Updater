@@ -1,5 +1,6 @@
 // rendererとipc通信を行う
 const { ipcRenderer } = require("electron");
+global.manager_conf = "";
 
 // デスクトップがあれば選択
 ipcRenderer.send("init-manager");
@@ -39,20 +40,29 @@ ipcRenderer.on("selected-directory", (event, path) => {
 // Manager開始
 const StartBtn = document.getElementById("start-manager");
 StartBtn.addEventListener("click", (event) => {
+  if (document.getElementById("onoff").set2.value == "") {
+    ipcRenderer.send(
+      "cause-error",
+      "未設定項目",
+      "設定モードを選択してください"
+    );
+    return;
+  }
+
   var args_list = {
     email: document.getElementById("email").value,
     password: document.getElementById("password").value,
-    page_setting: document.getElementById("page-choice").set1.value,
+    page_setting: document.getElementById("page_setting").set1.value,
     onoff: document.getElementById("onoff").set2.value,
     days: document.getElementById("days").value,
-    buyma_account: document.getElementById("buyma-account").value,
+    buyma_account: document.getElementById("buyma_account").value,
     buyma_dir: global.directory_name,
-    access_prm: document.getElementById("access-prm").value,
-    want_prm: document.getElementById("want-prm").value,
-    cart_prm: document.getElementById("cart-prm").value,
-    price_prm: document.getElementById("price-prm").value,
-    maxprice_prm: document.getElementById("maxprice-prm").value,
-    date_prm: document.getElementById("date-prm").value,
+    access_prm: document.getElementById("access_prm").value,
+    want_prm: document.getElementById("want_prm").value,
+    cart_prm: document.getElementById("cart_prm").value,
+    price_prm: document.getElementById("price_prm").value,
+    maxprice_prm: document.getElementById("maxprice_prm").value,
+    date_prm: document.getElementById("date_prm").value,
   };
   ipcRenderer.send("start-manager", JSON.stringify(args_list));
 });
@@ -80,8 +90,32 @@ ipcRenderer.on("load-manager-conf", (event, dic_list) => {
     document.getElementById("email").value = manager_conf["login"]["email"];
     document.getElementById("password").value =
       manager_conf["login"]["password"];
+  } else {
+    event.sender.send(
+      "log-create",
+      "BUYMA/conf フォルダにmanager.confファイルが無いまたは空です"
+    );
   }
 });
+
+function load_conf(key) {
+  var manager_data = "";
+  if (manager_conf) {
+    var manager_data = manager_conf[key];
+    // GUIにconfデータを反映
+    if (manager_data) {
+      keys_list = Object.keys(manager_data);
+      for (let i = 0; i < keys_list.length; i++) {
+        let key = keys_list[i];
+        try {
+          document.getElementById(key).value = manager_data[key];
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+  }
+}
 
 // ヘルプ項目
 var txt1 = {
@@ -90,12 +124,12 @@ var txt1 = {
   onoff: "モード設定",
   buyma_account: "BUYMA アカウント名",
   days: "出品期限延長日数",
-  access: "アクセス数",
-  want: "お気に入り登録数",
-  cart: "カートに入れてる数",
-  price: "価格を割る数",
-  maxprice: "MAX価格スコア",
-  date: "経過日数を割る数",
+  access_prm: "アクセス数",
+  want_prm: "お気に入り登録数",
+  cart_prm: "カートに入れてる数",
+  price_prm: "価格を割る数",
+  maxprice_prm: "MAX価格スコア",
+  date_prm: "経過日数を割る数",
 };
 
 var txt2 = {
@@ -105,12 +139,13 @@ var txt2 = {
   buyma_account:
     "適用したいアカウント名のディレクトリを指定できます。\n空の場合はすべてのアカウントに対して実行します。",
   days: "出品の期限を延長する場合、日数を記入してください。",
-  access: "Managerのパラメーターに、設定した数×アクセス数を加えます。",
-  want: "Managerのパラメーターに、設定した数×お気に入り登録数を加えます。",
-  cart: "Managerのパラメーターに、設定した数×カートに入れてる数を加えます。",
-  price: "Managerのパラメーターに、価格÷設定した数を加えます。",
-  maxprice: "価格÷価格を割る数が大きくなる場合に、上限の閾値を設けます",
-  date: "Managerのパラメーターに、経過日数÷設定した数を引きます。",
+  access_prm: "Managerのパラメーターに、設定した数×アクセス数を加えます。",
+  want_prm: "Managerのパラメーターに、設定した数×お気に入り登録数を加えます。",
+  cart_prm:
+    "Managerのパラメーターに、設定した数×カートに入れてる数を加えます。",
+  price_prm: "Managerのパラメーターに、価格÷設定した数を加えます。",
+  maxprice_prm: "価格÷価格を割る数が大きくなる場合に、上限の閾値を設けます",
+  date_prm: "Managerのパラメーターに、経過日数÷設定した数を引きます。",
 };
 // ヘルプボタン
 function gethelp(key) {

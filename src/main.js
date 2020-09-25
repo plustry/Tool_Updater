@@ -6,6 +6,7 @@ const {
   dialog,
   session,
   Menu,
+  systemPreferences,
 } = require("electron");
 const fs = require("fs");
 const async = require("async");
@@ -73,8 +74,10 @@ dir_scraping_conf = path.join(
 
 global.image_conf_data = {};
 global.scraping_conf_data = {};
+global.manager_conf_data = {};
 global.imager_key = "";
 global.scraper_key = "";
+global.manager_key = "";
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // ウィンドウ初期化処理
@@ -295,7 +298,7 @@ function StartUpdate(current_version, new_version) {
       height: 250,
     },
   });
-  progressBar.on("completed", function () {
+  progressBar.on("completed", function() {
     console.info(`completed...`);
     progressBar.title = "Finished";
     progressBar.detail =
@@ -315,7 +318,7 @@ function StartUpdate(current_version, new_version) {
           url: "https://github.com/plustry/Tool_Updater/archive/master.zip",
           encoding: null,
         },
-        function (error, response, body) {
+        function(error, response, body) {
           console.log(response);
           if (!error && response.statusCode === 200) {
             fs.writeFileSync(
@@ -338,7 +341,7 @@ function StartUpdate(current_version, new_version) {
       var stream = fs
         .createReadStream(path.join(__dirname, "..", "updater.zip"))
         .pipe(unzip.Extract({ path: path.join(__dirname, "..") }));
-      stream.on("close", function () {
+      stream.on("close", function() {
         resolve("pass");
       });
     }).then((response) => {
@@ -403,7 +406,7 @@ function AutoUpdater(event) {
   // 最新バージョンをGithubから確認
   process.on("unhandledRejection", console.dir);
   const url_req = new Promise((resolve, reject) => {
-    request("https://plustry.github.io/Tool_Updater/versions", function (
+    request("https://plustry.github.io/Tool_Updater/versions", function(
       error,
       response,
       body
@@ -482,7 +485,7 @@ function image_dir_select(event) {
     console.log(dir_data + "の中のフォルダを開きます。");
     event.sender.send("selected-directory", dir_data);
     // ディレクトリ選択ボタン
-    fs.readdir(dir_data, function (err, list) {
+    fs.readdir(dir_data, function(err, list) {
       if (err) {
         console.log(err);
       } else {
@@ -542,7 +545,7 @@ ipcMain.on("start-imager", (event, args_list) => {
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   let pyshell = new PythonShell("imager.py", options);
 
-  pyshell.on("message", function (message) {
+  pyshell.on("message", function(message) {
     message = toString(message);
     // ログイン情報を保存
     if (message === "one time login key ***imager***") {
@@ -558,11 +561,11 @@ ipcMain.on("start-imager", (event, args_list) => {
   });
 
   // DEBUG情報などを取得したい場合
-  pyshell.on("stderr", function (message) {
+  pyshell.on("stderr", function(message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function (err, code, signal) {
+  pyshell.end(function(err, code, signal) {
     if (err) throw err;
     // 処理が終了した時に、設定情報を再度反映させる
     LoadConf(event, "imager");
@@ -612,6 +615,7 @@ function LoadConf(event, which_conf) {
   } else if (which_conf === "manager") {
     // manager_conf_dataを設定
     try {
+      manager_conf_data = JSON.parse(conf_data);
       event.sender.send("load-manager-conf", conf_data);
     } catch (error) {
       event.sender.send("log-create", "manager.confの読み込みに失敗しました。");
@@ -635,7 +639,7 @@ function WriteConf(event, args_list, which_conf) {
   } else if (which_conf === "scraper") {
     conf_data = scraping_conf_data;
   } else if (which_conf === "manager") {
-    conf_data = {};
+    conf_data = manager_conf_data;
   }
 
   // image_conf_dataのメアドとパスワードを更新
@@ -654,17 +658,27 @@ function WriteConf(event, args_list, which_conf) {
     }
   } else if (which_conf === "scraper") {
     spider_name = args_list["spider_name"];
+  } else if (which_conf === "manager") {
+    onoff = args_list["onoff"];
   }
 
   // 初めて設定するspiderの場合
-  if (Object.keys(conf_data).indexOf(spider_name) === -1) {
-    conf_data[spider_name] = {};
+  if (which_conf === "imager" || which_conf === "scraper") {
+    if (Object.keys(conf_data).indexOf(spider_name) === -1) {
+      conf_data[spider_name] = {};
+    }
+  } else if (which_conf === "manager") {
+    if (Object.keys(conf_data).indexOf(onoff) === -1) {
+      conf_data[spider_name] = {};
+    }
   }
 
   var imager_conf_list = process.env.imager_conf_list.split(",");
   var scraper_conf_list = process.env.scraper_conf_list.split(",");
-  console.log(imager_conf_list);
-  console.log(scraper_conf_list);
+  var manager_conf_list = process.env.manager_conf_list.split(",");
+  // console.log(imager_conf_list);
+  // console.log(scraper_conf_list);
+  // console.log(manager_conf_list);
 
   var conf_list = {};
   if (which_conf === "imager") {
@@ -685,6 +699,11 @@ function WriteConf(event, args_list, which_conf) {
       conf_list[scraper_conf_list[i]] = args_list[scraper_conf_list[i]];
     }
     conf_data[spider_name] = conf_list;
+  } else if (which_conf === "manager") {
+    for (let i = 0; i < manager_conf_list.length; i++) {
+      conf_list[manager_conf_list[i]] = args_list[manager_conf_list[i]];
+    }
+    conf_data[onoff] = conf_list;
   }
 
   // 書き出し
@@ -753,7 +772,7 @@ ipcMain.on("sql-login", (event, email, password) => {
   // console.log(options)
   let pyshell = new PythonShell("login.py", options);
 
-  pyshell.on("message", function (message) {
+  pyshell.on("message", function(message) {
     message = toString(message);
     // ログイン情報を保存
     if (message == "False") {
@@ -769,11 +788,11 @@ ipcMain.on("sql-login", (event, email, password) => {
     }
   });
 
-  pyshell.on("stderr", function (message) {
+  pyshell.on("stderr", function(message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function (err, code, signal) {
+  pyshell.end(function(err, code, signal) {
     if (err) throw err;
     event.sender.send("log-create", "認証が終了しました");
   });
@@ -808,16 +827,16 @@ ipcMain.on("start-scrapy", (event, args_list) => {
   console.log(options);
   let pyshell = new PythonShell("scrapy_start.py", options);
 
-  pyshell.on("message", function (message) {
+  pyshell.on("message", function(message) {
     message = toString(message);
     event.sender.send("log-create", message);
   });
 
-  pyshell.on("stderr", function (message) {
+  pyshell.on("stderr", function(message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function (err, code, signal) {
+  pyshell.end(function(err, code, signal) {
     if (err) throw err;
     // 処理が終了した時に、設定情報を再度反映させる
     LoadConf(event, "scraper");
@@ -855,11 +874,10 @@ ipcMain.on("open-file-manager", (event) => {
     });
 });
 
-// BUY Manager実行
+// BuyManager実行
 ipcMain.on("start-manager", (event, args_list) => {
   args_list = JSON.parse(args_list);
   args_list["electron_dir"] = __dirname;
-  // console.log(args_list)
 
   // confを更新する
   WriteConf(event, args_list, "manager");
@@ -881,13 +899,13 @@ ipcMain.on("start-manager", (event, args_list) => {
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   let pyshell = new PythonShell("BuyManager.py", options);
 
-  pyshell.on("message", function (message) {
+  pyshell.on("message", function(message) {
     message = toString(message);
     // received a message sent from the Python script (a simple "print" statement)
     event.sender.send("log-create", message);
   });
 
-  pyshell.end(function (err, code, signal) {
+  pyshell.end(function(err, code, signal) {
     if (err) throw err;
     event.sender.send("log-create", "処理は全て終了しました");
   });
@@ -940,7 +958,7 @@ ipcMain.on("make-account-dir", (event, user_name) => {
                       "「商品コメント」\n「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。";
                     var brand_path = path.join(dir_path2, "Saint Laurent.txt");
                     if (!fs.existsSync(brand_path)) {
-                      fs.writeFile(brand_path, text_data, function (err) {
+                      fs.writeFile(brand_path, text_data, function(err) {
                         if (err) throw err;
                       });
                     }
@@ -1061,18 +1079,18 @@ ipcMain.on("start-exhibition", (event, args_list) => {
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   let pyshell = new PythonShell("exhibition.py", options);
 
-  pyshell.on("message", function (message) {
+  pyshell.on("message", function(message) {
     message = toString(message);
     // received a message sent from the Python script (a simple "print" statement)
     event.sender.send("log-create", message);
   });
 
   // DEBUG情報などを取得したい場合
-  pyshell.on("stderr", function (message) {
+  pyshell.on("stderr", function(message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function (err, code, signal) {
+  pyshell.end(function(err, code, signal) {
     if (err) throw err;
     event.sender.send("log-create", "出品処理は全て終了しました");
   });
@@ -1183,9 +1201,9 @@ const toString = (bytes) => {
 };
 
 // ディレクトリ削除
-var deleteFolderRecursive = function (pathe) {
+var deleteFolderRecursive = function(pathe) {
   if (fs.existsSync(pathe)) {
-    fs.readdirSync(pathe).forEach(function (file) {
+    fs.readdirSync(pathe).forEach(function(file) {
       var curPath = path.join(pathe, file);
       if (fs.statSync(curPath).isDirectory()) {
         //recurse

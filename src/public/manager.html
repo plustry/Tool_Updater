@@ -57,7 +57,7 @@
 
     <div class="row">
       <div class="col-sm-4">
-        <form id="page-choice">
+        <form id="page_setting">
           <b> ページ選択：</b>
           <input type="radio" name="set1" value="request" checked> リクエスト受付中
           <input type="radio" name="set1" value="syuppin"> 出品中
@@ -68,10 +68,10 @@
       <div class="col-sm-4">
         <form id="onoff">
           <b> 設定モード：</b>
-          <input type="radio" name="set2" value="on" checked> 出品
-          <input type="radio" name="set2" value="off"> 出品停止
-          <input type="radio" name="set2" value="delete"> 削除
-          <input type="radio" name="set2" value="selection"> 抽出
+          <input type="radio" name="set2" value="on" onclick=load_conf('on')> 出品
+          <input type="radio" name="set2" value="off" onclick=load_conf('off')> 出品停止
+          <input type="radio" name="set2" value="delete" onclick=load_conf('delete')> 削除
+          <input type="radio" name="set2" value="selection" onclick=load_conf('selection')> 抽出
           <button onclick=gethelp('onoff')>？</button>
         </form>
       </div>
@@ -82,7 +82,7 @@
         <b> アカウント：</b>
         <input 
           type="text"
-          id="buyma-account" 
+          id="buyma_account" 
           size="10" 
           maxlength="20"
         >
@@ -102,21 +102,21 @@
         <b> 　　 アクセス数：</b>
         <input 
           type="text" 
-          id="access-prm" 
+          id="access_prm" 
           value="1"
           size="10"
         >
-        <button onclick=gethelp('access')>？</button>
+        <button onclick=gethelp('access_prm')>？</button>
       </div>
       <div class="col-sm-3">
         <b> 　　欲しいもの数：</b>
         <input 
           type="text" 
-          id="want-prm" 
+          id="want_prm" 
           value="3"
           size="10"
         >
-        <button onclick=gethelp('want')>？</button>
+        <button onclick=gethelp('want_prm')>？</button>
       </div>
     </div>
 
@@ -125,41 +125,41 @@
         <b> 　カート数：</b>
         <input 
           type="text" 
-          id="cart-prm" 
+          id="cart_prm" 
           value="15"
           size="10"
         >
-        <button onclick=gethelp('cart')>？</button>
+        <button onclick=gethelp('cart_prm')>？</button>
       </div>
       <div class="col-sm-3">
         <b> 　　価格を割る数：</b>
           <input 
             type="text" 
-            id="price-prm" 
+            id="price_prm" 
             value="10000"
             size="10"
           >
-          <button onclick=gethelp('price')>？</button>
+          <button onclick=gethelp('price_prm')>？</button>
         </div>
       <div class="col-sm-3">
         <b> MAX価格スコア：</b>
           <input 
             type="text" 
-            id="maxprice-prm"
+            id="maxprice_prm"
             value="20" 
             size="10"
           >
-          <button onclick=gethelp('maxprice')>？</button>
+          <button onclick=gethelp('maxprice_prm')>？</button>
       </div>
       <div class="col-sm-3">
         <b> 経過日数を割る数：</b>
           <input 
             type="text" 
-            id="date-prm" 
+            id="date_prm" 
             value="4"
             size="10"
           >
-          <button onclick=gethelp('date')>？</button>
+          <button onclick=gethelp('date_prm')>？</button>
         </div>
     </div>
 
