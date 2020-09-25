@@ -168,6 +168,15 @@ function start_check() {
     );
     return false;
   }
+  let doc_data = document.getElementById("url_lists").value;
+  if (doc_data.indexOf("https:") !== -1 && doc_data !== "") {
+    ipcRenderer.send(
+      "cause-error",
+      "入力エラー",
+      "商品URLリストCSVが正しくありません。\nファイルを開くで選択してください。"
+    );
+    return false;
+  }
 
   integer_list = [
     "delivery_price",
@@ -286,6 +295,7 @@ var txt1 = {
   open_dir: "dataフォルダ",
   max_page: "MAX取得ページ数",
   start_urls: "開始URL",
+  url_lists: "商品リストCSV",
   csv_prm: "CSVパラメータ",
   sex: "性別",
   nobrand: "ノーブランドの取得有無",
