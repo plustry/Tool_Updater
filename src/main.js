@@ -52,25 +52,14 @@ if (os_info == "win32") {
 }
 console.log(python_path);
 
-// win mac関係なく、HOMEディレクトリのPATHが取れる
+// win mac関係なく、BUYMAディレクトリのPATHが取れる
 dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
-dir_data = require("path").join(dir_home, "Desktop", "BUYMA", "data");
-dir_account = require("path").join(dir_home, "Desktop", "BUYMA", "account");
-dir_image_conf = path.join(dir_home, "Desktop", "BUYMA", "conf", "image.conf");
-dir_manager_conf = path.join(
-  dir_home,
-  "Desktop",
-  "BUYMA",
-  "conf",
-  "manager.conf"
-);
-dir_scraping_conf = path.join(
-  dir_home,
-  "Desktop",
-  "BUYMA",
-  "conf",
-  "scraping.conf"
-);
+dir_buyma = path.join(dir_home, "Desktop", "BUYMA");
+dir_data = path.join(dir_buyma, "data");
+dir_account = path.join(dir_buyma, "account");
+dir_image_conf = path.join(dir_buyma, "conf", "image.conf");
+dir_manager_conf = path.join(dir_buyma, "conf", "manager.conf");
+dir_scraping_conf = path.join(dir_buyma, "conf", "scraping.conf");
 
 global.image_conf_data = {};
 global.scraping_conf_data = {};
@@ -102,6 +91,29 @@ function createWindow() {
 
   // デベロッパーツールの起動
   // mainWindow.webContents.openDevTools()
+
+  // First Check
+  if (fs.existsSync(dir_buyma)) {
+    console.log("BUYMAディレクトリは存在します。");
+  } else {
+    dialog.showErrorBox(
+      "BUYMAフォルダがありません。",
+      "こちらを参考にフォルダを作成してください。\nWindows：https://youtu.be/Dhyboyc3nbI?t=130\nMac：https://youtu.be/vw5tYmVHc9o?t=105"
+    );
+  }
+
+  console.log("*********:");
+  console.log(__dirname);
+  if (
+    os_info == "darwin" &&
+    __dirname.indexOf("Desktop/PLUSELECT_TOOL.app") === -1 &&
+    __dirname.indexOf("github") === -1
+  ) {
+    dialog.showErrorBox(
+      "ツールを置いている場所が不適切です。",
+      "PLUSELECT_TOOLという名前の黒いアイコンのアプリ自体をデスクトップに移動させてください。"
+    );
+  }
 
   // メインウィンドウが閉じられたときの処理
   mainWindow.on("closed", () => {
