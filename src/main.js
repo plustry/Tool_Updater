@@ -113,7 +113,8 @@ function createWindow() {
   ) {
     dialog.showErrorBox(
       "ツールを置いている場所が不適切です。",
-      "PLUSELECT_TOOLという名前の黒いアイコンのアプリ自体をデスクトップに移動させてください。\nhttps://youtu.be/vw5tYmVHc9o"
+      __dirname +
+        "\nPLUSELECT_TOOLという名前の黒いアイコンのアプリ自体をデスクトップに移動させてください。\nhttps://youtu.be/vw5tYmVHc9o"
     );
   } else if (
     os_info == "win32" &&
@@ -122,7 +123,8 @@ function createWindow() {
   ) {
     dialog.showErrorBox(
       "ツールを置いている場所が不適切です。",
-      "フォルダ毎をデスクトップに移動させてください。\nhttps://youtu.be/Dhyboyc3nbI?t=74"
+      __dirname +
+        "\nフォルダ毎をデスクトップに移動させてください。\nhttps://youtu.be/Dhyboyc3nbI?t=74"
     );
   }
 
