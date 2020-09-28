@@ -60,10 +60,12 @@ dir_account = path.join(dir_buyma, "account");
 dir_image_conf = path.join(dir_buyma, "conf", "image.conf");
 dir_manager_conf = path.join(dir_buyma, "conf", "manager.conf");
 dir_scraping_conf = path.join(dir_buyma, "conf", "scraping.conf");
+dir_base_conf = path.join(dir_buyma, "conf", "base.conf");
 
 global.image_conf_data = {};
 global.scraping_conf_data = {};
 global.manager_conf_data = {};
+global.base_conf_data = {};
 global.imager_key = "";
 global.scraper_key = "";
 global.manager_key = "";
@@ -97,7 +99,7 @@ function createWindow() {
     console.log("BUYMAディレクトリは存在します。");
   } else {
     dialog.showErrorBox(
-      "BUYMAフォルダがありません。",
+      "BUYMAフォルダがDesktopに存在しないか、正しくありません。",
       "こちらを参考にフォルダを作成してください。\nWindows：https://youtu.be/Dhyboyc3nbI?t=130\nMac：https://youtu.be/vw5tYmVHc9o?t=105"
     );
   }
@@ -111,7 +113,16 @@ function createWindow() {
   ) {
     dialog.showErrorBox(
       "ツールを置いている場所が不適切です。",
-      "PLUSELECT_TOOLという名前の黒いアイコンのアプリ自体をデスクトップに移動させてください。"
+      "PLUSELECT_TOOLという名前の黒いアイコンのアプリ自体をデスクトップに移動させてください。\nhttps://youtu.be/vw5tYmVHc9o"
+    );
+  } else if (
+    os_info == "win32" &&
+    __dirname.indexOf("Desktop\\PLUSELECT_TOOL") === -1 &&
+    __dirname.indexOf("github") === -1
+  ) {
+    dialog.showErrorBox(
+      "ツールを置いている場所が不適切です。",
+      "フォルダ毎をデスクトップに移動させてください。\nhttps://youtu.be/Dhyboyc3nbI?t=74"
     );
   }
 
@@ -246,6 +257,12 @@ function initWindowMenu() {
             app.quit();
           },
         },
+        {
+          label: "終了2",
+          click() {
+            mainWindow.loadFile(path.join(__dirname, "public", "base.html"));
+          },
+        },
       ],
     },
     {
@@ -310,7 +327,7 @@ function StartUpdate(current_version, new_version) {
       height: 250,
     },
   });
-  progressBar.on("completed", function() {
+  progressBar.on("completed", function () {
     console.info(`completed...`);
     progressBar.title = "Finished";
     progressBar.detail =
@@ -330,7 +347,7 @@ function StartUpdate(current_version, new_version) {
           url: "https://github.com/plustry/Tool_Updater/archive/master.zip",
           encoding: null,
         },
-        function(error, response, body) {
+        function (error, response, body) {
           console.log(response);
           if (!error && response.statusCode === 200) {
             fs.writeFileSync(
@@ -353,7 +370,7 @@ function StartUpdate(current_version, new_version) {
       var stream = fs
         .createReadStream(path.join(__dirname, "..", "updater.zip"))
         .pipe(unzip.Extract({ path: path.join(__dirname, "..") }));
-      stream.on("close", function() {
+      stream.on("close", function () {
         resolve("pass");
       });
     }).then((response) => {
@@ -418,7 +435,7 @@ function AutoUpdater(event) {
   // 最新バージョンをGithubから確認
   process.on("unhandledRejection", console.dir);
   const url_req = new Promise((resolve, reject) => {
-    request("https://plustry.github.io/Tool_Updater/versions", function(
+    request("https://plustry.github.io/Tool_Updater/versions", function (
       error,
       response,
       body
@@ -466,6 +483,84 @@ function ErrorLog(event, message) {
 }
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
+// BASEモジュール
+//■■■■■■■■■■■■■■■■■■■■■■■■■■
+ipcMain.on("init-base", (event) => {
+  // パラメータが存在すれば読み込む
+  LoadConf(event, "base");
+
+  // dataフォルダが存在すれば配下のディレクトリを表示させる
+  base_dir_select(event);
+});
+
+function base_dir_select(event) {
+  try {
+    fs.statSync(dir_data);
+    console.log(dir_data + "の中のフォルダを開きます。");
+    event.sender.send("selected-directory", dir_data);
+    // ディレクトリ&ファイル選択ボタン
+    fs.readdir(dir_data, function (err, list) {
+      if (err) {
+        console.log(err);
+      } else {
+        var dirfile_list = [];
+        console.log(list);
+        for (var i = 0; i < list.length; i++) {
+          var dir_check = fs
+            .statSync(path.join(dir_data, list[i]))
+            .isDirectory();
+          if (dir_check || list[i].indexOf(".csv") !== -1) {
+            dirfile_list.push(list[i]);
+          }
+        }
+        event.sender.send("make-dirfile-button", dirfile_list);
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+ipcMain.on("start-base", (event, args_list) => {
+  // confを更新する
+  args_list = JSON.parse(args_list);
+  WriteConf(event, args_list, "base");
+
+  let options = {
+    pythonPath: python_path,
+    scriptPath: python_script_dir,
+    pythonOptions: ["-u"], // get print results in real-time
+    args: JSON.stringify(args_list),
+    encoding: "binary",
+  };
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"];
+  }
+  console.log(options);
+
+  // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+  let pyshell = new PythonShell("base.py", options);
+
+  pyshell.on("message", function (message) {
+    message = toString(message);
+    event.sender.send("log-create", message);
+  });
+
+  // DEBUG情報などを取得したい場合
+  pyshell.on("stderr", function (message) {
+    ErrorLog(event, message);
+  });
+
+  pyshell.end(function (err, code, signal) {
+    if (err) throw err;
+    // 処理が終了した時に、設定情報を再度反映させる
+    LoadConf(event, "base");
+    event.sender.send("log-create", "処理は全て終了しました");
+  });
+});
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 画像加工モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on("init-imager", (event) => {
@@ -497,7 +592,7 @@ function image_dir_select(event) {
     console.log(dir_data + "の中のフォルダを開きます。");
     event.sender.send("selected-directory", dir_data);
     // ディレクトリ選択ボタン
-    fs.readdir(dir_data, function(err, list) {
+    fs.readdir(dir_data, function (err, list) {
       if (err) {
         console.log(err);
       } else {
@@ -557,7 +652,7 @@ ipcMain.on("start-imager", (event, args_list) => {
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   let pyshell = new PythonShell("imager.py", options);
 
-  pyshell.on("message", function(message) {
+  pyshell.on("message", function (message) {
     message = toString(message);
     // ログイン情報を保存
     if (message === "one time login key ***imager***") {
@@ -573,11 +668,11 @@ ipcMain.on("start-imager", (event, args_list) => {
   });
 
   // DEBUG情報などを取得したい場合
-  pyshell.on("stderr", function(message) {
+  pyshell.on("stderr", function (message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function(err, code, signal) {
+  pyshell.end(function (err, code, signal) {
     if (err) throw err;
     // 処理が終了した時に、設定情報を再度反映させる
     LoadConf(event, "imager");
@@ -593,6 +688,8 @@ function LoadConf(event, which_conf) {
     dir_conf = dir_scraping_conf;
   } else if (which_conf === "manager") {
     dir_conf = dir_manager_conf;
+  } else if (which_conf === "base") {
+    dir_conf = dir_base_conf;
   }
 
   var conf_data = "";
@@ -632,6 +729,14 @@ function LoadConf(event, which_conf) {
     } catch (error) {
       event.sender.send("log-create", "manager.confの読み込みに失敗しました。");
     }
+  } else if (which_conf === "base") {
+    // base_conf_dataを設定
+    try {
+      base_conf_data = JSON.parse(conf_data);
+      event.sender.send("load-base-conf", conf_data);
+    } catch (error) {
+      event.sender.send("log-create", "base.confの読み込みに失敗しました。");
+    }
   }
 }
 
@@ -643,6 +748,8 @@ function WriteConf(event, args_list, which_conf) {
     dir_conf = dir_scraping_conf;
   } else if (which_conf === "manager") {
     dir_conf = dir_manager_conf;
+  } else if (which_conf === "base") {
+    dir_conf = dir_base_conf;
   }
 
   var conf_data = "";
@@ -652,6 +759,8 @@ function WriteConf(event, args_list, which_conf) {
     conf_data = scraping_conf_data;
   } else if (which_conf === "manager") {
     conf_data = manager_conf_data;
+  } else if (which_conf === "base") {
+    conf_data = base_conf_data;
   }
 
   // image_conf_dataのメアドとパスワードを更新
@@ -688,6 +797,7 @@ function WriteConf(event, args_list, which_conf) {
   var imager_conf_list = process.env.imager_conf_list.split(",");
   var scraper_conf_list = process.env.scraper_conf_list.split(",");
   var manager_conf_list = process.env.manager_conf_list.split(",");
+  // var base_conf_list = process.env.base_conf_list.split(",");
   // console.log(imager_conf_list);
   // console.log(scraper_conf_list);
   // console.log(manager_conf_list);
@@ -784,7 +894,7 @@ ipcMain.on("sql-login", (event, email, password) => {
   // console.log(options)
   let pyshell = new PythonShell("login.py", options);
 
-  pyshell.on("message", function(message) {
+  pyshell.on("message", function (message) {
     message = toString(message);
     // ログイン情報を保存
     if (message == "False") {
@@ -800,11 +910,11 @@ ipcMain.on("sql-login", (event, email, password) => {
     }
   });
 
-  pyshell.on("stderr", function(message) {
+  pyshell.on("stderr", function (message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function(err, code, signal) {
+  pyshell.end(function (err, code, signal) {
     if (err) throw err;
     event.sender.send("log-create", "認証が終了しました");
   });
@@ -839,16 +949,16 @@ ipcMain.on("start-scrapy", (event, args_list) => {
   console.log(options);
   let pyshell = new PythonShell("scrapy_start.py", options);
 
-  pyshell.on("message", function(message) {
+  pyshell.on("message", function (message) {
     message = toString(message);
     event.sender.send("log-create", message);
   });
 
-  pyshell.on("stderr", function(message) {
+  pyshell.on("stderr", function (message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function(err, code, signal) {
+  pyshell.end(function (err, code, signal) {
     if (err) throw err;
     // 処理が終了した時に、設定情報を再度反映させる
     LoadConf(event, "scraper");
@@ -911,13 +1021,13 @@ ipcMain.on("start-manager", (event, args_list) => {
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   let pyshell = new PythonShell("BuyManager.py", options);
 
-  pyshell.on("message", function(message) {
+  pyshell.on("message", function (message) {
     message = toString(message);
     // received a message sent from the Python script (a simple "print" statement)
     event.sender.send("log-create", message);
   });
 
-  pyshell.end(function(err, code, signal) {
+  pyshell.end(function (err, code, signal) {
     if (err) throw err;
     event.sender.send("log-create", "処理は全て終了しました");
   });
@@ -970,7 +1080,7 @@ ipcMain.on("make-account-dir", (event, user_name) => {
                       "「商品コメント」\n「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。";
                     var brand_path = path.join(dir_path2, "Saint Laurent.txt");
                     if (!fs.existsSync(brand_path)) {
-                      fs.writeFile(brand_path, text_data, function(err) {
+                      fs.writeFile(brand_path, text_data, function (err) {
                         if (err) throw err;
                       });
                     }
@@ -1091,18 +1201,18 @@ ipcMain.on("start-exhibition", (event, args_list) => {
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   let pyshell = new PythonShell("exhibition.py", options);
 
-  pyshell.on("message", function(message) {
+  pyshell.on("message", function (message) {
     message = toString(message);
     // received a message sent from the Python script (a simple "print" statement)
     event.sender.send("log-create", message);
   });
 
   // DEBUG情報などを取得したい場合
-  pyshell.on("stderr", function(message) {
+  pyshell.on("stderr", function (message) {
     ErrorLog(event, message);
   });
 
-  pyshell.end(function(err, code, signal) {
+  pyshell.end(function (err, code, signal) {
     if (err) throw err;
     event.sender.send("log-create", "出品処理は全て終了しました");
   });
@@ -1213,9 +1323,9 @@ const toString = (bytes) => {
 };
 
 // ディレクトリ削除
-var deleteFolderRecursive = function(pathe) {
+var deleteFolderRecursive = function (pathe) {
   if (fs.existsSync(pathe)) {
-    fs.readdirSync(pathe).forEach(function(file) {
+    fs.readdirSync(pathe).forEach(function (file) {
       var curPath = path.join(pathe, file);
       if (fs.statSync(curPath).isDirectory()) {
         //recurse
