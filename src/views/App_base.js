@@ -95,7 +95,7 @@ function gethelp(key) {
 // メイン編集開始
 const MainStartBtn = document.getElementById("base-main");
 MainStartBtn.addEventListener("click", (event) => {
-  must_list = ["email", "password"];
+  must_list = ["email", "password", "onoff"];
 
   for (var i = 0; i < must_list.length; i++) {
     if (document.getElementById(must_list[i]).value == "") {
@@ -113,6 +113,7 @@ MainStartBtn.addEventListener("click", (event) => {
     choiced_dirfile: choiced_dirfile,
     email: document.getElementById("email").value,
     password: document.getElementById("password").value,
+    onoff: document.getElementById("onoff").value,
   };
 
   // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します

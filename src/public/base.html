@@ -68,12 +68,23 @@
         >
       </div>
       <div class="col-sm-3">
+        <input 
+          placeholder="公開状態を設定"
+          type="onoff" 
+          id="onoff" 
+          size=30 
+          value=""
+        >
+      </div>
+      <div class="col-sm-3">
         <select id="edit_mode">
           <option value="base_image">画像フォルダ編集</option>
           <option value="base_csv">CSVを編集</option>
         </select>
         <button onclick=gethelp('edit_mode')>？</button>
       </div>
+    </div>
+    <div class="row">
       <div class="col-sm-3">
         <input
           type="submit"
