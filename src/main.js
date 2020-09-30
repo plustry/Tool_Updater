@@ -108,7 +108,7 @@ function createWindow() {
   console.log(__dirname);
   if (
     os_info == "darwin" &&
-    __dirname.indexOf("Desktop/PLUSELECT_TOOL.app") === -1 &&
+    __dirname.indexOf("Desktop/PLUSELECT_TOOL") === -1 &&
     __dirname.indexOf("github") === -1
   ) {
     dialog.showErrorBox(
