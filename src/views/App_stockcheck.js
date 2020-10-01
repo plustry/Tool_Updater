@@ -98,7 +98,7 @@ ipcRenderer.on("load-login-data", (event, arg_json) => {
   button_list += "</select>";
 
   // ショップごとのボタン作成 配列の取得
-  document.getElementById("shop-list").innerHTML = button_list;
+  document.getElementById("stock-shop-list").innerHTML = button_list;
   document.getElementById("sql-login-status").innerHTML =
     '<font color="green">認証しました</font>';
   document.getElementById("start-status").innerHTML =
