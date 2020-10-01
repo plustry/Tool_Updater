@@ -265,6 +265,14 @@ function initWindowMenu() {
             mainWindow.loadFile(path.join(__dirname, "public", "base.html"));
           },
         },
+        {
+          label: "終了3",
+          click() {
+            mainWindow.loadFile(
+              path.join(__dirname, "public", "stockcheck.html")
+            );
+          },
+        },
       ],
     },
     {
@@ -841,6 +849,63 @@ function WriteConf(event, args_list, which_conf) {
 }
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
+// 在庫確認 モジュール
+//■■■■■■■■■■■■■■■■■■■■■■■■■■
+ipcMain.on("init-stockcheck", (event) => {
+  try {
+    fs.statSync(dir_data);
+    console.log("デフォルトフォルダが存在したので開きます。");
+    event.sender.send("selected-directory", dir_data);
+  } catch (error) {
+    console.log(error);
+  }
+  // パラメータが存在すれば読み込む
+  LoadConf(event, "scraper");
+});
+
+// 在庫確認開始
+ipcMain.on("start-stockcheck", (event, args_list) => {
+  // 認証チェック
+  if (scraper_key !== "one time login key ***scraper***") {
+    event.sender.send("log-create", "認証が完了していません。");
+    return;
+  }
+  // confを更新する
+  args_list = JSON.parse(args_list);
+  let options = {
+    mode: "text",
+    pythonPath: python_path,
+    scriptPath: python_script_dir,
+    pythonOptions: ["-u"],
+    args: JSON.stringify(args_list),
+    encoding: "binary",
+  };
+
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"];
+  }
+
+  // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+  console.log(options);
+  let pyshell = new PythonShell("stock_check.py", options);
+
+  pyshell.on("message", function (message) {
+    message = toString(message);
+    event.sender.send("log-create", message);
+  });
+
+  pyshell.on("stderr", function (message) {
+    ErrorLog(event, message);
+  });
+
+  pyshell.end(function (err, code, signal) {
+    if (err) throw err;
+    event.sender.send("log-create", "処理は全て終了しました");
+  });
+});
+
+//■■■■■■■■■■■■■■■■■■■■■■■■■■
 // スクレイピング モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on("init-scraper", (event) => {
@@ -851,7 +916,6 @@ ipcMain.on("init-scraper", (event) => {
   } catch (error) {
     console.log(error);
   }
-
   // パラメータが存在すれば読み込む
   LoadConf(event, "scraper");
 });
@@ -871,11 +935,12 @@ ipcMain.on("open-file-scraper", (event) => {
 });
 
 // SQLログイン
-ipcMain.on("sql-login", (event, email, password) => {
+ipcMain.on("sql-login", (event, email, password, value) => {
   console.log(email, password);
   args_list = {
     email: email,
     password: password,
+    value: value,
   };
 
   let options = {
