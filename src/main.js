@@ -620,6 +620,13 @@ function image_dir_select(event) {
     });
   } catch (error) {
     console.log(error);
+    dialog.showErrorBox(
+      "BUYMAフォルダの場所に関するエラー",
+      "Desktopがクラウドに存在していると上手く動かないことがあります。\n" +
+        dir_data +
+        "\n\n↓↓↓エラー内容↓↓↓\n" +
+        error
+    );
   }
 }
 

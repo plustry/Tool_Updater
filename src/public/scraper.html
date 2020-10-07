@@ -41,15 +41,17 @@
       <div class="col-sm-5">
         <input placeholder="メールアドレス" type="text" id="email" size="50" maxlength="1000" value="">
       </div>
+      <form method="post" id="sql-login" onsubmit="return false;">
       <div class="col-sm-5">
         <input placeholder="パスワード" type="password" id="password" size="50" maxlength="1000" value="">
       </div>
       <div class="col-sm-2">
-        <input type="submit" id="sql-login" value="認証開始">
+        <input type="submit" value="認証開始">
         <a id="sql-login-status">
           <font color="red">認証されていません</font>
         </a>
       </div>
+      </form>
     </div>
 
     <div class="row">

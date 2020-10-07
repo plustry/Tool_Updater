@@ -66,7 +66,7 @@ ipcRenderer.on("selected-directory", (event, path) => {
 
 // SQL認証
 const SqlLoginBtn = document.getElementById("sql-login");
-SqlLoginBtn.addEventListener("click", (event) => {
+SqlLoginBtn.addEventListener("submit", (event) => {
   var email = document.getElementById("email").value;
   var password = document.getElementById("password").value;
   ipcRenderer.send("sql-login", email, password, "scraper");
@@ -213,16 +213,26 @@ function start_check() {
   let sendplace = document.getElementById("sendplace").value;
   if (!buyplace || !sendplace) {
     console.log("buyplaceかsendplaceが未記入です");
-  } else if (
-    buyplace.match(new RegExp(":", "g")).length !== 3 ||
-    sendplace.match(new RegExp(":", "g")).length !== 3
-  ) {
-    ipcRenderer.send(
-      "cause-error",
-      "入力エラー",
-      "買い付け地、発送地にはコロン「:」が3つ必要です"
-    );
-    return false;
+  } else {
+    buy_colon = buyplace.match(new RegExp(":", "g"));
+    send_colon = sendplace.match(new RegExp(":", "g"));
+    if (buy_colon && send_colon) {
+      if (buy_colon !== 3 || send_colon !== 3) {
+        ipcRenderer.send(
+          "cause-error",
+          "入力エラー",
+          "買い付け地、発送地にはコロン「:」が3つ必要です"
+        );
+        return false;
+      }
+    } else {
+      ipcRenderer.send(
+        "cause-error",
+        "入力エラー",
+        "買い付け地、発送地にはコロン「:」が3つ必要です"
+      );
+      return false;
+    }
   }
   return true;
 }
