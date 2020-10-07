@@ -217,7 +217,7 @@ function start_check() {
     buy_colon = buyplace.match(new RegExp(":", "g"));
     send_colon = sendplace.match(new RegExp(":", "g"));
     if (buy_colon && send_colon) {
-      if (buy_colon !== 3 || send_colon !== 3) {
+      if (buy_colon.length !== 3 || send_colon.length !== 3) {
         ipcRenderer.send(
           "cause-error",
           "入力エラー",
