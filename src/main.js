@@ -485,6 +485,8 @@ function ErrorLog(event, message) {
     ErrorMessage += message.substring(message.indexOf("FileNotFoundError"));
   } else if (message.indexOf("NotFoundError") !== -1) {
     ErrorMessage += message.substring(message.indexOf("NotFoundError"));
+  } else if (message.indexOf("BrokenPipeError") !== -1) {
+    ErrorMessage += message.substring(message.indexOf("BrokenPipeError"));
   }
   if (ErrorMessage) {
     // ErrorMessage += "\nエラーが発生しました！アップデートを試してください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.k92avs7xmxcx"
