@@ -31,10 +31,11 @@ selectDirBtn.addEventListener("click", (event) => {
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  global.directory_name = path;
-  document.getElementById(
-    "selected-folder"
-  ).innerHTML = `You selected: ${path}`;
+  document.getElementById("buyma_dir").value = path;
+  // global.directory_name = path;
+  // document.getElementById(
+  //   "buyma_dir"
+  // ).innerHTML = `You selected: ${path}`;
 });
 
 // Manager開始
@@ -56,7 +57,8 @@ StartBtn.addEventListener("click", (event) => {
     onoff: document.getElementById("onoff").set2.value,
     days: document.getElementById("days").value,
     buyma_account: document.getElementById("buyma_account").value,
-    buyma_dir: global.directory_name,
+    // buyma_account_dir: global.directory_name,
+    buyma_dir: document.getElementById("buyma_dir").value,
     access_prm: document.getElementById("access_prm").value,
     want_prm: document.getElementById("want_prm").value,
     cart_prm: document.getElementById("cart_prm").value,
@@ -119,7 +121,7 @@ function load_conf(key) {
 
 // ヘルプ項目
 var txt1 = {
-  open_dir: "BUYMAディレクトリ",
+  open_dir: "BUYMAアカウントフォルダ",
   page_choice: "ページ選択",
   onoff: "モード設定",
   buyma_account: "BUYMA アカウント名",
@@ -133,11 +135,11 @@ var txt1 = {
 };
 
 var txt2 = {
-  open_dir: "BUYMAアカウントディレクトリを選択してください。(BUYMA/account)",
+  open_dir: "BUYMAアカウントフォルダを選択してください。(BUYMA/account)",
   page_choice: "Managerを適用するページを選択してください。",
   onoff: "商品情報をどのように変更するかを選択してください。",
   buyma_account:
-    "適用したいアカウント名のディレクトリを指定できます。\n空の場合はすべてのアカウントに対して実行します。",
+    "適用したいアカウント名のフォルダを指定できます。\n空の場合はすべてのアカウントに対して実行します。",
   days: "出品の期限を延長する場合、日数を記入してください。",
   access_prm: "Managerのパラメーターに、設定した数×アクセス数を加えます。",
   want_prm: "Managerのパラメーターに、設定した数×お気に入り登録数を加えます。",

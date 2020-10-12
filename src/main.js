@@ -56,7 +56,6 @@ console.log(python_path);
 dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 dir_buyma = path.join(dir_home, "Desktop", "BUYMA");
 dir_data = path.join(dir_buyma, "data");
-dir_account = path.join(dir_buyma, "account");
 dir_image_conf = path.join(dir_buyma, "conf", "image.conf");
 dir_manager_conf = path.join(dir_buyma, "conf", "manager.conf");
 dir_scraping_conf = path.join(dir_buyma, "conf", "scraping.conf");
@@ -266,7 +265,7 @@ function initWindowMenu() {
           },
         },
         {
-          label: "終了3",
+          label: "在庫管理システム",
           click() {
             mainWindow.loadFile(
               path.join(__dirname, "public", "stockcheck.html")
@@ -1043,18 +1042,17 @@ ipcMain.on("start-scrapy", (event, args_list) => {
 });
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
-// BUY Manager モジュール
+// BuyManager モジュール
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // 開いた時にデスクトップにBUYMAフォルダがあれば展開
 ipcMain.on("init-manager", (event) => {
   try {
-    fs.statSync(dir_account);
+    fs.statSync(dir_buyma);
     console.log("デフォルトフォルダが存在したので開きます。");
-    event.sender.send("selected-directory", dir_account);
+    event.sender.send("selected-directory", dir_buyma);
   } catch (error) {
     console.log(error);
   }
-
   LoadConf(event, "manager");
 });
 
@@ -1127,82 +1125,80 @@ ipcMain.on("make-account-dir", (event, user_name) => {
       })
       .then((folder) => {
         if (folder.filePaths[0]) {
-          makeDir(path.join(folder.filePaths[0], "BUYMA")).then(
-            (new_user_dir) => {
-              //logsディレクトリ作成
-              makeDir(path.join(new_user_dir, "logs"));
-              //dataディレクトリ作成
-              makeDir(path.join(new_user_dir, "data"));
-              //confディレクトリ作成
-              makeDir(path.join(new_user_dir, "conf")).then((dir_path) => {
-                var txt_list = ["image.conf", "scraping.conf"];
-                for (let i = 0; i < txt_list.length; i++) {
-                  var conf_path = path.join(dir_path, txt_list[i]);
-                  if (!fs.existsSync(conf_path)) {
-                    fs.writeFile(conf_path, "", (err) => {
-                      if (err) throw err;
-                    });
-                  }
-                }
-              });
+          makeDir(path.join(folder.filePaths[0], "BUYMA")).then((buyma_dir) => {
+            //logsディレクトリ作成
+            makeDir(path.join(buyma_dir, "logs"));
+            //dataディレクトリ作成
+            makeDir(path.join(buyma_dir, "data"));
+            //confディレクトリ作成
+            makeDir(path.join(buyma_dir, "conf")).then((dir) => {
+              var txt_list = [
+                "image.conf",
+                "scraping.conf",
+                "manager.conf",
+                "base.conf",
+              ];
+              for (let i = 0; i < txt_list.length; i++) {
+                var conf_path = path.join(dir, txt_list[i]);
+                fs.writeFile(conf_path, "", (err) => {
+                  if (err) throw err;
+                });
+              }
+            });
 
-              //tmp_brandディレクトリ作成
-              makeDir(path.join(new_user_dir, "tmp_brand")).then((dir_path) => {
-                makeDir(path.join(dir_path, "Saint Laurent")).then(
-                  (dir_path2) => {
-                    mkfile(dir_path2);
-
-                    text_data =
-                      "「商品コメント」\n「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。";
-                    var brand_path = path.join(dir_path2, "Saint Laurent.txt");
-                    if (!fs.existsSync(brand_path)) {
-                      fs.writeFile(brand_path, text_data, function (err) {
-                        if (err) throw err;
-                      });
-                    }
+            //tmp_brandディレクトリ作成
+            makeDir(path.join(buyma_dir, "tmp_brand")).then((dir) => {
+              makeDir(path.join(dir, "Saint Laurent")).then((dir) => {
+                mkfile(dir);
+                text_data =
+                  "「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。";
+                fs.writeFile(
+                  path.join(dir, "Saint Laurent.txt"),
+                  text_data,
+                  function (err) {
+                    if (err) throw err;
                   }
                 );
               });
+            });
 
-              //img_contentディレクトリ作成
-              makeDir(path.join(new_user_dir, "img_content")).then(
-                (dir_path) => {
-                  console.log(dir_path);
-                  makeDir(path.join(dir_path, "background"));
-                  makeDir(path.join(dir_path, "effect"));
-                  makeDir(path.join(dir_path, "frame"));
-                  makeDir(path.join(dir_path, "logo"));
-                }
-              );
+            // tmp_categoryディレクトリ作成
+            makeDir(path.join(buyma_dir, "tmp_category")).then((dir) => {
+              mkfile(dir);
+            });
 
-              //accountディレクトリ作成
-              makeDir(path.join(new_user_dir, "account")).then((dir_path) => {
-                console.log(dir_path);
-                makeDir(path.join(dir_path, user_name)).then((dir_path2) => {
-                  console.log(dir_path2);
-                  makeDir(path.join(dir_path2, "template")).then(
-                    (dir_path3) => {
-                      console.log(dir_path3);
-                      var txt_list = [
-                        "ColorFooter.txt",
-                        "ColorHeader.txt",
-                        "CommentFooter.txt",
-                        "CommentHeader.txt",
-                      ];
-                      for (let i = 0; i < txt_list.length; i++) {
-                        var temp_path = path.join(dir_path3, txt_list[i]);
-                        if (!fs.existsSync(temp_path)) {
-                          fs.writeFile(temp_path, "", (err) => {
-                            if (err) throw err;
-                          });
-                        }
-                      }
-                    }
-                  );
+            //img_contentディレクトリ作成
+            makeDir(path.join(buyma_dir, "img_content")).then((dir) => {
+              console.log(dir);
+              makeDir(path.join(dir, "background"));
+              makeDir(path.join(dir, "effect"));
+              makeDir(path.join(dir, "frame"));
+              makeDir(path.join(dir, "logo"));
+            });
+
+            //accountディレクトリ作成
+            makeDir(path.join(buyma_dir, "account")).then((dir) => {
+              console.log(dir);
+              makeDir(path.join(dir_path, user_name)).then((dir) => {
+                console.log(dir);
+                makeDir(path.join(dir, "template")).then((dir) => {
+                  console.log(dir);
+                  var txt_list = [
+                    "ColorFooter.txt",
+                    "ColorHeader.txt",
+                    "CommentFooter.txt",
+                    "CommentHeader.txt",
+                  ];
+                  for (let i = 0; i < txt_list.length; i++) {
+                    var temp_path = path.join(dir, txt_list[i]);
+                    fs.writeFile(temp_path, " ", (err) => {
+                      if (err) throw err;
+                    });
+                  }
                 });
               });
-            }
-          );
+            });
+          });
         }
       });
   }
@@ -1310,9 +1306,22 @@ function fcmkfile(file_path) {
   });
 }
 
-async function mkfile(dir_path2) {
+async function mkfile(dir) {
+  // カテゴリテンプレートのリスト作成
+  file_list = [];
+  for (let i = 0; i < category_list.length; i++) {
+    var category = category_list[i].split(" ");
+    var category_tmp_path = "";
+    for (let j = 0; j < category.length; j++) {
+      category_tmp_path = path.join(category_tmp_path, category[j]);
+    }
+    category_tmp_path = path.join(category_tmp_path, "comment.txt");
+    file_list.push(category_tmp_path);
+  }
+  console.log(file_list);
+
   for (var i = 0; i < file_list.length; i++) {
-    await fcmkfile(path.join(dir_path2, file_list[i]));
+    await fcmkfile(path.join(dir, file_list[i]));
   }
   return "ループ終わった。";
 }
@@ -1415,2897 +1424,399 @@ var deleteFolderRecursive = function (pathe) {
   }
 };
 
-file_list = [
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "トップスその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "Tシャツ・カットソー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "ブラウス・シャツ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "ニット・セーター",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "スウェット・トレーナー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "パーカー・フーディ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "カーディガン",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "アンサンブル",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "ベスト・ジレ",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "トップス", "ポロシャツ", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "キャミソール",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "トップス",
-    "タンクトップ",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "トップス", "チュニック", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "ボトムス",
-    "ボトムスその他",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "ボトムス", "スカート", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "ボトムス",
-    "ミニスカート",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "ボトムス", "パンツ", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "ボトムス",
-    "ショートパンツ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ボトムス",
-    "デニム・ジーパン",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ワンピース・オールインワン",
-    "ワンピースその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ワンピース・オールインワン",
-    "ワンピース",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ワンピース・オールインワン",
-    "オールインワン・サロペット",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ワンピース・オールインワン",
-    "セットアップ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "アウターその他",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "アウター", "コート", "comment.txt"),
-  path.join("レディースファッション", "アウター", "ジャケット", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "ダウンジャケット・コート",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "レザージャケット・コート",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "ムートン・ファーコート",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "ダウンベスト",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "アウター", "ブルゾン", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "トレンチコート",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "ベスト・ジレ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アウター",
-    "ポンチョ・ケープ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "パーティー小物その他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ブライダルその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ドレス-ロング",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ドレス-ミニ・ミディアム",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ボレロ・ショール",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ウェディングドレス",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ウェディングアクセサリー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ウェディングシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "ブライダル小物",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ブライダル・パーティー",
-    "引き出物",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "水着・ビーチグッズその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "ビキニ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "ワンピース水着",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "タンキニ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "ラッシュガード",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "ボードショーツ・レギンス",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "うきわ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "水着・ビーチグッズ",
-    "ビーチタオル",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "その他ファッション",
-    "その他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "その他ファッション",
-    "スーツ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "その他ファッション",
-    "コスプレ・衣装",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "その他ファッション",
-    "浴衣・着物・和装",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "帽子", "帽子・その他", "comment.txt"),
-  path.join("レディースファッション", "帽子", "ハット", "comment.txt"),
-  path.join("レディースファッション", "帽子", "キャップ", "comment.txt"),
-  path.join("レディースファッション", "帽子", "ストローハット", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "帽子",
-    "ニットキャップ・ビーニー",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "帽子", "ベレー帽", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "帽子",
-    "ハンチング・キャスケット",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "ファッション雑貨・小物その他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "スカーフ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "ストール・ショール",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "マフラー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "手袋",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "イヤーマフ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "ベルト",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "傘・レイングッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ファッション雑貨・小物",
-    "ハンカチ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "財布・小物その他",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "財布・小物", "長財布", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "折りたたみ財布",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "コインケース・小銭入れ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "カードケース・名刺入れ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "パスケース",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "キーケース",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "キーホルダー・キーリング",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "財布・小物", "ポーチ", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "財布・小物",
-    "バッグチャーム",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "アクセサリーその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "ネックレス・ペンダント",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "アクセサリー", "ピアス", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "イヤリング",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "指輪・リング",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "ブレスレット",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "アンクレット",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "ヘアアクセサリー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "パーティーアクセサリー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アクセサリー",
-    "天然石・パワーストーン",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "腕時計",
-    "アナログ腕時計",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "腕時計",
-    "デジタル腕時計",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "腕時計",
-    "腕時計用ベルト・バンド",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "腕時計", "腕時計その他", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "アイウェア",
-    "アイウェアその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "アイウェア",
-    "サングラス",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "アイウェア", "メガネ", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "スマホケース・テックアクセサリー",
-    "レディース",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "シューズ・サンダルその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "スニーカー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "サンダル・ミュール",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "スリッポン",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "パンプス",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "フラットシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "ローファー・オックスフォード",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "バレエシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "パーティーシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "靴・シューズ",
-    "レインシューズ",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "ブーツ", "ブーツその他", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "ブーツ",
-    "ショートブーツ・ブーティ",
-    "comment.txt"
-  ),
-  path.join("レディースファッション", "ブーツ", "ロングブーツ", "comment.txt"),
-  path.join("レディースファッション", "ブーツ", "ミドルブーツ", "comment.txt"),
-  path.join("レディースファッション", "ブーツ", "レインブーツ", "comment.txt"),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "バッグ・カバンその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "トートバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "ハンドバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "ショルダーバッグ・ポシェット",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "バックパック・リュック",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "クラッチバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "かごバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "ボストンバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "パーティーバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "バッグ・カバン",
-    "エコバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "インナー・ルームウェアその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "ルームウェア・パジャマ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "ブラジャー",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "ショーツ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "ブラジャー＆ショーツ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "スリップ・インナー・キャミ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "スパッツ・レギンス",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "インナー・ルームウェア",
-    "タイツ・ソックス",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ヨガ・フィットネス",
-    "ヨガ・フィットネスその他",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ヨガ・フィットネス",
-    "フィットネストップス",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ヨガ・フィットネス",
-    "フィットネスボトムス",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ヨガ・フィットネス",
-    "ヨガマット",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ヨガ・フィットネス",
-    "フィットネスバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ヨガ・フィットネス",
-    "フィットネスシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "レディースファッション",
-    "ヨガ・フィットネス",
-    "フィットネスアクセサリー",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "ゴルフ", "ゴルフその他", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "レディース・トップス", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "レディース・ボトムス", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "レディース・ワンピース", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "レディース・アウター", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "レディース・シューズ", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "レディース・アクセサリー", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "レディース・クラブ", "comment.txt"),
-  path.join("スポーツ", "ランニング", "ランニングその他", "comment.txt"),
-  path.join("スポーツ", "ランニング", "レディース・トップス", "comment.txt"),
-  path.join("スポーツ", "ランニング", "レディース・ボトムス", "comment.txt"),
-  path.join("スポーツ", "ランニング", "レディース・ワンピース", "comment.txt"),
-  path.join("スポーツ", "ランニング", "レディース・アウター", "comment.txt"),
-  path.join("スポーツ", "ランニング", "レディース・インナー", "comment.txt"),
-  path.join("スポーツ", "ランニング", "レディース・シューズ", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "ランニング",
-    "レディース・アクセサリー",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "アウトドア", "アウトドアその他", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "バッグ", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "フィッシング用品", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "キャンプ用品", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "レディース・トップス", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "レディース・ボトムス", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "レディース・アウター", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "レディース・インナー", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "レディース・シューズ", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "アウトドア",
-    "レディース・アクセサリー",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ウィンタースポーツ",
-    "ウィンタースポーツその他",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "ウィンタースポーツ", "スキー板", "comment.txt"),
-  path.join("スポーツ", "ウィンタースポーツ", "スノーボード", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "ウィンタースポーツ",
-    "レディース・スノーウェア",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ウィンタースポーツ",
-    "レディース・アクセサリー",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "サーフィン", "サーフィンその他", "comment.txt"),
-  path.join("スポーツ", "サーフィン", "サーフボード", "comment.txt"),
-  path.join("スポーツ", "サーフィン", "サーフィン", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "サーフィン",
-    "レディース・ラッシュガード",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "サーフィン",
-    "レディース・ウェットスーツ",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "サーフィン",
-    "レディース・アクセサリー",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "自転車", "自転車その他", "comment.txt"),
-  path.join("スポーツ", "自転車", "自転車本体", "comment.txt"),
-  path.join("スポーツ", "自転車", "パーツ・アクセサリー", "comment.txt"),
-  path.join("スポーツ", "自転車", "レディース・トップス", "comment.txt"),
-  path.join("スポーツ", "自転車", "レディース・ボトムス", "comment.txt"),
-  path.join("スポーツ", "自転車", "レディース・アウター", "comment.txt"),
-  path.join("スポーツ", "自転車", "レディース・アクセサリー", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "ストリートスポーツその他",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "レディース・トップス",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "レディース・ボトムス",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "レディース・アウター",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "レディース・アクセサリー",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "レディース・シューズ",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "ストリートスポーツ", "Skateboard", "comment.txt"),
-  path.join("スポーツ", "ストリートスポーツ", "BMX", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "スポーツその他",
-    "スポーツアイテムその他",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "スポーツその他", "Football", "comment.txt"),
-  path.join("スポーツ", "スポーツその他", "Tennis", "comment.txt"),
-  path.join("スポーツ", "スポーツその他", "DVD・CD", "comment.txt"),
-  path.join("ビューティー", "ビューティーその他", "レディース", "comment.txt"),
-  path.join("ビューティー", "メイク小物", "メイク小物その他", "comment.txt"),
-  path.join("ビューティー", "メイク小物", "アイブロウ", "comment.txt"),
-  path.join("ビューティー", "メイク小物", "ブラシ", "comment.txt"),
-  path.join("ビューティー", "メイク小物", "鏡", "comment.txt"),
-  path.join("ビューティー", "メイク小物", "メイクポーチ", "comment.txt"),
-  path.join("ビューティー", "メイク小物", "レディース", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "メイクアップ",
-    "メイクアップその他",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "メイクアップ", "アイメイク", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "メイクアップ",
-    "アイメイク・アイブロウ",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "メイクアップ",
-    "リップグロス・口紅類",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "メイクアップ",
-    "ファンデーション・コンシーラー",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "メイクアップ",
-    "チーク・フェイスパウダー",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "スキンケア・基礎化粧品その他",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "リップグロス・口紅",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "洗顔・クレンジング",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "スキンケア・基礎化粧品", "化粧水", "comment.txt"),
-  path.join("ビューティー", "スキンケア・基礎化粧品", "乳液", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "美容液・クリーム",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "パック・フェイスマスク",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "アイケア",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "リップケア",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "スキンケア・基礎化粧品",
-    "スペシャルケア",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "ヘアケア", "ヘアケアその他", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "ヘアケア",
-    "シャンプー・トリートメント",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ヘアケア",
-    "プライマー・コンシーラー",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ヘアケア",
-    "ヘアブラシ・アイロン・ドライヤー",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ヘアケア",
-    "シャンプー・コンディショナー",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ヘアケア",
-    "ヘアパック・トリートメント",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ヘアケア",
-    "ヘアオイル・エッセンス",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "ヘアケア", "ヘアブラシ", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "ボディ・ハンド・フットケア",
-    "ファンデーション",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ボディ・ハンド・フットケア",
-    "ハンドケア",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ボディ・ハンド・フットケア",
-    "ボディケア",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ボディ・ハンド・フットケア",
-    "日焼け止め・サンケア",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ボディ・ハンド・フットケア",
-    "フットケア",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "ボディ・ハンド・フットケア",
-    "ボディケアその他",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "ボディ・ハンドケア", "レディース", "comment.txt"),
-  path.join("ビューティー", "オーラル・デンタルケア", "チーク", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "オーラル・デンタルケア",
-    "歯磨き粉",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "オーラル・デンタルケア",
-    "ホワイトニング",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "オーラル・デンタルケア",
-    "オーラル・デンタルケアその他",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "ネイルグッズ", "マニキュア", "comment.txt"),
-  path.join("ビューティー", "ネイルグッズ", "ジェルネイル", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "ネイルグッズ",
-    "ネイルアート・チップ",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "ネイルグッズ", "ネイルケア", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "ネイルグッズ",
-    "ネイルグッズその他",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "ネイルグッズ", "フェイスパウダー", "comment.txt"),
-  path.join("ビューティー", "ネイルケア", "レディース", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "バスグッズ",
-    "日焼け止め・サンケア",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "バスグッズ", "レディース", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "美容家電・グッズ",
-    "ヘアアイロン・ドライヤー",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "美容家電・グッズ",
-    "美容家電・グッズその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "香水・フレグランス",
-    "メイクアップその他",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "香水・フレグランス", "レディース", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "アロマ・バスグッズ",
-    "アロマグッズ",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "アロマ・バスグッズ", "バスグッズ", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "アロマ・バスグッズ",
-    "アロマ・バスグッズその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ライフスタイルその他",
-    "レディース",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "調理器具",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "食器（皿）",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "コップ・グラス・マグカップ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "タンブラー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "カトラリー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "容器・ストッカー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "キッチン雑貨",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "テーブルリネン",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "エプロン",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "キッチン収納",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "キッチン・ダイニング", "料理本", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "キッチン・ダイニングその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "家具・日用品その他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "棚・ラック・収納",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "家具・日用品", "照明", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "バス・ランドリー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "洗剤・清掃グッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "ダストボックス(ゴミ箱)・傘立て",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "家具・日用品", "椅子・チェア", "comment.txt"),
-  path.join("ライフスタイル", "家具・日用品", "机・テーブル", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "鏡台・ドレッサー",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "家具・日用品", "ソファ", "comment.txt"),
-  path.join("ライフスタイル", "家具・日用品", "オットマン", "comment.txt"),
-  path.join("ライフスタイル", "家具・日用品", "ベッド", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "ＤＩＹ・工具",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "ポスター・ウォールステッカー",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "インテリア雑貨・DIY", "壁紙", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "タペストリー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "ルームフレグランス",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "キャンドル",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "インテリア雑貨・DIY", "時計", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "アート・美術品",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "インテリア雑貨・DIYその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "ベッドカバー・リネン",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ファブリック", "ブランケット", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "クッション・クッションカバー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "ラグ・マット・カーペット",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ファブリック", "カーテン", "comment.txt"),
-  path.join("ライフスタイル", "ファブリック", "タオル", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "ファブリックその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "トラベルグッズ",
-    "トラベルその他",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "トラベルグッズ", "スーツケース", "comment.txt"),
-  path.join("ライフスタイル", "トラベルグッズ", "バッグ", "comment.txt"),
-  path.join("ライフスタイル", "トラベルグッズ", "ラゲッジタグ", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "トラベルグッズ",
-    "パスポートケース・ウォレット",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "トラベルグッズ",
-    "トラベルポーチ",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "トラベルグッズ", "トラベル小物", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "レジャー・アウトドアその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "バーベキュー・クッキング用品",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "レジャー・ピクニック用品",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "テーブル・チェア",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "寝袋・シュラフ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "テント・タープ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "オートバイ・自転車",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ペット用品", "ペット用品その他", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "首輪・ハーネス・リード",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ペット用品", "ペットキャリー", "comment.txt"),
-  path.join("ライフスタイル", "ペット用品", "洋服", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "ペットベッド・ケージ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "おもちゃ・キャットタワー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "フードボウル・えさ関連",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ペット用品", "衛生用品", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "ホビー・カルチャーその他",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ホビー・カルチャー", "ゲーム", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "キャラクターグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "模型・プラモデル・ラジコン",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "カメラ・カメラグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "AV機器(オーディオ・映像)",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "楽器・音楽機材",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "手芸・工芸道具",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "花・ガーデニング",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "ミュージシャン・タレント・映画グッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "絵本・書籍",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ホビー・カルチャー", "CD・DVD", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "衣装・コスチューム",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "パーティーグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "ステーショナリ・文房具その他",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ステーショナリ・文房具", "手帳", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "鉛筆・ペン・万年筆",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "レターセット・ポストカード",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "ノート",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "ペンケース",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "電子タバコ", "スターターキット", "comment.txt"),
-  path.join("ライフスタイル", "電子タバコ", "リキッド", "comment.txt"),
-  path.join("ライフスタイル", "電子タバコ", "アクセサリー", "comment.txt"),
-  path.join("メンズファッション", "トップス", "トップスその他", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "トップス",
-    "Tシャツ・カットソー",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "トップス", "ポロシャツ", "comment.txt"),
-  path.join("メンズファッション", "トップス", "シャツ", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "トップス",
-    "パーカー・フーディ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "トップス",
-    "スウェット・トレーナー",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "トップス",
-    "ニット・セーター",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "トップス", "カーディガン", "comment.txt"),
-  path.join("メンズファッション", "トップス", "タンクトップ", "comment.txt"),
-  path.join("メンズファッション", "トップス", "ベスト・ジレ", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "アウターその他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "コートその他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "ジャケットその他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "ダウンジャケット",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "ブルゾン",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "レザージャケット",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "ピーコート",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "ダッフルコート",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "トレンチコート",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "ジャージ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "ダウンベスト",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アウター・ジャケット",
-    "テーラードジャケット",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "ボトムス", "ボトムスその他", "comment.txt"),
-  path.join("メンズファッション", "ボトムス", "パンツ", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "ボトムス",
-    "デニム・ジーパン",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ボトムス",
-    "ハーフ・ショートパンツ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "その他ファッション",
-    "メンズ",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "スーツ", "メンズ", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "水着・ビーチグッズ",
-    "水着・ビーチグッズその他",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "水着・ビーチグッズ", "水着", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "水着・ビーチグッズ",
-    "ラッシュガード",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "水着・ビーチグッズ",
-    "うきわ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "水着・ビーチグッズ",
-    "ビーチタオル",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "セットアップ", "メンズ", "comment.txt"),
-  path.join("メンズファッション", "セットアプ", "メンズ", "comment.txt"),
-  path.join("メンズファッション", "帽子", "帽子・その他", "comment.txt"),
-  path.join("メンズファッション", "帽子", "ハット", "comment.txt"),
-  path.join("メンズファッション", "帽子", "キャップ", "comment.txt"),
-  path.join("メンズファッション", "帽子", "ストローハット", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "帽子",
-    "ニットキャップ・ビーニー",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "帽子", "ベレー帽", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "帽子",
-    "ハンチング・キャスケット",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "帽子", "サンバイザー", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "アクセサリー",
-    "アクセサリーその他",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "アクセサリー", "ピアス", "comment.txt"),
-  path.join("メンズファッション", "アクセサリー", "イヤリング", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "アクセサリー",
-    "アンクレット",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アクセサリー",
-    "ネックレス・チョーカー",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アクセサリー",
-    "ブレスレット",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "アクセサリー",
-    "指輪・リング",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "腕時計", "腕時計その他", "comment.txt"),
-  path.join("メンズファッション", "腕時計", "アナログ時計", "comment.txt"),
-  path.join("メンズファッション", "腕時計", "デジタル時計", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "アイウェア",
-    "アイウェアその他",
-    "comment.txt"
-  ),
-  path.join("メンズファッション", "アイウェア", "サングラス", "comment.txt"),
-  path.join("メンズファッション", "アイウェア", "メガネ", "comment.txt"),
-  path.join("メンズファッション", "財布・雑貨", "雑貨・その他", "comment.txt"),
-  path.join("メンズファッション", "財布・雑貨", "長財布", "comment.txt"),
-  path.join(
-    "メンズファッション",
-    "財布・雑貨",
-    "折りたたみ財布",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "財布・雑貨",
-    "キーケース・キーリング",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "財布・雑貨",
-    "カードケース・名刺入れ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "財布・雑貨",
-    "コインケース・小銭入れ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "財布・雑貨",
-    "ステーショナリー",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "ファッション雑貨・小物その他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "マフラー",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "ストール",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "手袋",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "ベルト",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "ネクタイ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "傘・レイングッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "ハンカチ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "ファッション雑貨・小物",
-    "靴下・ソックス",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "スマホケース・テックアクセサリー",
-    "メンズ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "靴・ブーツ・サンダル",
-    "靴・ブーツ・サンダルその他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "靴・ブーツ・サンダル",
-    "スニーカー",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "靴・ブーツ・サンダル",
-    "サンダル",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "靴・ブーツ・サンダル",
-    "ドレスシューズ・革靴・ビジネスシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "靴・ブーツ・サンダル",
-    "ブーツ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "バッグ・カバン",
-    "バッグ・カバンその他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "バッグ・カバン",
-    "ショルダーバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "バッグ・カバン",
-    "トートバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "バッグ・カバン",
-    "ボストンバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "バッグ・カバン",
-    "バックパック・リュック",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "バッグ・カバン",
-    "ビジネスバッグ・アタッシュケース",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "バッグ・カバン",
-    "クラッチバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "インナー・ルームウェア",
-    "インナー・ルームウェアその他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "インナー・ルームウェア",
-    "アンダーシャツ・インナー",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "インナー・ルームウェア",
-    "トランクス",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "インナー・ルームウェア",
-    "ブリーフ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "インナー・ルームウェア",
-    "ボクサーパンツ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "インナー・ルームウェア",
-    "ルームウェア・パジャマ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "フィットネス",
-    "フィットネスその他",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "フィットネス",
-    "フィットネストップス",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "フィットネス",
-    "フィットネスボトムス",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "フィットネス",
-    "フィットネスバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "フィットネス",
-    "フィットネスシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "メンズファッション",
-    "フィットネス",
-    "フィットネスアクセサリー",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "メンズビューティー",
-    "メンズビューティーその他",
-    "comment.txt"
-  ),
-  path.join("ビューティー", "メンズビューティー", "ボディケア", "comment.txt"),
-  path.join("ビューティー", "メンズビューティー", "スキンケア", "comment.txt"),
-  path.join("ビューティー", "メンズビューティー", "ヘアケア", "comment.txt"),
-  path.join(
-    "ビューティー",
-    "メンズビューティー",
-    "シェービング・グルーミング",
-    "comment.txt"
-  ),
-  path.join(
-    "ビューティー",
-    "メンズビューティー",
-    "フレグランス",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "ゴルフ", "ゴルフその他", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "メンズ・トップス", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "メンズ・ボトムス", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "メンズ・アウター", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "メンズ・シューズ", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "メンズ・アクセサリー", "comment.txt"),
-  path.join("スポーツ", "ゴルフ", "メンズ・クラブ", "comment.txt"),
-  path.join("スポーツ", "ランニング", "ランニングその他", "comment.txt"),
-  path.join("スポーツ", "ランニング", "メンズ・トップス", "comment.txt"),
-  path.join("スポーツ", "ランニング", "メンズ・ボトムス", "comment.txt"),
-  path.join("スポーツ", "ランニング", "メンズ・アウター", "comment.txt"),
-  path.join("スポーツ", "ランニング", "メンズ・インナー", "comment.txt"),
-  path.join("スポーツ", "ランニング", "メンズ・シューズ", "comment.txt"),
-  path.join("スポーツ", "ランニング", "メンズ・アクセサリー", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "バッグ", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "フィッシング用品", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "キャンプ用品", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "アウトドアその他", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "メンズ・トップス", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "メンズ・ボトムス", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "メンズ・アウター", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "メンズ・インナー", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "メンズ・シューズ", "comment.txt"),
-  path.join("スポーツ", "アウトドア", "メンズ・アクセサリー", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "ウィンタースポーツ",
-    "メンズ・スノーウェア",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ウィンタースポーツ",
-    "メンズ・アクセサリー",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "ウィンタースポーツ", "スキー板", "comment.txt"),
-  path.join("スポーツ", "ウィンタースポーツ", "スノーボード", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "ウィンタースポーツ",
-    "ウィンタースポーツその他",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "サーフィン", "サーフィンその他", "comment.txt"),
-  path.join("スポーツ", "サーフィン", "メンズ・ラッシュガード", "comment.txt"),
-  path.join("スポーツ", "サーフィン", "メンズ・ウェットスーツ", "comment.txt"),
-  path.join("スポーツ", "サーフィン", "メンズ・アクセサリー", "comment.txt"),
-  path.join("スポーツ", "サーフィン", "サーフボード", "comment.txt"),
-  path.join("スポーツ", "サーフィン", "サーフィン", "comment.txt"),
-  path.join("スポーツ", "自転車", "自転車その他", "comment.txt"),
-  path.join("スポーツ", "自転車", "メンズ・トップス", "comment.txt"),
-  path.join("スポーツ", "自転車", "メンズ・ボトムス", "comment.txt"),
-  path.join("スポーツ", "自転車", "メンズ・アウター", "comment.txt"),
-  path.join("スポーツ", "自転車", "メンズ・アクセサリー", "comment.txt"),
-  path.join("スポーツ", "自転車", "自転車本体", "comment.txt"),
-  path.join("スポーツ", "自転車", "パーツ・アクセサリー", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "ストリートスポーツその他",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "メンズ・トップス",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "メンズ・ボトムス",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "メンズ・アウター",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "メンズ・アクセサリー",
-    "comment.txt"
-  ),
-  path.join("スポーツ", "ストリートスポーツ", "Skateboard", "comment.txt"),
-  path.join("スポーツ", "ストリートスポーツ", "BMX", "comment.txt"),
-  path.join("スポーツ", "スポーツその他", "Football", "comment.txt"),
-  path.join("スポーツ", "スポーツその他", "Tennis", "comment.txt"),
-  path.join("スポーツ", "スポーツその他", "DVD・CD", "comment.txt"),
-  path.join(
-    "スポーツ",
-    "スポーツその他",
-    "スポーツアイテムその他",
-    "comment.txt"
-  ),
-  path.join(
-    "スポーツ",
-    "ストリートスポーツ",
-    "メンズ・シューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "家具・日用品その他",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "家具・日用品", "家具・収納", "comment.txt"),
-  path.join("ライフスタイル", "家具・日用品", "照明", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "バス・ランドリー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "洗剤・清掃グッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "家具・日用品",
-    "ダストボックス(ゴミ箱)・傘立て",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "キッチン・ダイニングその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "調理器具",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "食器（皿）",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "コップ・グラス・マグカップ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "タンブラー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "カトラリー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "容器・ストッカー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "キッチン雑貨",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "テーブルリネン",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "エプロン",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "キッチン・ダイニング",
-    "キッチン収納",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "キッチン・ダイニング", "料理本", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "インテリア雑貨・DIYその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "ＤＩＹ・工具",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "ポスター・ウォールステッカー",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "インテリア雑貨・DIY", "壁紙", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "タペストリー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "ルームフレグランス",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "キャンドル",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "インテリア雑貨・DIY", "時計", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "インテリア雑貨・DIY",
-    "アート・美術品",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "ファブリックその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "ベッドカバー・リネン",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ファブリック", "ブランケット", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "クッション・クッションカバー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ファブリック",
-    "ラグ・マット・カーペット",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ファブリック", "カーテン", "comment.txt"),
-  path.join("ライフスタイル", "ファブリック", "タオル", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "トラベルグッズ",
-    "トラベルその他",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "トラベルグッズ", "スーツケース", "comment.txt"),
-  path.join("ライフスタイル", "トラベルグッズ", "バッグ", "comment.txt"),
-  path.join("ライフスタイル", "トラベルグッズ", "ラゲッジタグ", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "トラベルグッズ",
-    "パスポートケース・ウォレット",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "トラベルグッズ",
-    "トラベルポーチ",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "トラベルグッズ", "トラベル小物", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "レジャー・アウトドアその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "バーベキュー・クッキング用品",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "レジャー・ピクニック用品",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "テーブル・チェア",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "寝袋・シュラフ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "テント・タープ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "レジャー・アウトドア",
-    "オートバイ・自転車",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "首輪・ハーネス・リード",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ペット用品", "ペットキャリー", "comment.txt"),
-  path.join("ライフスタイル", "ペット用品", "洋服", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "ペットベッド・ケージ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "おもちゃ・キャットタワー",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ペット用品",
-    "フードボウル・えさ関連",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ペット用品", "衛生用品", "comment.txt"),
-  path.join("ライフスタイル", "ペット用品", "ペット用品その他", "comment.txt"),
-  path.join("ライフスタイル", "ホビー・カルチャー", "ゲーム", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "キャラクターグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "模型・プラモデル・ラジコン",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "カメラ・カメラグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "AV機器(オーディオ・映像)",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "楽器・音楽機材",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "手芸・工芸道具",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "花・ガーデニング",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "ミュージシャン・タレント・映画グッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "絵本・書籍",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ホビー・カルチャー", "CD・DVD", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "衣装・コスチューム",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "パーティーグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ホビー・カルチャー",
-    "ホビー・カルチャーその他",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "ステーショナリ・文房具", "手帳", "comment.txt"),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "鉛筆・ペン・万年筆",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "レターセット・ポストカード",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "ノート",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "ペンケース",
-    "comment.txt"
-  ),
-  path.join(
-    "ライフスタイル",
-    "ステーショナリ・文房具",
-    "ステーショナリ・文房具その他",
-    "comment.txt"
-  ),
-  path.join("ライフスタイル", "電子タバコ", "スターターキット", "comment.txt"),
-  path.join("ライフスタイル", "電子タバコ", "リキッド", "comment.txt"),
-  path.join("ライフスタイル", "電子タバコ", "アクセサリー", "comment.txt"),
-  path.join("ライフスタイル", "ライフスタイルその他", "メンズ", "comment.txt"),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビーロンパース・カバーオール",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビーワンピース",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー用トップス",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー用ボトムス",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "べビーアウター",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー用靴下、タイツ、ブルマ、スパッツ類",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "よだれかけ・スタイ・ビブ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー肌着・下着",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビーパジャマ・ルームウェア・スリーパー",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "おくるみ・ブランケット",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビーレインコート・レイングッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー水着・ビーチグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー用コスチューム・着ぐるみ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー用フォーマル・セレモニーウェア",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビー帽子・手袋・ファッション小物",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビー服・ファッション用品(～90cm)",
-    "ベビーその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "キッズ用トップス",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "キッズ用ボトムス",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "キッズワンピース・オールインワン",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "キッズアウター",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用靴下、タイツ、ブルマ、スパッツ類",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用肌着・下着",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用パジャマ・ルームウェア・スリーパー",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "キッズスポーツウェア",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用レインコート・レイングッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用水着・ビーチグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用コスチューム・着ぐるみ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用フォーマル・セレモニーウェア",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "子供用帽子・手袋・ファッション小物",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "子供服・ファッション用品(85cm～)",
-    "キッズその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビーシューズ・靴(～14cm)",
-    "ベビースニーカー",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビーシューズ・靴(～14cm)",
-    "ベビーバレエシューズ・フラットシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビーシューズ・靴(～14cm)",
-    "ベビーサンダル",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビーシューズ・靴(～14cm)",
-    "ベビーブーツ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビーシューズ・靴(～14cm)",
-    "ベビーレインブーツ・長靴",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビーシューズ・靴(～14cm)",
-    "ベビーフォーマルシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "ベビーシューズ・靴(～14cm)",
-    "ベビーシューズ・靴その他",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズスニーカー",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズバレエシューズ・フラットシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズサンダル",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズブーツ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズレインブーツ・長靴",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズルームシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズフォーマルシューズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズシューズ・子供靴(14.5cm～)",
-    "キッズシューズ・靴その他",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティトップス",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティパンツ・スカート",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティレギンス・タイツ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティワンピース",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティコート・アウター",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティ下着・肌着",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティパジャマ・ルームウェア",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティ水着・フィットネス・スポーツウェア",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティドレス・フォーマル",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "母子手帳ケース",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マタニティウェア・授乳服・グッズ",
-    "マタニティウェア・授乳服・グッズその他",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マザーズバッグ",
-    "子供用リュック・バックパック",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マザーズバッグ",
-    "子供用トート・レッスンバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マザーズバッグ",
-    "子供用ショルダー・ポシェット・ボディバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "マザーズバッグ",
-    "キッズバッグ・財布その他",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズバッグ・財布",
-    "子供用リュック・バックパック",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズバッグ・財布",
-    "子供用トート・レッスンバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズバッグ・財布",
-    "子供用ショルダー・ポシェット・ボディバッグ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズバッグ・財布",
-    "キッズバッグ・財布その他",
-    "comment.txt"
-  ),
-  path.join("ベビー・キッズ", "ベビーカー", "ベビー", "comment.txt"),
-  path.join(
-    "ベビー・キッズ",
-    "チャイルドシート(ベビー",
-    "ジュニア)",
-    "ベビー",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "抱っこ紐・スリング・ベビーキャリア",
-    "ベビー",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おしゃぶり・授乳・離乳食グッズ",
-    "ベビー",
-    "comment.txt"
-  ),
-  path.join("ベビー・キッズ", "赤ちゃん用スキンケア", "ベビー", "comment.txt"),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "プレイマット・ベビーマット",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "ガラガラ・ラトル",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "ぬいぐるみ・フィギュア・ドールハウス",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "おままごとセット",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "ブロック・パズル・ゲーム",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "絵本・ぬり絵・シール",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "ミニカー・電車・乗り物おもちゃ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "バストイ・水遊びグッズ",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "おもちゃ・知育玩具",
-    "おもちゃ・知育玩具その他",
-    "comment.txt"
-  ),
-  path.join(
-    "ベビー・キッズ",
-    "キッズ・ベビー・マタニティその他",
-    "ベビー",
-    "comment.txt"
-  ),
+category_list = [
+  "レディースファッション トップス トップスその他",
+  "レディースファッション トップス Tシャツ・カットソー",
+  "レディースファッション トップス ブラウス・シャツ",
+  "レディースファッション トップス ニット・セーター",
+  "レディースファッション トップス スウェット・トレーナー",
+  "レディースファッション トップス パーカー・フーディ",
+  "レディースファッション トップス カーディガン",
+  "レディースファッション トップス アンサンブル",
+  "レディースファッション トップス ベスト・ジレ",
+  "レディースファッション トップス ポロシャツ",
+  "レディースファッション トップス キャミソール",
+  "レディースファッション トップス タンクトップ",
+  "レディースファッション トップス チュニック",
+  "レディースファッション ボトムス ボトムスその他",
+  "レディースファッション ボトムス スカート",
+  "レディースファッション ボトムス ミニスカート",
+  "レディースファッション ボトムス パンツ",
+  "レディースファッション ボトムス ショートパンツ",
+  "レディースファッション ボトムス デニム・ジーパン",
+  "レディースファッション ワンピース・オールインワン ワンピースその他",
+  "レディースファッション ワンピース・オールインワン ワンピース",
+  "レディースファッション ワンピース・オールインワン オールインワン・サロペット",
+  "レディースファッション ワンピース・オールインワン セットアップ",
+  "レディースファッション アウター アウターその他",
+  "レディースファッション アウター コート",
+  "レディースファッション アウター ジャケット",
+  "レディースファッション アウター ダウンジャケット・コート",
+  "レディースファッション アウター レザージャケット・コート",
+  "レディースファッション アウター ムートン・ファーコート",
+  "レディースファッション アウター ダウンベスト",
+  "レディースファッション アウター ブルゾン",
+  "レディースファッション アウター トレンチコート",
+  "レディースファッション アウター ベスト・ジレ",
+  "レディースファッション アウター ポンチョ・ケープ",
+  "レディースファッション ブライダル・パーティー パーティー小物その他",
+  "レディースファッション ブライダル・パーティー ブライダルその他",
+  "レディースファッション ブライダル・パーティー パーティードレス",
+  "レディースファッション ブライダル・パーティー ボレロ・ショール",
+  "レディースファッション ブライダル・パーティー ウェディングドレス",
+  "レディースファッション ブライダル・パーティー ウェディングアクセサリー",
+  "レディースファッション ブライダル・パーティー ウェディングシューズ",
+  "レディースファッション ブライダル・パーティー ブライダル小物",
+  "レディースファッション ブライダル・パーティー 引き出物",
+  "レディースファッション 水着・ビーチグッズ 水着・ビーチグッズその他",
+  "レディースファッション 水着・ビーチグッズ ビキニ",
+  "レディースファッション 水着・ビーチグッズ ワンピース水着",
+  "レディースファッション 水着・ビーチグッズ タンキニ",
+  "レディースファッション 水着・ビーチグッズ ラッシュガード",
+  "レディースファッション 水着・ビーチグッズ ボードショーツ・レギンス",
+  "レディースファッション 水着・ビーチグッズ うきわ",
+  "レディースファッション 水着・ビーチグッズ ビーチタオル",
+  "レディースファッション その他ファッション その他",
+  "レディースファッション その他ファッション スーツ",
+  "レディースファッション その他ファッション コスプレ・衣装",
+  "レディースファッション その他ファッション 浴衣・着物・和装",
+  "レディースファッション 帽子 帽子その他",
+  "レディースファッション 帽子 ハット",
+  "レディースファッション 帽子 キャップ",
+  "レディースファッション 帽子 ストローハット",
+  "レディースファッション 帽子 ニットキャップ・ビーニー",
+  "レディースファッション 帽子 ベレー帽",
+  "レディースファッション 帽子 ハンチング・キャスケット",
+  "レディースファッション ファッション雑貨・小物 ファッション雑貨・小物その他",
+  "レディースファッション ファッション雑貨・小物 スカーフ",
+  "レディースファッション ファッション雑貨・小物 マフラー・ストール",
+  "レディースファッション ファッション雑貨・小物 マスク",
+  "レディースファッション ファッション雑貨・小物 手袋",
+  "レディースファッション ファッション雑貨・小物 イヤーマフ",
+  "レディースファッション ファッション雑貨・小物 ベルト",
+  "レディースファッション ファッション雑貨・小物 傘・レイングッズ",
+  "レディースファッション ファッション雑貨・小物 ハンカチ",
+  "レディースファッション 財布・小物 財布・小物その他",
+  "レディースファッション 財布・小物 長財布",
+  "レディースファッション 財布・小物 折りたたみ財布",
+  "レディースファッション 財布・小物 コインケース・小銭入れ",
+  "レディースファッション 財布・小物 カードケース・名刺入れ",
+  "レディースファッション 財布・小物 パスケース",
+  "レディースファッション 財布・小物 キーケース",
+  "レディースファッション 財布・小物 キーホルダー・キーリング",
+  "レディースファッション 財布・小物 ポーチ",
+  "レディースファッション 財布・小物 バッグチャーム",
+  "レディースファッション アクセサリー アクセサリーその他",
+  "レディースファッション アクセサリー ネックレス・ペンダント",
+  "レディースファッション アクセサリー ピアス",
+  "レディースファッション アクセサリー イヤリング",
+  "レディースファッション アクセサリー 指輪・リング",
+  "レディースファッション アクセサリー ブレスレット",
+  "レディースファッション アクセサリー アンクレット",
+  "レディースファッション アクセサリー ヘアアクセサリー",
+  "レディースファッション アクセサリー パーティーアクセサリー",
+  "レディースファッション アクセサリー 天然石・パワーストーン",
+  "レディースファッション 腕時計 アナログ腕時計",
+  "レディースファッション 腕時計 デジタル腕時計",
+  "レディースファッション 腕時計 腕時計用ベルト・バンド",
+  "レディースファッション 腕時計 腕時計その他",
+  "レディースファッション アイウェア アイウェアその他",
+  "レディースファッション アイウェア サングラス",
+  "レディースファッション アイウェア メガネ",
+  "レディースファッション スマホケース・テックアクセサリー",
+  "レディースファッション 靴・シューズ シューズ・サンダルその他",
+  "レディースファッション 靴・シューズ スニーカー",
+  "レディースファッション 靴・シューズ サンダル・ミュール",
+  "レディースファッション 靴・シューズ スリッポン",
+  "レディースファッション 靴・シューズ パンプス",
+  "レディースファッション 靴・シューズ フラットシューズ",
+  "レディースファッション 靴・シューズ ローファー・オックスフォード",
+  "レディースファッション 靴・シューズ バレエシューズ",
+  "レディースファッション 靴・シューズ パーティーシューズ",
+  "レディースファッション 靴・シューズ レインシューズ",
+  "レディースファッション ブーツ ブーツその他",
+  "レディースファッション ブーツ ショートブーツ・ブーティ",
+  "レディースファッション ブーツ ロングブーツ",
+  "レディースファッション ブーツ ミドルブーツ",
+  "レディースファッション ブーツ レインブーツ",
+  "レディースファッション バッグ・カバン バッグ・カバンその他",
+  "レディースファッション バッグ・カバン トートバッグ",
+  "レディースファッション バッグ・カバン ハンドバッグ",
+  "レディースファッション バッグ・カバン ショルダーバッグ・ポシェット",
+  "レディースファッション バッグ・カバン バックパック・リュック",
+  "レディースファッション バッグ・カバン クラッチバッグ",
+  "レディースファッション バッグ・カバン かごバッグ",
+  "レディースファッション バッグ・カバン ボストンバッグ",
+  "レディースファッション バッグ・カバン パーティーバッグ",
+  "レディースファッション バッグ・カバン エコバッグ",
+  "レディースファッション インナー・ルームウェア インナー・ルームウェアその他",
+  "レディースファッション インナー・ルームウェア ルームウェア・パジャマ",
+  "レディースファッション インナー・ルームウェア ブラジャー",
+  "レディースファッション インナー・ルームウェア ショーツ",
+  "レディースファッション インナー・ルームウェア ブラジャー＆ショーツ",
+  "レディースファッション インナー・ルームウェア スリップ・インナー・キャミ",
+  "レディースファッション インナー・ルームウェア スパッツ・レギンス",
+  "レディースファッション インナー・ルームウェア タイツ・ソックス",
+  "レディースファッション ヨガ・フィットネス ヨガ・フィットネスその他",
+  "レディースファッション ヨガ・フィットネス フィットネストップス",
+  "レディースファッション ヨガ・フィットネス フィットネスボトムス",
+  "レディースファッション ヨガ・フィットネス ヨガマット",
+  "レディースファッション ヨガ・フィットネス フィットネスバッグ",
+  "レディースファッション ヨガ・フィットネス フィットネスシューズ",
+  "レディースファッション ヨガ・フィットネス フィットネスアクセサリー",
+  "メンズファッション トップス トップスその他",
+  "メンズファッション トップス Tシャツ・カットソー",
+  "メンズファッション トップス ポロシャツ",
+  "メンズファッション トップス シャツ",
+  "メンズファッション トップス パーカー・フーディ",
+  "メンズファッション トップス スウェット・トレーナー",
+  "メンズファッション トップス ニット・セーター",
+  "メンズファッション トップス カーディガン",
+  "メンズファッション トップス タンクトップ",
+  "メンズファッション トップス ベスト・ジレ",
+  "メンズファッション アウター・ジャケット アウターその他",
+  "メンズファッション アウター・ジャケット コートその他",
+  "メンズファッション アウター・ジャケット ジャケットその他",
+  "メンズファッション アウター・ジャケット ダウンジャケット",
+  "メンズファッション アウター・ジャケット ブルゾン",
+  "メンズファッション アウター・ジャケット レザージャケット",
+  "メンズファッション アウター・ジャケット ピーコート",
+  "メンズファッション アウター・ジャケット ダッフルコート",
+  "メンズファッション アウター・ジャケット トレンチコート",
+  "メンズファッション アウター・ジャケット ジャージ",
+  "メンズファッション アウター・ジャケット ダウンベスト",
+  "メンズファッション アウター・ジャケット テーラードジャケット",
+  "メンズファッション ボトムス ボトムスその他",
+  "メンズファッション ボトムス パンツ",
+  "メンズファッション ボトムス デニム・ジーパン",
+  "メンズファッション ボトムス ハーフ・ショートパンツ",
+  "メンズファッション その他ファッション",
+  "メンズファッション スーツ",
+  "メンズファッション 水着・ビーチグッズ 水着・ビーチグッズその他",
+  "メンズファッション 水着・ビーチグッズ 水着",
+  "メンズファッション 水着・ビーチグッズ ラッシュガード",
+  "メンズファッション 水着・ビーチグッズ うきわ",
+  "メンズファッション 水着・ビーチグッズ ビーチタオル",
+  "メンズファッション セットアップ",
+  "メンズファッション 帽子 帽子その他",
+  "メンズファッション 帽子 ハット",
+  "メンズファッション 帽子 キャップ",
+  "メンズファッション 帽子 ストローハット",
+  "メンズファッション 帽子 ニットキャップ・ビーニー",
+  "メンズファッション 帽子 ベレー帽",
+  "メンズファッション 帽子 ハンチング・キャスケット",
+  "メンズファッション 帽子 サンバイザー",
+  "メンズファッション アクセサリー アクセサリーその他",
+  "メンズファッション アクセサリー ピアス",
+  "メンズファッション アクセサリー イヤリング",
+  "メンズファッション アクセサリー アンクレット",
+  "メンズファッション アクセサリー ネックレス・チョーカー",
+  "メンズファッション アクセサリー ブレスレット",
+  "メンズファッション アクセサリー 指輪・リング",
+  "メンズファッション 腕時計 腕時計その他",
+  "メンズファッション 腕時計 アナログ時計",
+  "メンズファッション 腕時計 デジタル時計",
+  "メンズファッション アイウェア アイウェアその他",
+  "メンズファッション アイウェア サングラス",
+  "メンズファッション アイウェア メガネ",
+  "メンズファッション 財布・雑貨 雑貨・その他",
+  "メンズファッション 財布・雑貨 長財布",
+  "メンズファッション 財布・雑貨 折りたたみ財布",
+  "メンズファッション 財布・雑貨 キーケース・キーリング",
+  "メンズファッション 財布・雑貨 カードケース・名刺入れ",
+  "メンズファッション 財布・雑貨 コインケース・小銭入れ",
+  "メンズファッション 財布・雑貨 ステーショナリー",
+  "メンズファッション ファッション雑貨・小物 ファッション雑貨・小物その他",
+  "メンズファッション ファッション雑貨・小物 マフラー",
+  "メンズファッション ファッション雑貨・小物 ストール",
+  "メンズファッション ファッション雑貨・小物 手袋",
+  "メンズファッション ファッション雑貨・小物 ベルト",
+  "メンズファッション ファッション雑貨・小物 ネクタイ",
+  "メンズファッション ファッション雑貨・小物 傘・レイングッズ",
+  "メンズファッション ファッション雑貨・小物 ハンカチ",
+  "メンズファッション ファッション雑貨・小物 靴下・ソックス",
+  "メンズファッション スマホケース・テックアクセサリー",
+  "メンズファッション 靴・ブーツ・サンダル 靴・ブーツ・サンダルその他",
+  "メンズファッション 靴・ブーツ・サンダル スニーカー",
+  "メンズファッション 靴・ブーツ・サンダル サンダル",
+  "メンズファッション 靴・ブーツ・サンダル ドレスシューズ・革靴・ビジネスシューズ",
+  "メンズファッション 靴・ブーツ・サンダル ブーツ",
+  "メンズファッション バッグ・カバン バッグ・カバンその他",
+  "メンズファッション バッグ・カバン ショルダーバッグ",
+  "メンズファッション バッグ・カバン トートバッグ",
+  "メンズファッション バッグ・カバン ボストンバッグ",
+  "メンズファッション バッグ・カバン バックパック・リュック",
+  "メンズファッション バッグ・カバン ビジネスバッグ・アタッシュケース",
+  "メンズファッション バッグ・カバン クラッチバッグ",
+  "メンズファッション インナー・ルームウェア インナー・ルームウェアその他",
+  "メンズファッション インナー・ルームウェア アンダーシャツ・インナー",
+  "メンズファッション インナー・ルームウェア トランクス",
+  "メンズファッション インナー・ルームウェア ブリーフ",
+  "メンズファッション インナー・ルームウェア ボクサーパンツ",
+  "メンズファッション インナー・ルームウェア ルームウェア・パジャマ",
+  "メンズファッション フィットネス フィットネスその他",
+  "メンズファッション フィットネス フィットネストップス",
+  "メンズファッション フィットネス フィットネスボトムス",
+  "メンズファッション フィットネス フィットネスバッグ",
+  "メンズファッション フィットネス フィットネスシューズ",
+  "メンズファッション フィットネス フィットネスアクセサリー",
+  "ライフスタイル 家具・日用品 家具・日用品その他",
+  "ライフスタイル 家具・日用品 家具・収納",
+  "ライフスタイル 家具・日用品 照明",
+  "ライフスタイル 家具・日用品 バス・ランドリー",
+  "ライフスタイル 家具・日用品 洗剤・清掃グッズ",
+  "ライフスタイル 家具・日用品 ダストボックス(ゴミ箱)・傘立て",
+  "ライフスタイル キッチン・ダイニング キッチン・ダイニングその他",
+  "ライフスタイル キッチン・ダイニング 調理器具",
+  "ライフスタイル キッチン・ダイニング 食器（皿）",
+  "ライフスタイル キッチン・ダイニング コップ・グラス・マグカップ",
+  "ライフスタイル キッチン・ダイニング タンブラー",
+  "ライフスタイル キッチン・ダイニング カトラリー",
+  "ライフスタイル キッチン・ダイニング 容器・ストッカー",
+  "ライフスタイル キッチン・ダイニング キッチン雑貨",
+  "ライフスタイル キッチン・ダイニング テーブルリネン",
+  "ライフスタイル キッチン・ダイニング エプロン",
+  "ライフスタイル キッチン・ダイニング キッチン収納",
+  "ライフスタイル キッチン・ダイニング 料理本",
+  "ライフスタイル インテリア雑貨・DIY インテリア雑貨・DIYその他",
+  "ライフスタイル インテリア雑貨・DIY ＤＩＹ・工具",
+  "ライフスタイル インテリア雑貨・DIY ポスター・ウォールステッカー",
+  "ライフスタイル インテリア雑貨・DIY 壁紙",
+  "ライフスタイル インテリア雑貨・DIY タペストリー",
+  "ライフスタイル インテリア雑貨・DIY ルームフレグランス",
+  "ライフスタイル インテリア雑貨・DIY キャンドル",
+  "ライフスタイル インテリア雑貨・DIY 時計",
+  "ライフスタイル インテリア雑貨・DIY アート・美術品",
+  "ライフスタイル ファブリック ファブリックその他",
+  "ライフスタイル ファブリック ベッドカバー・リネン",
+  "ライフスタイル ファブリック ブランケット",
+  "ライフスタイル ファブリック クッション・クッションカバー",
+  "ライフスタイル ファブリック ラグ・マット・カーペット",
+  "ライフスタイル ファブリック カーテン",
+  "ライフスタイル ファブリック タオル",
+  "ライフスタイル トラベルグッズ トラベルその他",
+  "ライフスタイル トラベルグッズ スーツケース",
+  "ライフスタイル トラベルグッズ バッグ",
+  "ライフスタイル トラベルグッズ ラゲッジタグ",
+  "ライフスタイル トラベルグッズ パスポートケース・ウォレット",
+  "ライフスタイル トラベルグッズ トラベルポーチ",
+  "ライフスタイル トラベルグッズ トラベル小物",
+  "ライフスタイル レジャー・アウトドア レジャー・アウトドアその他",
+  "ライフスタイル レジャー・アウトドア バーベキュー・クッキング用品",
+  "ライフスタイル レジャー・アウトドア レジャー・ピクニック用品",
+  "ライフスタイル レジャー・アウトドア テーブル・チェア",
+  "ライフスタイル レジャー・アウトドア 寝袋・シュラフ",
+  "ライフスタイル レジャー・アウトドア テント・タープ",
+  "ライフスタイル レジャー・アウトドア オートバイ・自転車",
+  "ライフスタイル ペット用品 首輪・ハーネス・リード",
+  "ライフスタイル ペット用品 ペットキャリー",
+  "ライフスタイル ペット用品 洋服",
+  "ライフスタイル ペット用品 ペットベッド・ケージ",
+  "ライフスタイル ペット用品 おもちゃ・キャットタワー",
+  "ライフスタイル ペット用品 フードボウル・えさ関連",
+  "ライフスタイル ペット用品 衛生用品",
+  "ライフスタイル ペット用品 ペット用品その他",
+  "ライフスタイル ホビー・カルチャー ゲーム",
+  "ライフスタイル ホビー・カルチャー キャラクターグッズ",
+  "ライフスタイル ホビー・カルチャー 模型・プラモデル・ラジコン",
+  "ライフスタイル ホビー・カルチャー カメラ・カメラグッズ",
+  "ライフスタイル ホビー・カルチャー AV機器(オーディオ・映像)",
+  "ライフスタイル ホビー・カルチャー 楽器・音楽機材",
+  "ライフスタイル ホビー・カルチャー 手芸・工芸道具",
+  "ライフスタイル ホビー・カルチャー 花・ガーデニング",
+  "ライフスタイル ホビー・カルチャー ミュージシャン・タレント・映画グッズ",
+  "ライフスタイル ホビー・カルチャー 絵本・書籍",
+  "ライフスタイル ホビー・カルチャー CD・DVD",
+  "ライフスタイル ホビー・カルチャー 衣装・コスチューム",
+  "ライフスタイル ホビー・カルチャー パーティーグッズ",
+  "ライフスタイル ホビー・カルチャー ホビー・カルチャーその他",
+  "ライフスタイル ステーショナリ・文房具 手帳",
+  "ライフスタイル ステーショナリ・文房具 鉛筆・ペン・万年筆",
+  "ライフスタイル ステーショナリ・文房具 レターセット・ポストカード",
+  "ライフスタイル ステーショナリ・文房具 ノート",
+  "ライフスタイル ステーショナリ・文房具 ペンケース",
+  "ライフスタイル ステーショナリ・文房具 ステーショナリ・文房具その他",
+  "ライフスタイル 電子タバコ スターターキット",
+  "ライフスタイル 電子タバコ リキッド",
+  "ライフスタイル 電子タバコ アクセサリー",
+  "ライフスタイル ライフスタイルその他",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビーロンパース・カバーオール",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビーワンピース",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー用トップス",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー用ボトムス",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) べビーアウター",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー用靴下、タイツ、ブルマ、スパッツ類",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) よだれかけ・スタイ・ビブ",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー肌着・下着",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビーパジャマ・ルームウェア・スリーパー",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) おくるみ・ブランケット",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビーレインコート・レイングッズ",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー水着・ビーチグッズ",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー用コスチューム・着ぐるみ",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー用フォーマル・セレモニーウェア",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビー帽子・手袋・ファッション小物",
+  "ベビー・キッズ ベビー服・ファッション用品(～90cm) ベビーその他",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) キッズ用トップス",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) キッズ用ボトムス",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) キッズワンピース・オールインワン",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) キッズアウター",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用靴下、タイツ、ブルマ、スパッツ類",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用肌着・下着",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用パジャマ・ルームウェア・スリーパー",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) キッズスポーツウェア",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用レインコート・レイングッズ",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用水着・ビーチグッズ",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用コスチューム・着ぐるみ",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用フォーマル・セレモニーウェア",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) 子供用帽子・手袋・ファッション小物",
+  "ベビー・キッズ 子供服・ファッション用品(85cm～) キッズその他",
+  "ベビー・キッズ ベビーシューズ・靴(～14cm) ベビースニーカー",
+  "ベビー・キッズ ベビーシューズ・靴(～14cm) ベビーバレエシューズ・フラットシューズ",
+  "ベビー・キッズ ベビーシューズ・靴(～14cm) ベビーサンダル",
+  "ベビー・キッズ ベビーシューズ・靴(～14cm) ベビーブーツ",
+  "ベビー・キッズ ベビーシューズ・靴(～14cm) ベビーレインブーツ・長靴",
+  "ベビー・キッズ ベビーシューズ・靴(～14cm) ベビーフォーマルシューズ",
+  "ベビー・キッズ ベビーシューズ・靴(～14cm) ベビーシューズ・靴その他",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズスニーカー",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズバレエシューズ・フラットシューズ",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズサンダル",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズブーツ",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズレインブーツ・長靴",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズルームシューズ",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズフォーマルシューズ",
+  "ベビー・キッズ キッズシューズ・子供靴(14.5cm～) キッズシューズ・靴その他",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティトップス",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティパンツ・スカート",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティレギンス・タイツ",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティワンピース",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティコート・アウター",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティ下着・肌着",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティパジャマ・ルームウェア",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティ水着・フィットネス・スポーツウェア",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティドレス・フォーマル",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ 母子手帳ケース",
+  "ベビー・キッズ マタニティウェア・授乳服・グッズ マタニティウェア・授乳服・グッズその他",
+  "ベビー・キッズ マザーズバッグ 子供用リュック・バックパック",
+  "ベビー・キッズ マザーズバッグ 子供用トート・レッスンバッグ",
+  "ベビー・キッズ マザーズバッグ 子供用ショルダー・ポシェット・ボディバッグ",
+  "ベビー・キッズ マザーズバッグ キッズバッグ・財布その他",
+  "ベビー・キッズ キッズバッグ・財布 子供用リュック・バックパック",
+  "ベビー・キッズ キッズバッグ・財布 子供用トート・レッスンバッグ",
+  "ベビー・キッズ キッズバッグ・財布 子供用ショルダー・ポシェット・ボディバッグ",
+  "ベビー・キッズ キッズバッグ・財布 キッズバッグ・財布その他",
+  "ベビー・キッズ ベビーカー",
+  "ベビー・キッズ チャイルドシート(ベビー/ジュニア)",
+  "ベビー・キッズ 抱っこ紐・スリング・ベビーキャリア",
+  "ベビー・キッズ おしゃぶり・授乳・離乳食グッズ",
+  "ベビー・キッズ 赤ちゃん用スキンケア",
+  "ベビー・キッズ おもちゃ・知育玩具 プレイマット・ベビーマット",
+  "ベビー・キッズ おもちゃ・知育玩具 ガラガラ・ラトル",
+  "ベビー・キッズ おもちゃ・知育玩具 ぬいぐるみ・フィギュア・ドールハウス",
+  "ベビー・キッズ おもちゃ・知育玩具 おままごとセット",
+  "ベビー・キッズ おもちゃ・知育玩具 ブロック・パズル・ゲーム",
+  "ベビー・キッズ おもちゃ・知育玩具 絵本・ぬり絵・シール",
+  "ベビー・キッズ おもちゃ・知育玩具 ミニカー・電車・乗り物おもちゃ",
+  "ベビー・キッズ おもちゃ・知育玩具 バストイ・水遊びグッズ",
+  "ベビー・キッズ おもちゃ・知育玩具 おもちゃ・知育玩具その他",
+  "ベビー・キッズ キッズ・ベビー・マタニティその他",
 ];
