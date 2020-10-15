@@ -1140,31 +1140,32 @@ ipcMain.on("make-account-dir", (event, user_name) => {
               ];
               for (let i = 0; i < txt_list.length; i++) {
                 var conf_path = path.join(dir, txt_list[i]);
-                fs.writeFile(conf_path, "", (err) => {
-                  if (err) throw err;
-                });
+                if (!isExistFile(conf_path)) {
+                  fs.writeFile(conf_path, "", (err) => {
+                    if (err) throw err;
+                  });
+                }
               }
             });
 
             //tmp_brandディレクトリ作成
             makeDir(path.join(buyma_dir, "tmp_brand")).then((dir) => {
               makeDir(path.join(dir, "Saint Laurent")).then((dir) => {
-                mkfile(dir);
-                text_data =
+                mkCategoryFile(dir);
+                var text_data =
                   "「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。";
-                fs.writeFile(
-                  path.join(dir, "Saint Laurent.txt"),
-                  text_data,
-                  function (err) {
+                var text_path = path.join(dir, "Saint Laurent.txt");
+                if (!isExistFile(text_path)) {
+                  fs.writeFile(text_path, text_data, (err) => {
                     if (err) throw err;
-                  }
-                );
+                  });
+                }
               });
             });
 
             // tmp_categoryディレクトリ作成
             makeDir(path.join(buyma_dir, "tmp_category")).then((dir) => {
-              mkfile(dir);
+              mkCategoryFile(dir);
             });
 
             //img_contentディレクトリ作成
@@ -1179,7 +1180,7 @@ ipcMain.on("make-account-dir", (event, user_name) => {
             //accountディレクトリ作成
             makeDir(path.join(buyma_dir, "account")).then((dir) => {
               console.log(dir);
-              makeDir(path.join(dir_path, user_name)).then((dir) => {
+              makeDir(path.join(dir, user_name)).then((dir) => {
                 console.log(dir);
                 makeDir(path.join(dir, "template")).then((dir) => {
                   console.log(dir);
@@ -1191,9 +1192,11 @@ ipcMain.on("make-account-dir", (event, user_name) => {
                   ];
                   for (let i = 0; i < txt_list.length; i++) {
                     var temp_path = path.join(dir, txt_list[i]);
-                    fs.writeFile(temp_path, " ", (err) => {
-                      if (err) throw err;
-                    });
+                    if (!isExistFile(temp_path)) {
+                      fs.writeFile(temp_path, " ", (err) => {
+                        if (err) throw err;
+                      });
+                    }
                   }
                 });
               });
@@ -1298,15 +1301,17 @@ function fcmkfile(file_path) {
   return new Promise((resolve) => {
     fs.mkdir(getDirName(file_path), { recursive: true }, (err) => {
       if (err) console.log(err);
-      fs.writeFile(file_path, "", (err) => {
-        if (err) console.log(err);
-        resolve();
-      });
+      if (!isExistFile(file_path)) {
+        fs.writeFile(file_path, "", (err) => {
+          if (err) console.log(err);
+          resolve();
+        });
+      }
     });
   });
 }
 
-async function mkfile(dir) {
+async function mkCategoryFile(dir) {
   // カテゴリテンプレートのリスト作成
   file_list = [];
   for (let i = 0; i < category_list.length; i++) {
@@ -1352,6 +1357,15 @@ function readCSV(path) {
 function readTXT(path) {
   let res = fs.readFileSync(path);
   return res;
+}
+
+function isExistFile(file) {
+  try {
+    fs.statSync(file);
+    return true;
+  } catch (err) {
+    if (err.code === "ENOENT") return false;
+  }
 }
 
 // 文字列を表形式(HTML)に
