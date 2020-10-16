@@ -103,6 +103,7 @@ StartBtn.addEventListener("click", (event) => {
     csv_name: global.csv_name,
     url_memo: document.getElementById("url_memo").value,
     duplicate: document.getElementById("duplicate").value,
+    wait_time: document.getElementById("wait_time").value,
   };
   ipcRenderer.send("start-exhibition", JSON.stringify(args_list));
 });
@@ -165,6 +166,7 @@ var txt1 = {
   duplicate: "重複チェック",
   access_code: "アクセスコード",
   draft: "下書き",
+  wait_time: "出品間隔",
 };
 
 var txt2 = {
@@ -183,6 +185,8 @@ var txt2 = {
     "Chromeから取得したアクセスコードを入力してください。\n詳しい取得方法は動画を参照してください。",
   draft:
     "BUYMAに下書き保存をするかどうか選択できます。「on」か「off」かで記入してください。",
+  wait_time:
+    "BUYMAに1品出品してから次の出品作業に移るまでの出品間隔を「秒」で設定できます。\n1分の場合は「60」と入力してください。",
 };
 // ヘルプボタン
 function gethelp(key) {
