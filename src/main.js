@@ -259,7 +259,7 @@ function initWindowMenu() {
           },
         },
         {
-          label: "終了2",
+          label: "BASE自動システム",
           click() {
             mainWindow.loadFile(path.join(__dirname, "public", "base.html"));
           },
