@@ -58,18 +58,18 @@
       </div>
       <div class="col-sm-2">
         <b> 日：</b>
-        <input type="text" id="day-score" size="10" value="" maxlength="20">
-        <button onclick=gethelp('days')>？</button>
+        <input type="text" id="day_score" size="10" value="" maxlength="20">
+        <button onclick=gethelp('day_score')>？</button>
       </div>
       <div class="col-sm-2">
         <b> 時：</b>
-        <input type="text" id="hour-score" size="10" value="" maxlength="20">
-        <button onclick=gethelp('days')>？</button>
+        <input type="text" id="hour_score" size="10" value="" maxlength="20">
+        <button onclick=gethelp('hour_score')>？</button>
       </div>
       <div class="col-sm-6">
         <b>アクセスコード：</b>
-        <input type="text" id="access-code" size="18" maxlength="100000">
-        <button onclick=gethelp('access_code')>？</button>
+        <input type="text" id="cookie" size="18" maxlength="100000">
+        <button onclick=gethelp('cookie')>？</button>
       </div>
     </div>
 
@@ -88,14 +88,22 @@
           <option value="on">ON</option>
           <option value="off">OFF</option>
         </select>
-        <button onclick=gethelp('memo')>？</button>
+        <button onclick=gethelp('url_memo')>？</button>
+      </div>
+      <div class="col-sm-2">
+        <b>CSVメモ：</b>
+        <select id="csv_memo">
+          <option value="on">ON</option>
+          <option value="off">OFF</option>
+        </select>
+        <button onclick=gethelp('csv_memo')>？</button>
       </div>
       <div class="col-sm-2">
         <b> 出品間隔：</b>
         <input type="text" id="wait_time" size="10" value="" maxlength="20">
         <button onclick=gethelp('wait_time')>？</button>
       </div>
-      <div class="col-sm-6">
+      <div class="col-sm-4">
         <input type="submit" id="start-exhibition" value="出品開始">
       </div>
     </div>

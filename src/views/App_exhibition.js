@@ -1,26 +1,35 @@
 // rendererとipc通信を行う
 const { ipcRenderer, remote } = require("electron");
 const path = require("path");
-const { Menu, MenuItem } = remote
+const { Menu, MenuItem } = remote;
 global.checker = false;
+global.keys_list = process.env.exhibition_conf_list.split(",");
 
 // 右クリックメニュー
-const menu = new Menu()
-menu.append(new MenuItem({
-  label: 'コピー',
-  accelerator: 'CmdOrCtrl+C',
-  role: 'copy'
-}))
-menu.append(new MenuItem({
-  label: '貼り付け',
-  accelerator: 'CmdOrCtrl+V',
-  role: 'paste'
-}))
+const menu = new Menu();
+menu.append(
+  new MenuItem({
+    label: "コピー",
+    accelerator: "CmdOrCtrl+C",
+    role: "copy",
+  })
+);
+menu.append(
+  new MenuItem({
+    label: "貼り付け",
+    accelerator: "CmdOrCtrl+V",
+    role: "paste",
+  })
+);
 
-window.addEventListener('contextmenu', (e) => {
-  e.preventDefault()
-  menu.popup({ window: remote.getCurrentWindow() })
-}, false)
+window.addEventListener(
+  "contextmenu",
+  (e) => {
+    e.preventDefault();
+    menu.popup({ window: remote.getCurrentWindow() });
+  },
+  false
+);
 
 // 動的に作成したボタンから呼び出してCSV読みこみ
 global.csv_name = "";
@@ -99,11 +108,11 @@ StartBtn.addEventListener("click", (event) => {
     return;
   }
 
-  let access_code = document.getElementById("access-code").value;
+  let cookie = document.getElementById("cookie").value;
   if (
-    access_code.indexOf("kaiin_id%22%3A") === -1 ||
-    access_code.indexOf("%2C%22nickname") === -1 ||
-    access_code.indexOf("_GEWZxdbe2H2bte4N") === -1
+    cookie.indexOf("kaiin_id%22%3A") === -1 ||
+    cookie.indexOf("%2C%22nickname") === -1 ||
+    cookie.indexOf("_GEWZxdbe2H2bte4N") === -1
   ) {
     ipcRenderer.send(
       "cause-error",
@@ -114,16 +123,19 @@ StartBtn.addEventListener("click", (event) => {
   }
   // var mail = document.getElementById('mail').value
   var args_list = {
-    day_score: document.getElementById("day-score").value,
-    hour_score: document.getElementById("hour-score").value,
-    cookie: document.getElementById("access-code").value,
-    draft: document.getElementById("draft").value,
     dir_path: global.directory_name,
     csv_name: global.csv_name,
-    url_memo: document.getElementById("url_memo").value,
-    duplicate: document.getElementById("duplicate").value,
-    wait_time: document.getElementById("wait_time").value,
   };
+
+  // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します
+  for (let i = 0; i < keys_list.length; i++) {
+    try {
+      args_list[keys_list[i]] = document.getElementById(keys_list[i]).value;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  console.log(args_list);
   ipcRenderer.send("start-exhibition", JSON.stringify(args_list));
 });
 
@@ -137,7 +149,7 @@ ipcRenderer.on("selected-directory", (event, path) => {
 
 // 選択したディレクトリに保存されたアクセスコードを表示
 ipcRenderer.on("update-accesscode", (event, code) => {
-  document.getElementById("access-code").value = code;
+  document.getElementById("cookie").value = code;
 });
 
 // 選択したcsvをボタンで表示
@@ -180,10 +192,12 @@ var txt1 = {
   new_dir: "アカウントフォルダ新規作成",
   choice_dir: "アカウントフォルダを開く",
   reset: "リセット",
-  days: "重複検査",
-  memo: "買い付け先メモ",
+  day_score: "重複検査",
+  hour_score: "重複検査",
+  url_memo: "買い付け先メモ",
+  csv_memo: "CSVのフォルダ名メモ",
   duplicate: "重複チェック",
-  access_code: "アクセスコード",
+  cookie: "アクセスコード",
   draft: "下書き",
   wait_time: "出品間隔",
 };
@@ -194,13 +208,17 @@ var txt2 = {
   choice_dir:
     "出品するアカウントのディレクトリを選択します。\n事前にdataディレクトリからcsvと画像データを移動しておいてください。",
   reset: "開いたディレクトリや表示したCSVをリセットできます。",
-  days:
+  day_score:
     "過去の出品との重複を検知します。\n指定した日付以降に出品されていた場合スキップされます。",
-  memo:
+  hour_score:
+    "過去の出品との重複を検知します。\n指定した日付以降に出品されていた場合スキップされます。",
+  url_memo:
     "BUYMAの出品時に買い付け先メモを記入するかどうか選択できます。「on」か「off」かで記入してください。",
+  csv_memo:
+    "BUYMAの出品時にCSVのフォルダ名をメモに記入するかどうか選択できます。「on」か「off」かで記入してください。",
   duplicate:
     "BUYMAの出品時に重複チェックをするかどうか選択できます。「on」か「off」かで記入してください。",
-  access_code:
+  cookie:
     "Chromeから取得したアクセスコードを入力してください。\n詳しい取得方法は動画を参照してください。",
   draft:
     "BUYMAに下書き保存をするかどうか選択できます。「on」か「off」かで記入してください。",
