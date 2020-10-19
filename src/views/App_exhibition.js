@@ -1,7 +1,26 @@
 // rendererとipc通信を行う
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, remote } = require("electron");
 const path = require("path");
+const { Menu, MenuItem } = remote
 global.checker = false;
+
+// 右クリックメニュー
+const menu = new Menu()
+menu.append(new MenuItem({
+  label: 'コピー',
+  accelerator: 'CmdOrCtrl+C',
+  role: 'copy'
+}))
+menu.append(new MenuItem({
+  label: '貼り付け',
+  accelerator: 'CmdOrCtrl+V',
+  role: 'paste'
+}))
+
+window.addEventListener('contextmenu', (e) => {
+  e.preventDefault()
+  menu.popup({ window: remote.getCurrentWindow() })
+}, false)
 
 // 動的に作成したボタンから呼び出してCSV読みこみ
 global.csv_name = "";

@@ -1,6 +1,25 @@
 // rendererとipc通信を行う
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, remote } = require("electron");
+const { Menu, MenuItem } = remote
 global.manager_conf = "";
+
+// 右クリックメニュー
+const menu = new Menu()
+menu.append(new MenuItem({
+  label: 'コピー',
+  accelerator: 'CmdOrCtrl+C',
+  role: 'copy'
+}))
+menu.append(new MenuItem({
+  label: '貼り付け',
+  accelerator: 'CmdOrCtrl+V',
+  role: 'paste'
+}))
+
+window.addEventListener('contextmenu', (e) => {
+  e.preventDefault()
+  menu.popup({ window: remote.getCurrentWindow() })
+}, false)
 
 // デスクトップがあれば選択
 ipcRenderer.send("init-manager");

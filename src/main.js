@@ -6,6 +6,7 @@ const {
   dialog,
   session,
   Menu,
+  MenuItem,
   systemPreferences,
 } = require("electron");
 const fs = require("fs");
@@ -132,6 +133,7 @@ function createWindow() {
     mainWindow = null;
   });
 }
+
 
 //  初期化が完了した時の処理
 app.on("ready", createWindow);
