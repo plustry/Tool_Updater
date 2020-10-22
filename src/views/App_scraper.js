@@ -1,24 +1,32 @@
 // rendererとipc通信を行う
 const { ipcRenderer, remote } = require("electron");
-const { Menu, MenuItem } = remote
+const { Menu, MenuItem } = remote;
 
 // 右クリックメニュー
-const menu = new Menu()
-menu.append(new MenuItem({
-  label: 'コピー',
-  accelerator: 'CmdOrCtrl+C',
-  role: 'copy'
-}))
-menu.append(new MenuItem({
-  label: '貼り付け',
-  accelerator: 'CmdOrCtrl+V',
-  role: 'paste'
-}))
+const menu = new Menu();
+menu.append(
+  new MenuItem({
+    label: "コピー",
+    accelerator: "CmdOrCtrl+C",
+    role: "copy",
+  })
+);
+menu.append(
+  new MenuItem({
+    label: "貼り付け",
+    accelerator: "CmdOrCtrl+V",
+    role: "paste",
+  })
+);
 
-window.addEventListener('contextmenu', (e) => {
-  e.preventDefault()
-  menu.popup({ window: remote.getCurrentWindow() })
-}, false)
+window.addEventListener(
+  "contextmenu",
+  (e) => {
+    e.preventDefault();
+    menu.popup({ window: remote.getCurrentWindow() });
+  },
+  false
+);
 
 // 設定項目をすべて満たしているかどうか
 global.checker = false;
@@ -77,7 +85,7 @@ ipcRenderer.on("selected-url-lists", (event, path) => {
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  global.directory_name = path;
+  global.data_dir_path = path;
   document.getElementById(
     "selected-folder"
   ).innerHTML = `You selected: ${path}`;
@@ -271,7 +279,7 @@ StartBtn.addEventListener("click", (event) => {
     spider_name: crawler_or_spidercls,
     user_id: user_id,
     limit: crawl_limit,
-    dir_path: directory_name,
+    data_dir_path: data_dir_path,
     url_lists: document.getElementById("url_lists").value,
     start_urls: document.getElementById("start_urls").value,
     email: document.getElementById("email").value,

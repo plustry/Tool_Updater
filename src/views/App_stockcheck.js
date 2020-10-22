@@ -1,24 +1,33 @@
 // rendererとipc通信を行う
 const { ipcRenderer, remote } = require("electron");
-const { Menu, MenuItem } = remote
+const path = require("path");
+const { Menu, MenuItem } = remote;
 
 // 右クリックメニュー
-const menu = new Menu()
-menu.append(new MenuItem({
-  label: 'コピー',
-  accelerator: 'CmdOrCtrl+C',
-  role: 'copy'
-}))
-menu.append(new MenuItem({
-  label: '貼り付け',
-  accelerator: 'CmdOrCtrl+V',
-  role: 'paste'
-}))
+const menu = new Menu();
+menu.append(
+  new MenuItem({
+    label: "コピー",
+    accelerator: "CmdOrCtrl+C",
+    role: "copy",
+  })
+);
+menu.append(
+  new MenuItem({
+    label: "貼り付け",
+    accelerator: "CmdOrCtrl+V",
+    role: "paste",
+  })
+);
 
-window.addEventListener('contextmenu', (e) => {
-  e.preventDefault()
-  menu.popup({ window: remote.getCurrentWindow() })
-}, false)
+window.addEventListener(
+  "contextmenu",
+  (e) => {
+    e.preventDefault();
+    menu.popup({ window: remote.getCurrentWindow() });
+  },
+  false
+);
 
 // 設定項目をすべて満たしているかどうか
 global.checker = false;
@@ -72,15 +81,12 @@ selectLogoBtn.addEventListener("click", (event) => {
 });
 // 選択されたファイルを適用
 ipcRenderer.on("selected-url-lists", (event, path) => {
-  document.getElementById("url_lists").value = path;
+  document.getElementById("csv_path").value = path;
 });
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  global.directory_name = path;
-  document.getElementById(
-    "selected-folder"
-  ).innerHTML = `You selected: ${path}`;
+  document.getElementById("buyma_dir").value = path;
 });
 
 // SQL認証
@@ -138,16 +144,12 @@ function load_shop(obj) {
 }
 
 function start_check() {
-  let doc_data = document.getElementById("url_lists").value;
-  if (!checker) {
-    ipcRenderer.send("cause-error", "未設定項目", "ショップを選択してください");
+  let doc_data = document.getElementById("csv_path").value;
+  if (!login) {
+    ipcRenderer.send("cause-error", "未認証", "認証開始を押してください。");
     return false;
-  } else if (document.getElementById("url_lists").value == "") {
-    ipcRenderer.send(
-      "cause-error",
-      "未設定項目",
-      "開始URLまたはURLリストを入力してください"
-    );
+  } else if (!checker) {
+    ipcRenderer.send("cause-error", "未設定項目", "ショップを選択してください");
     return false;
   } else if (doc_data.indexOf("https:") !== -1 && doc_data !== "") {
     ipcRenderer.send(
@@ -174,8 +176,11 @@ StartBtn.addEventListener("click", (event) => {
     spider_name: crawler_or_spidercls,
     user_id: user_id,
     limit: crawl_limit,
-    dir_path: directory_name,
-    url_lists: document.getElementById("url_lists").value,
+    data_dir_path: path.join(
+      document.getElementById("buyma_dir").value,
+      "data"
+    ),
+    csv_path: document.getElementById("csv_path").value,
     email: document.getElementById("email").value,
     password: document.getElementById("password").value,
   };
@@ -188,6 +193,23 @@ StartBtn.addEventListener("click", (event) => {
       args_list["crawler_or_spidercls"]
   );
   ipcRenderer.send("start-stockcheck", JSON.stringify(args_list));
+});
+
+// 在庫反映開始
+const StartReflectBtn = document.getElementById("start-stock-reflect");
+StartReflectBtn.addEventListener("click", (event) => {
+  // 入力チェック
+  if (!start_check()) {
+    return;
+  }
+  // crawler_or_spiderclsはpipelineでなくなってしまう
+  var args_list = {
+    buyma_dir: document.getElementById("buyma_dir").value,
+    csv_path: document.getElementById("csv_path").value,
+    email: document.getElementById("email").value,
+    password: document.getElementById("password").value,
+  };
+  ipcRenderer.send("start-stock-reflect", JSON.stringify(args_list));
 });
 
 // ログ画面
@@ -213,12 +235,12 @@ function AutoAdjust() {
 // ヘルプ項目
 var txt1 = {
   open_dir: "dataフォルダ",
-  url_lists: "商品リストCSV",
+  csv_path: "商品リストCSV",
 };
 
 var txt2 = {
   open_dir: "dataフォルダを選択してください。(BUYMA/data)",
-  url_lists:
+  csv_path:
     "取得したい商品URLリストを指定することで、指定のURLのみ取得することが可能です。\n設定した場合は開始URLよりも優先されます。",
 };
 // ヘルプボタン

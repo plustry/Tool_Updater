@@ -1,25 +1,33 @@
 // rendererとipc通信を行う
 const { ipcRenderer, remote } = require("electron");
-const { Menu, MenuItem } = remote
+const { Menu, MenuItem } = remote;
 global.manager_conf = "";
 
 // 右クリックメニュー
-const menu = new Menu()
-menu.append(new MenuItem({
-  label: 'コピー',
-  accelerator: 'CmdOrCtrl+C',
-  role: 'copy'
-}))
-menu.append(new MenuItem({
-  label: '貼り付け',
-  accelerator: 'CmdOrCtrl+V',
-  role: 'paste'
-}))
+const menu = new Menu();
+menu.append(
+  new MenuItem({
+    label: "コピー",
+    accelerator: "CmdOrCtrl+C",
+    role: "copy",
+  })
+);
+menu.append(
+  new MenuItem({
+    label: "貼り付け",
+    accelerator: "CmdOrCtrl+V",
+    role: "paste",
+  })
+);
 
-window.addEventListener('contextmenu', (e) => {
-  e.preventDefault()
-  menu.popup({ window: remote.getCurrentWindow() })
-}, false)
+window.addEventListener(
+  "contextmenu",
+  (e) => {
+    e.preventDefault();
+    menu.popup({ window: remote.getCurrentWindow() });
+  },
+  false
+);
 
 // デスクトップがあれば選択
 ipcRenderer.send("init-manager");
@@ -51,10 +59,6 @@ selectDirBtn.addEventListener("click", (event) => {
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
   document.getElementById("buyma_dir").value = path;
-  // global.directory_name = path;
-  // document.getElementById(
-  //   "buyma_dir"
-  // ).innerHTML = `You selected: ${path}`;
 });
 
 // Manager開始

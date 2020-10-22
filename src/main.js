@@ -134,7 +134,6 @@ function createWindow() {
   });
 }
 
-
 //  初期化が完了した時の処理
 app.on("ready", createWindow);
 
@@ -863,9 +862,9 @@ function WriteConf(event, args_list, which_conf) {
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 ipcMain.on("init-stockcheck", (event) => {
   try {
-    fs.statSync(dir_data);
+    fs.statSync(dir_buyma);
     console.log("デフォルトフォルダが存在したので開きます。");
-    event.sender.send("selected-directory", dir_data);
+    event.sender.send("selected-directory", dir_buyma);
   } catch (error) {
     console.log(error);
   }
@@ -899,6 +898,50 @@ ipcMain.on("start-stockcheck", (event, args_list) => {
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
   console.log(options);
   let pyshell = new PythonShell("stock_check.py", options);
+
+  pyshell.on("message", function (message) {
+    message = toString(message);
+    event.sender.send("log-create", message);
+  });
+
+  pyshell.on("stderr", function (message) {
+    ErrorLog(event, message);
+  });
+
+  pyshell.end(function (err, code, signal) {
+    if (err) throw err;
+    event.sender.send("log-create", "処理は全て終了しました");
+  });
+});
+
+// 在庫反映開始
+ipcMain.on("start-stock-reflect", (event, args_list) => {
+  // 認証チェック
+  if (scraper_key !== "one time login key ***scraper***") {
+    event.sender.send("log-create", "認証が完了していません。");
+    return;
+  }
+  // confを更新する
+  args_list = JSON.parse(args_list);
+  args_list["electron_dir"] = __dirname;
+
+  let options = {
+    mode: "text",
+    pythonPath: python_path,
+    scriptPath: python_script_dir,
+    pythonOptions: ["-u"],
+    args: JSON.stringify(args_list),
+    encoding: "binary",
+  };
+
+  // Macのときはエンコーディングする必要がない
+  if (os_info == "darwin") {
+    delete options["encoding"];
+  }
+
+  // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
+  console.log(options);
+  let pyshell = new PythonShell("stock_reflect.py", options);
 
   pyshell.on("message", function (message) {
     message = toString(message);
