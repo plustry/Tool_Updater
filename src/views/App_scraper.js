@@ -85,10 +85,7 @@ ipcRenderer.on("selected-url-lists", (event, path) => {
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  global.data_dir_path = path;
-  document.getElementById(
-    "selected-folder"
-  ).innerHTML = `You selected: ${path}`;
+  document.getElementById("data_dir").value = path;
 });
 
 // SQL認証
@@ -104,16 +101,12 @@ ipcRenderer.on("load-login-data", (event, arg_json) => {
   // ログイン成功
   login = true;
   arg_json = JSON.parse(arg_json);
-
-  // load_shopやstart-scrapyで使用するためグローバル関数にする
-  global.user_shop_dict = arg_json["user_shop_dict"];
-  global.crawl_limit = arg_json["crawl_limit"];
-  global.user_id = arg_json["user_id"];
-  // console.log(user_shop_dict)
+  document.getElementById("user_id").innerHTML = arg_json["user_id"];
+  document.getElementById("crawl_limit").innerHTML = arg_json["crawl_limit"];
 
   // ユーザーの登録しているショップ情報を取得して、ドロップダウンをページに反映
-  button_list =
-    "<select onchange=load_shop(this)><option value=-1>ショップを選択してください</option>";
+  button_list = "<select onchange=load_shop(this)><option value=-1>ショップを選択してください</option>";
+  var user_shop_dict = arg_json["user_shop_dict"];
   keys_list = Object.keys(user_shop_dict);
   for (let i = 0; i < keys_list.length; i++) {
     spider_name = keys_list[i];
@@ -276,10 +269,9 @@ StartBtn.addEventListener("click", (event) => {
   // crawler_or_spiderclsはpipelineでなくなってしまう
   var args_list = {
     crawler_or_spidercls: crawler_or_spidercls,
-    spider_name: crawler_or_spidercls,
-    user_id: user_id,
-    limit: crawl_limit,
-    data_dir_path: data_dir_path,
+    user_id: document.getElementById("user_id").innerHTML,
+    crawl_limit: document.getElementById("crawl_limit").innerHTML,
+    data_dir: document.getElementById("data_dir").value,
     url_lists: document.getElementById("url_lists").value,
     start_urls: document.getElementById("start_urls").value,
     email: document.getElementById("email").value,
@@ -301,7 +293,7 @@ StartBtn.addEventListener("click", (event) => {
     "スクレイピング開始",
     "商品リストの取得を開始しました",
     "アプリを閉じると取得を終了します。\n取得可能商品数はこちらです：" +
-      args_list["limit"] +
+      args_list["crawl_limit"] +
       "\n取得ショップ：" +
       args_list["crawler_or_spidercls"]
   );

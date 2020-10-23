@@ -28,12 +28,24 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-6">
+      <div class="col-sm-8">
         <button id="select-dir">保存フォルダを開く</button>
         <button onclick=gethelp('open_dir')>？</button>
-        <a id="selected-folder">
-          <font color="red">フォルダが選択されていません</font>
-        </a>
+        <input 
+          placeholder="フォルダが選択されていません"
+          type="text" 
+          id="data_dir" 
+          size=80 
+          value=""
+          >
+      </div>
+      <div class="col-sm-2">
+        <span>ユーザーID：</span>
+        <a id="user_id"></a>
+      </div>
+      <div class="col-sm-2">
+        <span>取得上限：</span>
+        <a id="crawl_limit"></a>
       </div>
     </div>
 
