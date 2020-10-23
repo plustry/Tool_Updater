@@ -32,19 +32,13 @@ window.addEventListener(
 );
 
 // 動的に作成したボタンから呼び出してCSV読みこみ
-global.csv_name = "";
 function load_csv(obj) {
-  csv_file_name = obj.options[obj.selectedIndex].value;
-  ipcRenderer.send("load-csv", path.join(global.directory_name, csv_file_name));
-  global.csv_name = csv_file_name;
-}
-
-// 全てリセット
-function reset_all() {
-  document.getElementById("selected-folder").innerHTML =
-    "フォルダが選択されていません";
-  document.getElementById("text-data").innerHTML = "";
-  document.getElementById("csv-list").innerHTML = "";
+  // CSVファイル名を反映
+  var csv_file_name = obj.options[obj.selectedIndex].value;
+  document.getElementById("csv_name").value = csv_file_name;
+  // CSVを読み込む
+  var csv_file_path = path.join(document.getElementById("buyma_account_dir").value, csv_file_name)
+  ipcRenderer.send("load-csv", csv_file_path);
 }
 
 // ページ遷移
@@ -74,8 +68,8 @@ ChangeToImagerBtn.addEventListener("click", (event) => {
 // アカウントディレクトリ新規作成
 const makeDirBtn = document.getElementById("make-account-dir");
 makeDirBtn.addEventListener("click", (event) => {
-  var user_dir = document.getElementById("user-dir").value;
-  if (!/^[A-Za-z0-9]+$/.test(user_dir)) {
+  var account_name = document.getElementById("account_name").value;
+  if (!/^[A-Za-z0-9]+$/.test(account_name)) {
     ipcRenderer.send(
       "cause-error",
       "入力エラー",
@@ -83,11 +77,11 @@ makeDirBtn.addEventListener("click", (event) => {
     );
     return;
   }
-  ipcRenderer.send("make-account-dir", user_dir);
+  ipcRenderer.send("make-account-dir", account_name);
 });
 
 // フォルダ選択画面を呼び出し
-const selectDirBtn = document.getElementById("select-dir");
+const selectDirBtn = document.getElementById("choice_dir");
 selectDirBtn.addEventListener("click", (event) => {
   ipcRenderer.send("open-file-exhibition");
 });
@@ -108,7 +102,10 @@ StartBtn.addEventListener("click", (event) => {
     return;
   }
 
+  // チェック
   let cookie = document.getElementById("cookie").value;
+  let buyma_account_dir = document.getElementById("buyma_account_dir").value
+  let csv_name = document.getElementById("csv_name").value
   if (
     cookie.indexOf("kaiin_id%22%3A") === -1 ||
     cookie.indexOf("%2C%22nickname") === -1 ||
@@ -120,11 +117,17 @@ StartBtn.addEventListener("click", (event) => {
       "アクセスコードが正しくありません\n以下を参考にしてください。\nhttps://docs.google.com/document/d/1wT88HLOaG2011eJn0V5u6gnzYjqLiTcRv6f7xHvvngY/edit#heading=h.6gmd5ogn4qo7"
     );
     return;
+  }else if (!buyma_account_dir) {
+    ipcRenderer.send("cause-error", "未設定項目", "アカウントフォルダを選択してください。");
+    return false;
+  }else if(!csv_name){
+    ipcRenderer.send("cause-error", "未設定項目", "CSVを選択してください。");
+    return false;
   }
-  // var mail = document.getElementById('mail').value
+  
   var args_list = {
-    dir_path: global.directory_name,
-    csv_name: global.csv_name,
+    buyma_account_dir: buyma_account_dir,
+    csv_name: csv_name,
   };
 
   // edit_nameからは既に同じ名前でDBから取得できているので、キーを使い回して取得します
@@ -141,10 +144,7 @@ StartBtn.addEventListener("click", (event) => {
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  global.directory_name = path;
-  document.getElementById(
-    "selected-folder"
-  ).innerHTML = `You selected: ${path}`;
+  document.getElementById("buyma_account_dir").value = path;
 });
 
 // 選択したディレクトリに保存されたアクセスコードを表示
@@ -154,7 +154,6 @@ ipcRenderer.on("update-accesscode", (event, code) => {
 
 // 選択したcsvをボタンで表示
 ipcRenderer.on("selected-csv", (event, fileList) => {
-  // console.log(fileList)
   // 選択したディレクトリからcsvだけピックアップしてボタンの作成
   var button_text =
     "<select onchange=load_csv(this)><option value=-1>フォルダを選択してください</option>";
@@ -165,7 +164,7 @@ ipcRenderer.on("selected-csv", (event, fileList) => {
     // text_data += "<button onclick=load_csv('" + fileList[index] + "')>" + fileList[index] + "</button>"
   }
   button_text += "</select>";
-  document.getElementById("csv-list").innerHTML = button_text;
+  document.getElementById("csv_name").innerHTML = button_text;
 });
 
 // csvファイルの内容を表示
@@ -189,9 +188,8 @@ function AutoAdjust() {
 
 // ヘルプ項目
 var txt1 = {
-  new_dir: "アカウントフォルダ新規作成",
+  account_name: "アカウントフォルダ新規作成",
   choice_dir: "アカウントフォルダを開く",
-  reset: "リセット",
   day_score: "重複検査",
   hour_score: "重複検査",
   url_memo: "買い付け先メモ",
@@ -203,11 +201,10 @@ var txt1 = {
 };
 
 var txt2 = {
-  new_dir:
-    "新しいアカウントディレクトリを作成する場合、アカウント名を入力して、ボタンを押してください。\nデスクトップにBUYMAディレクトリが作成され、その中のaccountディレクトリ内に新しく作成されます。",
+  account_name:
+    "新しいアカウントディレクトリを作成する場合、アカウント名を【半角英数字のみ】で入力して、ボタンを押してください。\nデスクトップにBUYMAディレクトリが作成され、その中のaccountディレクトリ内に新しく作成されます。",
   choice_dir:
     "出品するアカウントのディレクトリを選択します。\n事前にdataディレクトリからcsvと画像データを移動しておいてください。",
-  reset: "開いたディレクトリや表示したCSVをリセットできます。",
   day_score:
     "過去の出品との重複を検知します。\n指定した日付以降に出品されていた場合スキップされます。",
   hour_score:

@@ -1293,11 +1293,11 @@ ipcMain.on("start-exhibition", (event, args_list) => {
   args_list = JSON.parse(args_list);
   args_list["electron_dir"] = __dirname;
   cookie = args_list["cookie"];
-  dir_path = args_list["dir_path"];
+  buyma_account_dir = args_list["buyma_account_dir"];
 
   // アクセスコードのバックアップ
   fs.writeFile(
-    path.join(dir_path, "access_code.backup"),
+    path.join(buyma_account_dir, "access_code.backup"),
     cookie,
     (err, data) => {
       if (err) event.sender.send("log-create", err);

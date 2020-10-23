@@ -26,22 +26,24 @@
 
     <div class="row">
       <div class="col-sm-12">
-        <input type="text" id="user-dir" placeholder="アカウント名を入力" size="30" maxlength="100">
+        <input type="text" id="account_name" placeholder="アカウント名を入力" size="30" maxlength="100">
         <button id="make-account-dir">アカウントフォルダ新規作成</button>
-        <button onclick=gethelp('new_dir')>？</button>
+        <button onclick=gethelp('account_name')>？</button>
       </div>
     </div>
 
     <div class="row">
       <div class="col-sm-12">
-        <button id="select-dir">アカウントフォルダを開く</button>
+        <button id="choice_dir">アカウントフォルダを開く</button>
         <button onclick=gethelp('choice_dir')>？</button>
-        <button onclick=reset_all()>リセット</button>
-        <button onclick=gethelp('reset')>？</button>
-        <a id="selected-folder">
-          <font color="red">フォルダが選択されていません</font>
-        </a>
-        <a id="csv-list">
+        <input 
+          placeholder="フォルダが選択されていません"
+          type="text" 
+          id="buyma_account_dir" 
+          size=60 
+          value=""
+          >
+        <a id="csv_name">
           <font color="red">CSVファイルが選択されていません</font>
         </a>
       </div>
