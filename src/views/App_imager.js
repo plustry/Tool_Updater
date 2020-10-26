@@ -27,7 +27,6 @@ global.args_list = "";
 global.choiced_category = "";
 global.image_conf = "";
 global.spider_name = "";
-global.directory_name = "";
 global.choiced_dir = "";
 // デフォルトフォルダを読み込む
 ipcRenderer.send("init-imager");
@@ -90,11 +89,7 @@ ipcRenderer.on("selected-bg", (event, path) => {
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  console.log(choiced_category);
-  directory_name = path;
-  document.getElementById(
-    "selected-folder"
-  ).innerHTML = `You selected: ${path}`;
+  document.getElementById("data_dir").value = path;
 });
 
 // 選択されたディレクトリ内のフォルダをボタンにして表示
@@ -341,9 +336,8 @@ MainStartBtn.addEventListener("click", (event) => {
   }
 
   var args_list = {
-    master_dir: directory_name,
     choiced_dir: choiced_dir,
-    scriptPath: __dirname,
+    data_dir: document.getElementById("data_dir").value,
     email: document.getElementById("email").value,
     password: document.getElementById("password").value,
     img_category: document.getElementById("img_category").value,

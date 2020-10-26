@@ -24,7 +24,6 @@ window.addEventListener('contextmenu', (e) => {
 global.keys_list = process.env.base_conf_list.split(",");
 global.args_list = "";
 global.base_conf = "";
-global.directory_name = "";
 global.choiced_dirfile = "";
 // デフォルトフォルダを読み込む
 ipcRenderer.send("init-base");
@@ -53,12 +52,9 @@ selectDirBtn.addEventListener("click", (event) => {
   ipcRenderer.send("open-file-imager");
 });
 
-// 選択したBUYMA/dataを表示
+// 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  directory_name = path;
-  document.getElementById(
-    "selected-folder"
-  ).innerHTML = `You selected: ${path}`;
+  document.getElementById("data_dir").value = path;
 });
 
 // 選択されたディレクトリ内のフォルダをボタンにして表示
@@ -93,10 +89,18 @@ ipcRenderer.on("load-base-conf", (event, dic_list) => {
 // ログ画面
 ipcRenderer.on("log-create", (event, log_text) => {
   document.getElementById("logs").innerHTML += "<p>[log]: " + log_text + "</p>";
-  document.getElementById("footer").scrollTop = document.getElementById(
-    "footer"
+  document.getElementById("logs").scrollTop = document.getElementById(
+    "logs"
   ).scrollHeight;
 });
+
+// パッディング自動調整
+function AutoAdjust() {
+  var padding = document.getElementsByClassName("manager-logs")[0];
+  padding.style.paddingTop = document.getElementsByTagName(
+    "header"
+  )[0].offsetHeight;
+}
 
 // ディレクトリを選択した時にパラメータを反映
 function choiceDirFile(obj) {
@@ -128,8 +132,8 @@ MainStartBtn.addEventListener("click", (event) => {
   }
 
   var args_list = {
-    master_dir: directory_name,
     choiced_dirfile: choiced_dirfile,
+    data_dir: document.getElementById("data_dir").value,
     email: document.getElementById("email").value,
     password: document.getElementById("password").value,
     onoff: document.getElementById("onoff").value,
@@ -161,3 +165,5 @@ var txt2 = {
   edit_mode:
     "■テスト編集の場合：選択したフォルダの画像を3つだけ編集して画像の出来具合を確かめることができます。\n\n■全て編集の場合：選択したフォルダにある画像を全て編集します。\n\n■メイン画像の透過の場合：image000.pngを透過した画像をimage000_edit.pngという名前で保存します。\nimage000_edit.pngがある場合、その画像が一番前面にくる画像として使われるので、背景透過を綺麗にしたい場合は、ご自分の使い慣れている画像編集ソフトで背景を綺麗に透過させてご使用ください。",
 };
+
+AutoAdjust();

@@ -32,23 +32,9 @@ window.addEventListener(
 // 設定項目をすべて満たしているかどうか
 global.checker = false;
 global.login = false;
-global.scraping_conf = "";
 
 // デフォルトフォルダを読み込む
 ipcRenderer.send("init-stockcheck");
-
-// 設定データがあれば読み込み
-ipcRenderer.on("load-scraping-conf", (event, dic_list) => {
-  // console.log(dic_list)
-  scraping_conf = JSON.parse(dic_list);
-  var email = scraping_conf["login"]["email"];
-  var password = scraping_conf["login"]["password"];
-  if (!login && email && password) {
-    document.getElementById("email").value = email;
-    document.getElementById("password").value = password;
-    ipcRenderer.send("sql-login", email, password, "stockcheck");
-  }
-});
 
 // ページ遷移
 const ChangeToExhibitionBtn = document.getElementById("exhibition");
@@ -89,6 +75,19 @@ ipcRenderer.on("selected-directory", (event, path) => {
   document.getElementById("buyma_dir").value = path;
 });
 
+// 設定データがあれば読み込み
+ipcRenderer.on("load-scraping-conf", (event, dic_list) => {
+  // console.log(dic_list)
+  var scraping_conf = JSON.parse(dic_list);
+  var email = scraping_conf["login"]["email"];
+  var password = scraping_conf["login"]["password"];
+  if (!login && email && password) {
+    document.getElementById("email").value = email;
+    document.getElementById("password").value = password;
+    ipcRenderer.send("sql-login", email, password, "stockcheck");
+  }
+});
+
 // SQL認証
 const SqlLoginBtn = document.getElementById("sql-login");
 SqlLoginBtn.addEventListener("click", (event) => {
@@ -102,23 +101,17 @@ ipcRenderer.on("load-login-data", (event, arg_json) => {
   // ログイン成功
   login = true;
   arg_json = JSON.parse(arg_json);
-
-  // load_shopやstart-scrapyで使用するためグローバル関数にする
-  global.user_shop_dict = arg_json["user_shop_dict"];
-  global.crawl_limit = arg_json["crawl_limit"];
-  global.user_id = arg_json["user_id"];
+  var user_shop_dict = arg_json["user_shop_dict"];
   // console.log(user_shop_dict)
 
   // ユーザーの登録しているショップ情報を取得して、ドロップダウンをページに反映
-  button_list =
-    "<select onchange=load_shop(this)><option value=-1>ショップを選択してください</option>";
+  button_list = "<select onchange=load_shop(this)><option value=-1>ショップを選択してください</option>";
   keys_list = Object.keys(user_shop_dict);
   for (let i = 0; i < keys_list.length; i++) {
     spider_name = keys_list[i];
     shop_name = user_shop_dict[spider_name]["shop"];
     console.log(spider_name, shop_name);
-    button_list +=
-      "<option value=" + spider_name + ">" + shop_name + "</option>";
+    button_list += "<option value=" + spider_name + ">" + shop_name + "</option>";
   }
   button_list += "</select>";
 
@@ -169,14 +162,10 @@ StartBtn.addEventListener("click", (event) => {
   if (!start_check()) {
     return;
   }
-
   // crawler_or_spiderclsはpipelineでなくなってしまう
   var args_list = {
     crawler_or_spidercls: crawler_or_spidercls,
-    spider_name: crawler_or_spidercls,
-    user_id: user_id,
-    limit: crawl_limit,
-    data_dir_path: path.join(
+    data_dir: path.join(
       document.getElementById("buyma_dir").value,
       "data"
     ),
@@ -214,21 +203,17 @@ StartReflectBtn.addEventListener("click", (event) => {
 
 // ログ画面
 ipcRenderer.on("log-create", (event, log_text) => {
-  document.getElementById("logs").innerHTML +=
-    "<p>[log]: " + String(log_text) + "</p>";
-  document.getElementById("footer").scrollTop = document.getElementById(
-    "footer"
+  document.getElementById("logs").innerHTML += "<p>[log]: " + log_text + "</p>";
+  document.getElementById("logs").scrollTop = document.getElementById(
+    "logs"
   ).scrollHeight;
 });
 
-// 最後に動的にパッディングする
+// パッディング自動調整
 function AutoAdjust() {
-  var padding = document.getElementsByClassName("shop-setting")[0];
+  var padding = document.getElementsByClassName("manager-logs")[0];
   padding.style.paddingTop = document.getElementsByTagName(
     "header"
-  )[0].offsetHeight;
-  padding.style.paddingBottom = document.getElementsByTagName(
-    "footer"
   )[0].offsetHeight;
 }
 

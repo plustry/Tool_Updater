@@ -797,7 +797,7 @@ function WriteConf(event, args_list, which_conf) {
       );
     }
   } else if (which_conf === "scraper") {
-    spider_name = args_list["spider_name"];
+    spider_name = args_list["crawler_or_spidercls"];
   } else if (which_conf === "manager") {
     onoff = args_list["onoff"];
   }
