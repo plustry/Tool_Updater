@@ -73,14 +73,22 @@ selectDirBtn.addEventListener("click", (event) => {
   ipcRenderer.send("open-file-scraper");
 });
 
-// ファイル選択呼び出し
-const selectLogoBtn = document.getElementById("select-url-lists");
-selectLogoBtn.addEventListener("click", (event) => {
+// URLリストCSVを選択
+const selectUrlList = document.getElementById("select-url-lists");
+selectUrlList.addEventListener("click", (event) => {
   ipcRenderer.send("open-file", "selected-url-lists");
 });
-// 選択されたファイルを適用
 ipcRenderer.on("selected-url-lists", (event, path) => {
   document.getElementById("url_lists").value = path;
+});
+
+// 過去URLリストCSVを選択
+const selectOldUrlList = document.getElementById("select-old-url-lists");
+selectOldUrlList.addEventListener("click", (event) => {
+  ipcRenderer.send("open-file", "selected-old-url-lists");
+});
+ipcRenderer.on("selected-old-url-lists", (event, path) => {
+  document.getElementById("old_url_lists").value = path;
 });
 
 // 選択したディレクトリを表示
@@ -166,7 +174,12 @@ function start_check() {
     return false;
   }
 
-  must_list = ["csv_prm"];
+  // 必須項目
+  must_list = [
+    "csv_prm",
+    "buyplace",
+    "sendplace"
+  ];
   for (var i = 0; i < must_list.length; i++) {
     if (document.getElementById(must_list[i]).value == "") {
       ipcRenderer.send(
@@ -177,6 +190,18 @@ function start_check() {
       return false;
     }
   }
+
+  // csv_prmの形式チェック
+  if (!/^[A-Za-z0-9_]+$/.test(document.getElementById("csv_prm").value)) {
+    ipcRenderer.send(
+      "cause-error",
+      "入力エラー",
+      "CSVパラメータは半角英数字プラス、アンダーバー（_）のみで入力してください"
+    );
+    return false;
+  }
+
+  // どちらか必須
   if (
     document.getElementById("start_urls").value == "" &&
     document.getElementById("url_lists").value == ""
@@ -188,16 +213,25 @@ function start_check() {
     );
     return false;
   }
-  let doc_data = document.getElementById("url_lists").value;
-  if (doc_data.indexOf("https:") !== -1 && doc_data !== "") {
-    ipcRenderer.send(
-      "cause-error",
-      "入力エラー",
-      "商品URLリストCSVが正しくありません。\nファイルを開くで選択してください。"
-    );
-    return false;
+
+  // csvのpathチェック
+  csv_path_list = [
+    "url_lists",
+    "old_url_lists",
+  ];
+  for (var i = 0; i < csv_path_list.length; i++) {
+    let data_value = document.getElementById(csv_path_list[i]).value;
+    if (data_value.indexOf("https:") !== -1 && data_value !== "") {
+      ipcRenderer.send(
+        "cause-error",
+        "入力エラー",
+        txt1[csv_path_list[i]] + "の選択形式が正しくありません。\nファイルを開くで選択してください。"
+      );
+      return false;
+    }
   }
 
+  // 数値リスト
   integer_list = [
     "delivery_price",
     "max_price",
@@ -221,28 +255,20 @@ function start_check() {
     }
   }
 
-  if (!/^[A-Za-z0-9_]+$/.test(document.getElementById("csv_prm").value)) {
-    ipcRenderer.send(
-      "cause-error",
-      "入力エラー",
-      "CSVパラメータは半角英数字プラス、アンダーバー（_）のみで入力してください"
-    );
-    return false;
-  }
-
-  let buyplace = document.getElementById("buyplace").value;
-  let sendplace = document.getElementById("sendplace").value;
-  if (!buyplace || !sendplace) {
-    console.log("buyplaceかsendplaceが未記入です");
-  } else {
-    buy_colon = buyplace.match(new RegExp(":", "g"));
-    send_colon = sendplace.match(new RegExp(":", "g"));
-    if (buy_colon && send_colon) {
-      if (buy_colon.length !== 3 || send_colon.length !== 3) {
+  // コロンチェック
+  colon_list = [
+    "buyplace",
+    "sendplace"
+  ]
+  for (var i = 0; i < colon_list.length; i++) {
+    let data_value = document.getElementById(colon_list[i]).value;
+    let colon = data_value.match(new RegExp(":", "g"));
+    if(colon){
+      if (colon.length !== 3) {
         ipcRenderer.send(
           "cause-error",
           "入力エラー",
-          "買い付け地、発送地にはコロン「:」が3つ必要です"
+          txt1[colon_list[i]] + "にはコロン「:」が3つ必要です"
         );
         return false;
       }
@@ -250,11 +276,13 @@ function start_check() {
       ipcRenderer.send(
         "cause-error",
         "入力エラー",
-        "買い付け地、発送地にはコロン「:」が3つ必要です"
+        txt1[colon_list[i]] + "にはコロン「:」が3つ必要です"
       );
       return false;
     }
   }
+
+  // 全てOK
   return true;
 }
 
@@ -273,6 +301,7 @@ StartBtn.addEventListener("click", (event) => {
     crawl_limit: document.getElementById("crawl_limit").innerHTML,
     data_dir: document.getElementById("data_dir").value,
     url_lists: document.getElementById("url_lists").value,
+    old_url_lists: document.getElementById("old_url_lists").value,
     start_urls: document.getElementById("start_urls").value,
     email: document.getElementById("email").value,
     password: document.getElementById("password").value,
@@ -326,6 +355,7 @@ var txt1 = {
   max_page: "MAX取得ページ数",
   start_urls: "開始URL",
   url_lists: "商品リストCSV",
+  old_url_lists: "過去取得URLリストCSV",
   csv_prm: "CSVパラメータ",
   sex: "性別",
   nobrand: "ノーブランドの取得有無",
@@ -354,13 +384,14 @@ var txt1 = {
 };
 
 var txt2 = {
-  open_dir: "dataフォルダを選択してください。(BUYMA/data)",
+  open_dir: "dataフォルダを選択してください。(/Users/****/Desktop/BUYMA/data)",
   max_page:
     "開始URLから何ページ分商品を取得するかをここで制限することができます。\n0にした場合、最後のページまで取得します。",
   start_urls:
     "ショップの商品一覧ページで、取得を開始したい最初のページURLです。",
   url_lists:
-    "取得したい商品URLリストを指定することで、指定のURLのみ取得することが可能です。\n設定した場合は開始URLよりも優先されます。",
+    "取得したい商品のurl_listを記載したCSVファイルを指定することで、指定のURLのみ取得することが可能です。\n設定した場合は開始URLよりも優先されます。",
+  old_url_lists: "過去に取得した商品のurl_listを記載したCSVファイルを指定することで、その商品をスキップして取得を進めます。",
   csv_prm:
     "取得した商品がCSVで出力されるので、その際にわかりやすいようにここで名前をつけることができます。\n例えば「farfetch」というショップで「2020/02/28」に取得した場合、こちらの項目に「shoes」と入力すると、「farfetch_shoes_20200228.csv」というCSVファイルが出力されます。",
   sex: "BUYMAに出品する際の性別",

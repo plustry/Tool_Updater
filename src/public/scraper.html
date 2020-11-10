@@ -67,30 +67,14 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-5">
-        <input placeholder="開始URL" type="text" id="start_urls" size="50" maxlength="1000" value=''>
-        <button onclick=gethelp('start_urls')>？</button>
-      </div>
-      <div class="col-sm-5">
-        <input placeholder="取得ページ数" type="text" id="max_page" size="50" maxlength="30" value=0>
-        <button onclick=gethelp('max_page')>？</button>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-sm-5">
-        <input placeholder="商品リストCSV" type="text" id="url_lists" size="50" maxlength="1000" value=''>
-        <button onclick=gethelp('url_lists')>？</button>
-        <button id="select-url-lists">ファイルを開く</button>
-      </div>
-      <div class="col-sm-5">
+      <div class="col-sm-10">
         <a id="shop-list">ログイン中です！少々お待ちください</a>
         <a id="start-status">
           <font color="red">ショップが選択されていません</font>
         </a>
       </div>
       <div class="col-sm-2">
-        <input type="submit" id="start-scrapy" value="スクレイピング開始">
+        <input type="submit" id="start-scrapy" color="pink" value="スクレイピング開始">
       </div>
     </div>
 
@@ -98,6 +82,36 @@
 
   <div class="shop-setting" style="white-space:nowrap;">
     <table border="0">
+      <tr bgcolor="lightyellow">
+        <td align="right"><b>開始URL(例: https://www.gucci.com/)：</b></td>
+        <td>
+          <input type="text" id="start_urls" size="50" maxlength="1000" value="">
+          <button onclick=gethelp('start_urls')>？</button>
+        </td>
+      </tr>
+      <tr bgcolor="lightyellow">
+        <td align="right"><b>商品リストCSV(例: /Users/***/Desktop/BUYMA/...)：</b></td>
+        <td>
+          <input type="text" id="url_lists" size="50" maxlength="1000" value="">
+          <button onclick=gethelp('url_lists')>？</button>
+          <button id="select-url-lists">ファイルを開く</button>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"><b>過去取得URLリストCSV(例: /Users/***/Desktop/BUYMA/...)：</b></td>
+        <td>
+          <input type="text" id="old_url_lists" size="50" maxlength="1000" value="">
+          <button onclick=gethelp('old_url_lists')>？</button>
+          <button id="select-old-url-lists">ファイルを開く</button>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"><b>取得ページ数(例: 0)：</b></td>
+        <td>
+          <input type="text" id="max_page" size="50" maxlength="1000" value="">
+          <button onclick=gethelp('max_page')>？</button>
+        </td>
+      </tr>
       <tr>
         <td align="right"><b>CSV パラメータ(例: womens)：</b></td>
         <td>
