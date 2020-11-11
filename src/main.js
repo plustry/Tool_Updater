@@ -56,6 +56,7 @@ console.log(python_path);
 // win mac関係なく、BUYMAディレクトリのPATHが取れる
 dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 dir_buyma = path.join(dir_home, "Desktop", "BUYMA");
+dir_account = path.join(dir_buyma, "account")
 dir_data = path.join(dir_buyma, "data");
 dir_image_conf = path.join(dir_buyma, "conf", "image.conf");
 dir_manager_conf = path.join(dir_buyma, "conf", "manager.conf");
@@ -1092,9 +1093,9 @@ ipcMain.on("start-scrapy", (event, args_list) => {
 // 開いた時にデスクトップにBUYMAフォルダがあれば展開
 ipcMain.on("init-manager", (event) => {
   try {
-    fs.statSync(dir_buyma);
+    fs.statSync(dir_account);
     console.log("デフォルトフォルダが存在したので開きます。");
-    event.sender.send("selected-directory", dir_buyma);
+    event.sender.send("selected-directory", dir_account);
   } catch (error) {
     console.log(error);
   }
