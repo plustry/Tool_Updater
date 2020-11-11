@@ -51,14 +51,14 @@ ChangeToImagerBtn.addEventListener("click", (event) => {
 });
 
 // フォルダ選択画面を呼び出し
-const selectDirBtn = document.getElementById("select-dir");
+const selectDirBtn = document.getElementById("select_account_dir");
 selectDirBtn.addEventListener("click", (event) => {
   ipcRenderer.send("open-file-manager");
 });
 
 // 選択したディレクトリを表示
 ipcRenderer.on("selected-directory", (event, path) => {
-  document.getElementById("buyma_dir").value = path;
+  document.getElementById("account_dir").value = path;
 });
 
 // Manager開始
@@ -80,8 +80,7 @@ StartBtn.addEventListener("click", (event) => {
     onoff: document.getElementById("onoff").set2.value,
     days: document.getElementById("days").value,
     buyma_account: document.getElementById("buyma_account").value,
-    // buyma_account_dir: global.directory_name,
-    buyma_dir: document.getElementById("buyma_dir").value,
+    account_dir: document.getElementById("account_dir").value,
     access_prm: document.getElementById("access_prm").value,
     want_prm: document.getElementById("want_prm").value,
     cart_prm: document.getElementById("cart_prm").value,
@@ -144,7 +143,7 @@ function load_conf(key) {
 
 // ヘルプ項目
 var txt1 = {
-  open_dir: "BUYMAアカウントフォルダ",
+  select_account_dir: "BUYMAアカウントフォルダ",
   page_choice: "ページ選択",
   onoff: "モード設定",
   buyma_account: "BUYMA アカウント名",
@@ -158,7 +157,7 @@ var txt1 = {
 };
 
 var txt2 = {
-  open_dir: "BUYMAアカウントフォルダを選択してください。(BUYMA/account)",
+  select_account_dir: "BUYMAアカウントフォルダを選択してください。(BUYMA/account)",
   page_choice: "Managerを適用するページを選択してください。",
   onoff: "商品情報をどのように変更するかを選択してください。",
   buyma_account:
