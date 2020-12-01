@@ -32,6 +32,7 @@ window.addEventListener(
 // 設定項目をすべて満たしているかどうか
 global.checker = false;
 global.login = false;
+global.scraping_conf = "";
 
 // デフォルトフォルダを読み込む
 ipcRenderer.send("init-stockcheck");
@@ -78,7 +79,7 @@ ipcRenderer.on("selected-directory", (event, path) => {
 // 設定データがあれば読み込み
 ipcRenderer.on("load-scraping-conf", (event, dic_list) => {
   // console.log(dic_list)
-  var scraping_conf = JSON.parse(dic_list);
+  scraping_conf = JSON.parse(dic_list);
   var email = scraping_conf["login"]["email"];
   var password = scraping_conf["login"]["password"];
   if (!login && email && password) {
@@ -110,7 +111,6 @@ ipcRenderer.on("load-login-data", (event, arg_json) => {
   for (let i = 0; i < keys_list.length; i++) {
     spider_name = keys_list[i];
     shop_name = user_shop_dict[spider_name]["shop"];
-    console.log(spider_name, shop_name);
     button_list += "<option value=" + spider_name + ">" + shop_name + "</option>";
   }
   button_list += "</select>";
@@ -129,6 +129,28 @@ ipcRenderer.on("load-login-data", (event, arg_json) => {
 function load_shop(obj) {
   global.crawler_or_spidercls = obj.options[obj.selectedIndex].value;
   console.log(crawler_or_spidercls);
+  // ショップが選択されていない場合はreturn
+  if (crawler_or_spidercls == -1) {
+    return;
+  }
+  // spiderのconfデータを取得
+  var spider_data = "";
+  if (scraping_conf) {
+    var spider_data = scraping_conf[crawler_or_spidercls];
+  }
+  // GUIにconfデータを反映
+  if (spider_data) {
+    keys_list = Object.keys(spider_data);
+    for (let i = 0; i < keys_list.length; i++) {
+      let key = keys_list[i];
+      try {
+        document.getElementById(key).value = spider_data[key];
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+
   document.getElementById("start-status").innerHTML =
     '<a id="start-status"><font color="green">設定が完了しました。(' +
     crawler_or_spidercls +
@@ -169,6 +191,7 @@ StartBtn.addEventListener("click", (event) => {
       document.getElementById("buyma_dir").value,
       "data"
     ),
+    switch: document.getElementById("switch").value,
     csv_path: document.getElementById("csv_path").value,
     email: document.getElementById("email").value,
     password: document.getElementById("password").value,
@@ -183,7 +206,7 @@ StartBtn.addEventListener("click", (event) => {
   );
   ipcRenderer.send("start-stockcheck", JSON.stringify(args_list));
 });
-
+ 
 // 在庫反映開始
 const StartReflectBtn = document.getElementById("start-stock-reflect");
 StartReflectBtn.addEventListener("click", (event) => {

@@ -1017,6 +1017,7 @@ ipcMain.on("sql-login", (event, email, password, value) => {
 
   pyshell.on("message", function (message) {
     message = toString(message);
+    console.log(message)
     // ログイン情報を保存
     if (message == "False") {
       event.sender.send("log-create", "認証に失敗しました");
@@ -1218,8 +1219,26 @@ ipcMain.on("make-account-dir", (event, user_name) => {
             makeDir(path.join(buyma_dir, "img_content")).then((dir) => {
               console.log(dir);
               makeDir(path.join(dir, "background"));
-              makeDir(path.join(dir, "effect"));
-              makeDir(path.join(dir, "frame"));
+              makeDir(path.join(dir, "effect")).then((dir) => {
+                var image = path.join(__dirname, "img", "effect.png")
+                fs.copyFile(image, path.join(dir, "effect.png"), (err) => {
+                  if (err) {
+                    throw err;
+                  } else {
+                    console.log('ファイルをコピーしました。');
+                  }
+                });
+              })
+              makeDir(path.join(dir, "frame")).then((dir) => {
+                var image = path.join(__dirname, "img", "frame.png")
+                fs.copyFile(image, path.join(dir, "frame.png"), (err) => {
+                  if (err) {
+                    throw err;
+                  } else {
+                    console.log('ファイルをコピーしました。');
+                  }
+                });
+              })
               makeDir(path.join(dir, "logo"));
             });
 
