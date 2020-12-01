@@ -45,7 +45,7 @@ ipcRenderer.on("load-scraping-conf", (event, dic_list) => {
   if (!login && email && password) {
     document.getElementById("email").value = email;
     document.getElementById("password").value = password;
-    ipcRenderer.send("sql-login", email, password, "scraper");
+    ipcRenderer.send("sql-login", email, password, "scraping");
   }
 });
 
@@ -101,7 +101,7 @@ const SqlLoginBtn = document.getElementById("sql-login");
 SqlLoginBtn.addEventListener("submit", (event) => {
   var email = document.getElementById("email").value;
   var password = document.getElementById("password").value;
-  ipcRenderer.send("sql-login", email, password, "scraper");
+  ipcRenderer.send("sql-login", email, password, "scraping");
 });
 
 // login情報を元に画面編集
