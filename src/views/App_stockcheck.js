@@ -66,6 +66,7 @@ const selectLogoBtn = document.getElementById("select-url-lists");
 selectLogoBtn.addEventListener("click", (event) => {
   ipcRenderer.send("open-file", "selected-url-lists");
 });
+
 // 選択されたファイルを適用
 ipcRenderer.on("selected-url-lists", (event, path) => {
   document.getElementById("csv_path").value = path;
@@ -177,7 +178,29 @@ function start_check() {
   return true;
 }
 
-// スクレイピング開始
+// 最新出品リスト作成
+const StartCreateBtn = document.getElementById("start-create-list");
+StartCreateBtn.addEventListener("click", (event) => {
+  // 入力チェック
+  if (!start_check()) {
+    return;
+  }
+
+  // crawler_or_spiderclsはpipelineでなくなってしまう
+  var args_list = {
+    csv_path: document.getElementById("csv_path").value,
+  };
+  ipcRenderer.send(
+    "show-info",
+    "最新出品リスト作成開始",
+    "最新出品リストの作成を開始しました",
+    "アプリを閉じると取得を終了します。"
+  );
+  ipcRenderer.send("start-create-list", JSON.stringify(args_list));
+});
+
+
+// 在庫確認開始
 const StartBtn = document.getElementById("start-stockcheck");
 StartBtn.addEventListener("click", (event) => {
   // 入力チェック

@@ -11,11 +11,15 @@ const {
 } = require("electron");
 const fs = require("fs");
 const async = require("async");
+const dateformat = require('dateformat');
+const now = new Date();
+const today = dateformat(now, 'yyyymmddHHMM')
 const path = require("path");
 const getDirName = require("path").dirname;
 const request = require("request");
 const unzip = require("node-unzip-2");
 const csvSync = require("csv-parse/lib/sync");
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const makeDir = require("make-dir");
 const { PythonShell } = require("python-shell");
 const Encoding = require("encoding-japanese");
@@ -58,6 +62,7 @@ dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 dir_buyma = path.join(dir_home, "Desktop", "BUYMA");
 dir_account = path.join(dir_buyma, "account")
 dir_data = path.join(dir_buyma, "data");
+dir_syuppin = path.join(dir_buyma, "syuppin");
 dir_image_conf = path.join(dir_buyma, "conf", "image.conf");
 dir_manager_conf = path.join(dir_buyma, "conf", "manager.conf");
 dir_scraping_conf = path.join(dir_buyma, "conf", "scraping.conf");
@@ -872,6 +877,156 @@ ipcMain.on("init-stockcheck", (event) => {
   // パラメータが存在すれば読み込む
   LoadConf(event, "scraper");
 });
+
+
+// 在庫確認開始
+ipcMain.on("start-create-list", (event, args_list) => {
+  // 認証チェック
+  if (scraper_key !== "one time login key ***scraper***") {
+    event.sender.send("log-create", "認証が完了していません。");
+    return;
+  }
+  args_list = JSON.parse(args_list);
+  var csv_path = args_list["csv_path"]
+  event.sender.send("log-create", csv_path);
+  readDictCSV(csv_path).then(csv_data => {
+    // 出品中のitem_idのリスト
+    var item_id_list = []
+    csv_data.forEach(x => {
+      item_id_list.push(x["item_id"])
+    })
+    console.log(item_id_list)
+    // syuppinフォルダの中のcsvリストを取得
+    getDirCsvList(dir_syuppin).then(async dirfile_csv_list => {
+      // 新しい出品リスト
+      var new_syuppin_list = []
+      // 同期処理！！
+      await Promise.all(
+        dirfile_csv_list.map(async csv_name => {
+          // csvを読み込んでデータを作成
+          var data = await readDictCSV(path.join(dir_syuppin, csv_name))
+          data.forEach(x => {
+            if(item_id_list.indexOf(x["item_id"]) !== -1){
+              // CSVを出力用に整える
+              if(x["after_size"]){
+                x["size"] = x["after_size"]
+              }else if(x["before_price"]){
+                x["size"] = x["before_price"]
+              }
+              if(x["after_sell_price"]){
+                x["item_sell_price"] = x["after_sell_price"]
+              }else if(x["before_sell_price"]){
+                x["item_sell_price"] = x["before_sell_price"]
+              }
+              new_syuppin_list.push(x)
+            }
+          })
+        })
+      )
+      var spider_dict = {}
+      // urlのドメインで分割
+      await Promise.all(
+        new_syuppin_list.map(async data => {
+          var spider = data["item_url"]
+          spider = spider.substring(spider.indexOf("//") + 2)
+          spider = spider.substring(0, spider.indexOf("/"))
+          spider = spider.substring(0, spider.lastIndexOf("."))
+          spider = spider.substring(spider.lastIndexOf(".") + 1)
+          if(Object.keys(spider_dict).indexOf(spider) === -1){
+            spider_dict[spider] = []
+            spider_dict[spider].push(data)
+          }else{
+            spider_dict[spider].push(data)
+          }
+        })
+      )
+      console.log(spider_dict)
+
+      var header = [
+        {id: 'item_img_folder', title: 'item_img_folder'},
+        {id: 'item_url', title: 'item_url'},
+        {id: 'size', title: 'size'},
+        {id: 'item_sell_price', title: 'item_sell_price'},
+        {id: 'item_stock', title: 'item_stock'},
+        {id: 'item_id', title: 'item_id'},
+        {id: 'kaiin_id', title: 'kaiin_id'},
+      ]
+      // spider毎に出力
+      Object.keys(spider_dict).forEach(key => {
+        var csv_path = path.join(dir_syuppin, key + "_" + today + ".csv")
+        createDictCSV(spider_dict[key], csv_path, header)
+      })
+      event.sender.send("log-create", "処理は全て終了しました");
+    })
+  })
+})
+
+
+// ファイル読み込み用
+function createDictCSV(data, output_path, header) {
+  // 準備
+  const csvWriter = createCsvWriter({
+    path: output_path,
+    header: header
+  });
+  // 書き込み
+  csvWriter.writeRecords(data)
+  .then(() => {
+    console.log('done');
+  });
+}
+
+// ファイル読み込み用
+function readDictCSV(path) {
+  // Customerを編集
+  return new Promise(function (resolve) {
+    fs.readFile(path, "utf-8", (err, data) => {
+      if (err) throw err;
+      let res = csvSync(data);
+      const res_data = readCSV(path);
+      // csvのheaderを取得
+      const header = res_data[0]
+      // res_data[0]を削除
+      res_data.shift()
+      // dictに変換
+      var csv_data = []
+      res_data.forEach(row =>{
+        var csv_raw = {}
+        for (var i = 0; i < header.length; i++) {
+          csv_raw[header[i]] = row[i]
+        }
+        csv_data.push(csv_raw)
+      })
+      resolve(csv_data)
+    });
+  })
+}
+
+function getDirCsvList(dir_syuppin) {
+  // Customerを編集
+  return new Promise(function (resolve) {
+    try {
+      fs.statSync(dir_syuppin);
+      console.log(dir_syuppin + "の中のフォルダを開きます。");
+      // ディレクトリ&ファイル選択ボタン
+      fs.readdir(dir_syuppin, function (err, list) {
+        if (err) {
+          console.log(err);
+        } else {
+          var dirfile_list = [];
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].indexOf(".csv") !== -1) {
+              dirfile_list.push(list[i]);
+            }
+          }
+          resolve(dirfile_list);
+        }
+      });
+    } catch (error) {
+      resolve(error);
+    }
+  })
+}
 
 // 在庫確認開始
 ipcMain.on("start-stockcheck", (event, args_list) => {
