@@ -895,7 +895,6 @@ ipcMain.on("start-create-list", (event, args_list) => {
     csv_data.forEach(x => {
       item_id_list.push(x["item_id"])
     })
-    console.log(item_id_list)
     // syuppinフォルダの中のcsvリストを取得
     getDirCsvList(dir_syuppin).then(async dirfile_csv_list => {
       // 新しい出品リスト
@@ -907,22 +906,22 @@ ipcMain.on("start-create-list", (event, args_list) => {
           var data = await readDictCSV(path.join(dir_syuppin, csv_name))
           data.forEach(x => {
             if(item_id_list.indexOf(x["item_id"]) !== -1){
-              // CSVを出力用に整える
+              // CSVを出力用に整える(stockのcsvを読み込んだ場合)
               if(x["after_size"]){
                 x["size"] = x["after_size"]
-              }else if(x["before_price"]){
-                x["size"] = x["before_price"]
+              }
+              if(x["after_price"]){
+                x["item_no_cur_price"] = x["after_price"]
               }
               if(x["after_sell_price"]){
                 x["item_sell_price"] = x["after_sell_price"]
-              }else if(x["before_sell_price"]){
-                x["item_sell_price"] = x["before_sell_price"]
               }
               new_syuppin_list.push(x)
             }
           })
         })
       )
+      // spider毎に出力
       var spider_dict = {}
       // urlのドメインで分割
       await Promise.all(
@@ -942,19 +941,50 @@ ipcMain.on("start-create-list", (event, args_list) => {
       )
       console.log(spider_dict)
 
-      var header = [
+      var csv_header = [
         {id: 'item_img_folder', title: 'item_img_folder'},
+        {id: 'item_name', title: 'item_name'},
+        {id: 'item_brand', title: 'item_brand'},
+        {id: 'item_model', title: 'item_model'},
+        {id: 'item_category', title: 'item_category'},
+        {id: 'item_comment', title: 'item_comment'},
+        {id: 'item_size_color', title: 'item_size_color'},
+        {id: 'item_deadline', title: 'item_deadline'},
         {id: 'item_url', title: 'item_url'},
+        {id: 'item_buyplace', title: 'item_buyplace'},
+        {id: 'item_shop', title: 'item_shop'},
+        {id: 'item_sendplace', title: 'item_sendplace'},
+        {id: 'color', title: 'color'},
         {id: 'size', title: 'size'},
+        {id: 'item_season', title: 'item_season'},
+        {id: 'item_tag', title: 'item_tag'},
+        {id: 'item_thema', title: 'item_thema'},
         {id: 'item_sell_price', title: 'item_sell_price'},
+        {id: 'item_pub_price', title: 'item_pub_price'},
+        {id: 'item_delivery', title: 'item_delivery'},
         {id: 'item_stock', title: 'item_stock'},
-        {id: 'item_id', title: 'item_id'},
+        {id: 'item_sku', title: 'item_sku'},
+        {id: 'item_duty', title: 'item_duty'},
+        {id: 'item_memo', title: 'item_memo'},
+        {id: 'item_price', title: 'item_price'},
+        {id: 'item_currency', title: 'item_currency'},
+        {id: 'item_no_cur_price', title: 'item_no_cur_price'},
+        {id: 'item_deli_price', title: 'item_deli_price'},
+        {id: 'item_vatoff', title: 'item_vatoff'},
+        {id: 'vip_late', title: 'vip_late'},
+        {id: 'duty', title: 'duty'},
+        {id: 'item_profit', title: 'item_profit'},
+        {id: 'item_keywords', title: 'item_keywords'},
+        {id: 'item_topic', title: 'item_topic'},
+        {id: 'item_image', title: 'item_image'},
         {id: 'kaiin_id', title: 'kaiin_id'},
+        {id: 'item_id', title: 'item_id'},
       ]
+
       // spider毎に出力
       Object.keys(spider_dict).forEach(key => {
         var csv_path = path.join(dir_syuppin, key + "_" + today + ".csv")
-        createDictCSV(spider_dict[key], csv_path, header)
+        createDictCSV(spider_dict[key], csv_path, csv_header)
       })
       event.sender.send("log-create", "処理は全て終了しました");
     })
@@ -963,11 +993,11 @@ ipcMain.on("start-create-list", (event, args_list) => {
 
 
 // ファイル読み込み用
-function createDictCSV(data, output_path, header) {
+function createDictCSV(data, output_path, csv_header) {
   // 準備
   const csvWriter = createCsvWriter({
     path: output_path,
-    header: header
+    header: csv_header
   });
   // 書き込み
   csvWriter.writeRecords(data)
