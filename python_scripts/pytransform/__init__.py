@@ -29,6 +29,7 @@ arch_table = (
     ('x86', ('i?86', )),
     ('x86_64', ('x64', 'x86_64', 'amd64', 'intel')),
     ('arm', ('armv5',)),
+    ('armv6', ('armv6l',)),
     ('armv7', ('armv7l',)),
     ('aarch32', ('aarch32',)),
     ('aarch64', ('aarch64', 'arm64'))
@@ -123,6 +124,8 @@ def get_expired_days():
 
 
 def get_hd_info(hdtype, size=256):
+    if hdtype not in range(HT_DOMAIN + 1):
+        raise RuntimeError('Invalid parameter hdtype: %s' % hdtype)
     t_buf = c_char * size
     buf = t_buf()
     if (_pytransform.get_hd_info(hdtype, buf, size) == -1):
@@ -132,6 +135,18 @@ def get_hd_info(hdtype, size=256):
 
 def show_hd_info():
     return _pytransform.show_hd_info()
+
+
+def assert_armored(*names):
+    prototype = PYFUNCTYPE(py_object, py_object)
+    dlfunc = prototype(('assert_armored', _pytransform))
+
+    def wrapper(func):
+        def wrap_execute(*args, **kwargs):
+            dlfunc(names)
+            return func(*args, **kwargs)
+        return wrap_execute
+    return wrapper
 
 
 def get_license_info():
@@ -153,8 +168,8 @@ def get_license_info():
         index += 1
 
     if rcode[index:].startswith('*FLAGS:'):
-        info['FLAGS'] = 1
         index += len('*FLAGS:') + 1
+        info['FLAGS'] = ord(rcode[index - 1])
 
     prev = None
     start = index
@@ -175,6 +190,10 @@ def get_license_info():
 
 def get_license_code():
     return get_license_info()['CODE']
+
+
+def get_user_data():
+    return get_license_info()['DATA']
 
 
 def _match_features(patterns, s):
@@ -257,7 +276,9 @@ def _load_library(path=None, is_runtime=0, platid=None, suffix=''):
     try:
         m = cdll.LoadLibrary(filename)
     except Exception as e:
-        raise PytransformError('Load %s failed:\n%s' % (filename, e))
+        if sys.flags.debug:
+            print('Load %s failed:\n%s' % (filename, e))
+        raise
 
     # Removed from v4.6.1
     # if plat == 'linux':
@@ -274,7 +295,7 @@ def _load_library(path=None, is_runtime=0, platid=None, suffix=''):
     m.set_option(4, c_char_p(not is_runtime))
 
     # Disable advanced mode if required
-    # m.set_option(5, c_char_p(1))
+    m.set_option(5, c_char_p(1))
 
     # Set suffix for private package
     if suffix:
@@ -290,11 +311,8 @@ def pyarmor_init(path=None, is_runtime=0, platid=None, suffix=''):
 
 
 def pyarmor_runtime(path=None, suffix=''):
-    try:
-        pyarmor_init(path, is_runtime=1, suffix=suffix)
-        init_runtime()
-    except Exception as e:
-        raise PytransformError(e)
+    pyarmor_init(path, is_runtime=1, suffix=suffix)
+    init_runtime()
 
 # ----------------------------------------------------------
 # End of pytransform
