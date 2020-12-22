@@ -153,7 +153,7 @@ function AutoUpdater(event) {
     console.log(new_version);
     // 保存されたファイルから現在のバージョンを確認
     let current_version = fs
-      .readFileSync(path.join(src_dir, "..", "..", "versions.html"), "utf-8")
+      .readFileSync(path.join(src_dir, "..", "versions.html"), "utf-8")
       .toString();
     console.log(current_version);
     var detail_txt = "";
