@@ -73,7 +73,7 @@ function MakeAccountDir(event, user_name) {
               ];
               for (let i = 0; i < txt_list.length; i++) {
                 var conf_path = path.join(dir, txt_list[i]);
-                if (!isExistFile(conf_path)) {
+                if (!common.isExistFile(conf_path)) {
                   fs.writeFile(conf_path, "", (err) => {
                     if (err) throw err;
                   });
@@ -88,7 +88,7 @@ function MakeAccountDir(event, user_name) {
                 var text_data =
                   "「カテゴリーコメント」\n【SAINT LAURENT】\nサンローランとしても知られるイブサンローランSASは\nイブサンローランと彼のパートナーである\nピエールベルジェによって設立された\nフランスの高級ファッションハウスです。";
                 var text_path = path.join(dir, "Saint Laurent.txt");
-                if (!isExistFile(text_path)) {
+                if (!common.isExistFile(text_path)) {
                   fs.writeFile(text_path, text_data, (err) => {
                     if (err) throw err;
                   });
@@ -143,7 +143,7 @@ function MakeAccountDir(event, user_name) {
                   ];
                   for (let i = 0; i < txt_list.length; i++) {
                     var temp_path = path.join(dir, txt_list[i]);
-                    if (!isExistFile(temp_path)) {
+                    if (!common.isExistFile(temp_path)) {
                       fs.writeFile(temp_path, " ", (err) => {
                         if (err) throw err;
                       });
@@ -254,7 +254,7 @@ function fcmkfile(file_path) {
   return new Promise((resolve) => {
     fs.mkdir(getDirName(file_path), { recursive: true }, (err) => {
       if (err) console.log(err);
-      if (!isExistFile(file_path)) {
+      if (!common.isExistFile(file_path)) {
         fs.writeFile(file_path, "", (err) => {
           if (err) console.log(err);
           resolve();
