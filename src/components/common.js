@@ -87,7 +87,7 @@ function IPCInitialize() {
 
   // 情報表示用
   ipcMain.on("show-info", (event, title, message, detail) => {
-    var options = {
+    let options = {
       type: "info",
       title: title,
       message: message,
