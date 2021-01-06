@@ -276,7 +276,6 @@ function StartStockReflect(event, args_list) {
   args_list["electron_dir"] = src_dir;
 
   // pyarmorを使用した場合distディレクトリにexhibition.pyが存在するのでoptionsで指定
-  console.log(options);
   let pyshell = common.PyShell("stock_reflect.py", args_list);
 
   pyshell.on("message", function (message) {
