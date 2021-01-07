@@ -191,7 +191,7 @@ function readDictCSV(path) {
   return new Promise(function (resolve) {
     fs.readFile(path, "utf-8", (err, data) => {
       if (err) throw err;
-      const res_data = readCSV(path);
+      const res_data = common.readCSV(path);
       // csvのheaderを取得
       const header = res_data[0]
       // res_data[0]を削除
