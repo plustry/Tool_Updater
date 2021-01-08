@@ -17,7 +17,6 @@ dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
 dir_buyma = path.join(dir_home, "Desktop", "BUYMA");
 dir_account = path.join(dir_buyma, "account")
 dir_data = path.join(dir_buyma, "data");
-dir_syuppin = path.join(dir_buyma, "syuppin");
 dir_image_conf = path.join(dir_buyma, "conf", "image.conf");
 dir_manager_conf = path.join(dir_buyma, "conf", "manager.conf");
 dir_scraping_conf = path.join(dir_buyma, "conf", "scraping.conf");

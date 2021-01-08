@@ -30,6 +30,10 @@ const common = require('./common.js')
 const now = new Date();
 const today = dateformat(now, 'yyyymmddHHMM')
 
+const dir_home = process.env[process.platform == "win32" ? "USERPROFILE" : "HOME"];
+const dir_buyma = path.join(dir_home, "Desktop", "BUYMA");
+const dir_syuppin = path.join(dir_buyma, "syuppin");
+
 global.scraper_key = "";
 
 function IPCInitialize() {
