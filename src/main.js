@@ -29,6 +29,9 @@ dir_manager_conf = path.join(dir_buyma, "conf", "manager.conf");
 dir_scraping_conf = path.join(dir_buyma, "conf", "scraping.conf");
 dir_base_conf = path.join(dir_buyma, "conf", "base.conf");
 
+// constants
+const os_info = process.platform;
+
 
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // ウィンドウ初期化処理
