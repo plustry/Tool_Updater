@@ -32,7 +32,6 @@ dir_base_conf = path.join(dir_buyma, "conf", "base.conf");
 // constants
 const os_info = process.platform;
 
-
 //■■■■■■■■■■■■■■■■■■■■■■■■■■
 // ウィンドウ初期化処理
 //■■■■■■■■■■■■■■■■■■■■■■■■■■

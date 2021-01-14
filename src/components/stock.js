@@ -73,12 +73,16 @@ function StartCreateList(event, args_list) {
   args_list = JSON.parse(args_list);
   var csv_path = args_list["csv_path"]
   event.sender.send("log-create", csv_path);
-  readDictCSV(csv_path).then(csv_data => {
+  readDictCSV(csv_path).then(async csv_data => {
     // 出品中のitem_idのリスト
     var item_id_list = []
-    csv_data.forEach(x => {
-      item_id_list.push(x["item_id"])
-    })
+    await Promise.all(
+      csv_data.map(async row => {
+        item_id_list.push(row["item_id"])
+      })
+    )
+    console.log(item_id_list)
+
     // syuppinフォルダの中のcsvリストを取得
     getDirCsvList(dir_syuppin).then(async dirfile_csv_list => {
       // 新しい出品リスト
@@ -86,25 +90,33 @@ function StartCreateList(event, args_list) {
       // 同期処理！！
       await Promise.all(
         dirfile_csv_list.map(async csv_name => {
+          console.log(csv_name)
           // csvを読み込んでデータを作成
           var data = await readDictCSV(path.join(dir_syuppin, csv_name))
-          data.forEach(x => {
-            if(item_id_list.indexOf(x["item_id"]) !== -1){
-              // CSVを出力用に整える(stockのcsvを読み込んだ場合)
-              if(x["after_size"]){
-                x["size"] = x["after_size"]
+          await Promise.all(
+            data.map(async x => {
+              if(item_id_list.indexOf(x["item_id"]) !== -1){
+                // CSVを出力用に整える(stockのcsvを読み込んだ場合)
+                if(x["after_size"]){
+                  x["size"] = x["after_size"]
+                }
+                if(x["after_price"]){
+                  x["item_no_cur_price"] = x["after_price"]
+                }
+                if(x["after_sell_price"]){
+                  x["item_sell_price"] = x["after_sell_price"]
+                }
+                new_syuppin_list.push(x)
               }
-              if(x["after_price"]){
-                x["item_no_cur_price"] = x["after_price"]
-              }
-              if(x["after_sell_price"]){
-                x["item_sell_price"] = x["after_sell_price"]
-              }
-              new_syuppin_list.push(x)
-            }
-          })
+            })
+          )
         })
       )
+      console.log(new_syuppin_list)
+      if(new_syuppin_list.length === 0){
+        event.sender.send("log-create", "syuppinフォルダにマッチする商品はありませんでした。");
+      }
+
       // spider毎に出力
       var spider_dict = {}
       // urlのドメインで分割
