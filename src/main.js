@@ -1,11 +1,11 @@
 // requires
 const {app, BrowserWindow, Menu, dialog, ipcMain} = require("electron");
-const fs = require("fs");
 const path = require("path");
 const src_dir = __dirname
 // requires components
-const request = require("request");
 const unzip = require("node-unzip-2");
+const request = require("request");
+const fs = require("fs");
 const ProgressBar = require("electron-progressbar");
 
 
