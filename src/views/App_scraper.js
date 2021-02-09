@@ -360,6 +360,7 @@ var txt1 = {
   sex: "性別",
   nobrand: "ノーブランドの取得有無",
   nocategory: "カテゴリ無しの取得有無",
+  translate_name: "商品名翻訳",
   no_ban_brand: "禁止ブランド解除",
   edit_name: "商品名の装飾",
   max_price: "最低価格",
@@ -397,6 +398,7 @@ var txt2 = {
   sex: "BUYMAに出品する際の性別",
   nobrand: "ノーブランド商品を「ON」にすると取得できるようになります。",
   nocategory: "カテゴリ無しの商品を「ON」にすると取得できるようになります。",
+  translate_name: "商品名翻訳を「ON」にすると商品名をgoogle翻訳して取得できるようになります。",
   no_ban_brand:
     "通常Monclerなどは出品禁止になっていますが、許可をもらうと出品できるようになります。\n標準ではMonclerは取得をスキップするので、解除したい場合はこちらで選択してください。",
   edit_name:
