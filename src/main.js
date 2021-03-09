@@ -107,7 +107,7 @@ function createWindow() {
   } else {
     dialog.showErrorBox(
       "BUYMAフォルダがDesktopに存在しないか、正しくありません。",
-      "こちらを参考にフォルダを作成してください。\nWindows：https://youtu.be/Dhyboyc3nbI?t=130\nMac：https://youtu.be/vw5tYmVHc9o?t=105"
+      "こちらを参考にフォルダを作成してください。\nWindows：https://youtu.be/Dhyboyc3nbI?t=130\nMac：https://youtu.be/vw5tYmVHc9o?t=105\n\nこちらのエラーは「One Drive」や「icloud」などクラウドサービスの中にデスクトップが置かれている場合にも表示されます。\nその場合はシステムは不安定になりますが、そのまま使える場合もございます。"
     );
   }
 
