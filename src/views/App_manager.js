@@ -158,18 +158,18 @@ var txt1 = {
 
 var txt2 = {
   select_account_dir: "BUYMAアカウントフォルダを選択してください。(BUYMA/account)",
-  page_choice: "Managerを適用するページを選択してください。",
+  page_choice: "BuyManagerを適用するページを選択してください。",
   onoff: "商品情報をどのように変更するかを選択してください。",
   buyma_account:
     "適用したいアカウント名のフォルダを指定できます。\n空の場合はすべてのアカウントに対して実行します。",
   days: "出品の期限を延長する場合、日数を記入してください。",
-  access_prm: "Managerのパラメーターに、設定した数×アクセス数を加えます。",
-  want_prm: "Managerのパラメーターに、設定した数×お気に入り登録数を加えます。",
+  access_prm: "BuyManagerのパラメーターに、設定した数×アクセス数を加えます。",
+  want_prm: "BuyManagerのパラメーターに、設定した数×お気に入り登録数を加えます。",
   cart_prm:
-    "Managerのパラメーターに、設定した数×カートに入れてる数を加えます。",
-  price_prm: "Managerのパラメーターに、価格÷設定した数を加えます。",
+    "BuyManagerのパラメーターに、設定した数×カートに入れてる数を加えます。",
+  price_prm: "BuyManagerのパラメーターに、価格÷設定した数を加えます。",
   maxprice_prm: "価格÷価格を割る数が大きくなる場合に、上限の閾値を設けます",
-  date_prm: "Managerのパラメーターに、経過日数÷設定した数を引きます。",
+  date_prm: "BuyManagerのパラメーターに、経過日数÷設定した数を引きます。",
 };
 // ヘルプボタン
 function gethelp(key) {
